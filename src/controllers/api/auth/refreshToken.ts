@@ -1,0 +1,98 @@
+import db from '@db/index';
+import { tokenBlacklist, user } from '@db/schemas';
+import { generateJwtToken, verifyRefreshToken } from '@lib/utils/auth/generateJwtToken';
+import { handleValidationError, logError } from '@lib/utils/error/errorHandler';
+import { omitPassword } from '@lib/utils/security/omitPassword';
+import { refreshTokenSchema } from '@schemas/auth.schema';
+import { eq } from 'drizzle-orm';
+import type { RequestHandler } from 'express';
+import jwt from 'jsonwebtoken';
+import { z } from 'zod';
+
+const refreshToken: RequestHandler = async (request, response) => {
+  try {
+    // Validate request body with Zod
+    const { refreshToken: token } = await refreshTokenSchema.parseAsync(request.body);
+
+    // Check if refresh token is blacklisted
+    const [blacklistedToken] = await db
+      .select()
+      .from(tokenBlacklist)
+      .where(eq(tokenBlacklist.token, token))
+      .limit(1);
+
+    if (blacklistedToken) {
+      response.status(401).json({
+        success: false,
+        message: 'Refresh token has been revoked',
+      });
+      return;
+    }
+
+    // Verify refresh token
+    const decoded = verifyRefreshToken(token);
+
+    if (decoded.type !== 'refresh') {
+      response.status(401).json({
+        success: false,
+        message: 'Invalid token type',
+      });
+      return;
+    }
+
+    // Get user data
+    const [existingUser] = await db.select().from(user).where(eq(user.id, decoded.userId)).limit(1);
+
+    if (!existingUser || existingUser.isDeleted || !existingUser.isActive) {
+      response.status(404).json({
+        success: false,
+        message: 'User not found or inactive',
+      });
+      return;
+    }
+
+    // Generate new access token
+    const newAccessToken = generateJwtToken(existingUser);
+    const userWithoutPassword = omitPassword(existingUser);
+
+    response.status(200).json({
+      success: true,
+      message: 'Token refreshed successfully',
+      data: {
+        user: userWithoutPassword,
+        accessToken: newAccessToken,
+        // Note: Refresh token stays the same (single rotation)
+        // For higher security, we could generate a new refresh token here
+      },
+    });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      response.status(401).json({
+        success: false,
+        message: 'Refresh token expired',
+      });
+      return;
+    }
+
+    if (error instanceof jwt.JsonWebTokenError) {
+      response.status(401).json({
+        success: false,
+        message: 'Invalid refresh token',
+      });
+      return;
+    }
+
+    if (error instanceof z.ZodError) {
+      handleValidationError(error, response);
+      return;
+    }
+
+    logError(error, 'REFRESH_TOKEN');
+    response.status(500).json({
+      success: false,
+      message: `Internal error occurred: ${(error as Error).message}`,
+    });
+  }
+};
+
+export default refreshToken;

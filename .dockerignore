@@ -1,0 +1,42 @@
+# Node modules
+node_modules/
+
+# Build directories
+dist/
+build/
+out/
+.next/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+jspm_packages/
+
+# IDE or editor specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*.local
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# TypeScript build output
+*.tsbuildinfo
+
+# Coverage directory for code coverage tools like Jest, Mocha, etc.
+coverage/
