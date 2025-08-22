@@ -1,5 +1,4 @@
 import { deleteUser, getUser, getUsers, updateUser } from '@controllers/api/user';
-import { UserMiddleware } from '@lib/permissions';
 import { authMiddleware } from '@middleware/authMiddleware';
 import type { RouteGroup } from '@models/routes';
 
@@ -9,25 +8,25 @@ const userRoutes: RouteGroup = {
     {
       path: '/',
       method: 'get',
-      middlewares: [authMiddleware, UserMiddleware.canRead],
+      middlewares: [authMiddleware],
       handler: getUsers,
     },
     {
       path: '/:id',
       method: 'get',
-      middlewares: [authMiddleware, UserMiddleware.canRead],
+      middlewares: [authMiddleware],
       handler: getUser,
     },
     {
       path: '/:id',
       method: 'put',
-      middlewares: [authMiddleware, UserMiddleware.canWrite],
+      middlewares: [authMiddleware],
       handler: updateUser,
     },
     {
       path: '/:id',
       method: 'delete',
-      middlewares: [authMiddleware, UserMiddleware.canDelete],
+      middlewares: [authMiddleware],
       handler: deleteUser,
     },
   ],
