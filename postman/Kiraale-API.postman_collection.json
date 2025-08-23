@@ -418,6 +418,665 @@
       "description": "User management endpoints - CRUD operations for users"
     },
     {
+      "name": "File Uploads",
+      "item": [
+        {
+          "name": "Upload Profile Picture",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains profile picture URL\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('profilePicture');",
+                  "    pm.expect(jsonData.data.profilePicture).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "path/to/your/profile-picture.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/users/profile-picture/upload",
+              "host": ["{{base_url}}"],
+              "path": ["users", "profile-picture", "upload"]
+            },
+            "description": "Upload user profile picture to AWS S3 (Max 5MB, Images only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "File upload endpoints - Profile pictures and media uploads"
+    },
+    {
+      "name": "Properties",
+      "item": [
+        {
+          "name": "Get All Properties",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains properties array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('properties');",
+                  "    pm.expect(jsonData.data.properties).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains pagination info\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('pagination');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/properties?page=1&limit=10&country=SOMALIA&propertyType=HOUSE",
+              "host": ["{{base_url}}"],
+              "path": ["properties"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "country",
+                  "value": "SOMALIA"
+                },
+                {
+                  "key": "propertyType",
+                  "value": "HOUSE"
+                },
+                {
+                  "key": "listingType",
+                  "value": "SALE",
+                  "disabled": true
+                },
+                {
+                  "key": "minPrice",
+                  "value": "50000",
+                  "disabled": true
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "500000",
+                  "disabled": true
+                },
+                {
+                  "key": "bedrooms",
+                  "value": "3",
+                  "disabled": true
+                },
+                {
+                  "key": "bathrooms",
+                  "value": "2",
+                  "disabled": true
+                },
+                {
+                  "key": "hasAirConditioning",
+                  "value": "true",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get all properties with filtering and pagination (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Property by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains property data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('property');",
+                  "    pm.expect(jsonData.data.property).to.have.property('id');",
+                  "    pm.expect(jsonData.data.property).to.have.property('title');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/properties/{{property_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["properties", "{{property_id}}"]
+            },
+            "description": "Get property by ID (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Property",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.property && response.data.property.id) {",
+                  "        pm.environment.set(\"property_id\", response.data.property.id);",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains created property\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('property');",
+                  "    pm.expect(jsonData.data.property).to.have.property('id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Beautiful 3BR House in Mogadishu\",\n  \"description\": \"A stunning 3-bedroom house with modern amenities, perfect for families. Located in a secure neighborhood with easy access to schools and shopping centers.\",\n  \"propertyType\": \"HOUSE\",\n  \"listingType\": \"SALE\",\n  \"bedrooms\": 3,\n  \"bathrooms\": 2,\n  \"parkingSpaces\": 2,\n  \"landSize\": 500.0,\n  \"floorArea\": 250.0,\n  \"hasAirConditioning\": true,\n  \"address\": \"Hodan District, Mogadishu\",\n  \"country\": \"SOMALIA\",\n  \"price\": 150000,\n  \"priceType\": \"FIXED\",\n  \"availableFrom\": \"2024-01-01T00:00:00.000Z\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/properties",
+              "host": ["{{base_url}}"],
+              "path": ["properties"]
+            },
+            "description": "Create a new property listing (Requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Property",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains updated property\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('property');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated: Beautiful 3BR House in Mogadishu\",\n  \"description\": \"Updated description: A stunning 3-bedroom house with modern amenities and recent renovations.\",\n  \"price\": 160000,\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/properties/{{property_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["properties", "{{property_id}}"]
+            },
+            "description": "Update property (Owner or Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Property",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/properties/{{property_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["properties", "{{property_id}}"]
+            },
+            "description": "Soft delete property (Owner or Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Property management endpoints - CRUD operations for property listings"
+    },
+    {
+      "name": "Media Management",
+      "item": [
+        {
+          "name": "Get All Media",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains media array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('media');",
+                  "    pm.expect(jsonData.data.media).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/media?propertyId={{property_id}}&type=IMAGE&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["media"],
+              "query": [
+                {
+                  "key": "propertyId",
+                  "value": "{{property_id}}"
+                },
+                {
+                  "key": "type",
+                  "value": "IMAGE"
+                },
+                {
+                  "key": "isPrimary",
+                  "value": "true",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get media with filtering and pagination (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Media by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains media data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('media');",
+                  "    pm.expect(jsonData.data.media).to.have.property('id');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/media/{{media_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["media", "{{media_id}}"]
+            },
+            "description": "Get media by ID (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Upload Property Media",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.media && response.data.media.length > 0) {",
+                  "        pm.environment.set(\"media_id\", response.data.media[0].id);",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains uploaded media\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('media');",
+                  "    pm.expect(jsonData.data.media).to.be.an('array');",
+                  "    pm.expect(jsonData.data).to.have.property('uploadedUrls');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "propertyId",
+                  "value": "{{property_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": "path/to/your/property-image1.jpg"
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": "path/to/your/property-image2.jpg"
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": "path/to/your/property-image3.jpg"
+                },
+                {
+                  "key": "files",
+                  "type": "file",
+                  "src": "path/to/your/property-image4.jpg"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/media/upload",
+              "host": ["{{base_url}}"],
+              "path": ["media", "upload"]
+            },
+            "description": "Upload property media files to AWS S3 (First upload requires 4+ images, Max 15MB each)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Media Record",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains created media\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('media');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"{{property_id}}\",\n  \"type\": \"IMAGE\",\n  \"url\": \"https://example.com/media/sample-image.jpg\",\n  \"fileName\": \"sample-image.jpg\",\n  \"fileSize\": 1048576,\n  \"displayOrder\": 1,\n  \"isPrimary\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/media",
+              "host": ["{{base_url}}"],
+              "path": ["media"]
+            },
+            "description": "Create media record manually (Property owner or Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Media",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains updated media\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('media');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"displayOrder\": 2,\n  \"isPrimary\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/media/{{media_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["media", "{{media_id}}"]
+            },
+            "description": "Update media metadata (Property owner or Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Media Record",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/media/{{media_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["media", "{{media_id}}"]
+            },
+            "description": "Delete media record only (Property owner or Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Media Files from S3",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains deletion info\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('deletedCount');",
+                  "    pm.expect(jsonData.data).to.have.property('deletedIds');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"mediaIds\": [\"{{media_id}}\"],\n  \"propertyId\": \"{{property_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/media/upload/delete",
+              "host": ["{{base_url}}"],
+              "path": ["media", "upload", "delete"]
+            },
+            "description": "Delete media files from both S3 and database (Property owner or Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Media management endpoints - CRUD operations for property media files"
+    },
+    {
       "name": "Error Testing",
       "item": [
         {
@@ -636,6 +1295,16 @@
     {
       "key": "base_url",
       "value": "http://localhost:8080/api",
+      "type": "string"
+    },
+    {
+      "key": "property_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "media_id",
+      "value": "",
       "type": "string"
     }
   ]

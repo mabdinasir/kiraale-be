@@ -2,6 +2,28 @@ import { pgEnum } from 'drizzle-orm/pg-core';
 
 export const role = pgEnum('role', ['USER', 'AGENT', 'ADMIN']);
 
+// Property related enums
+export const propertyType = pgEnum('propertyType', [
+  'HOUSE',
+  'APARTMENT',
+  'TOWNHOUSE',
+  'VILLA',
+  'LAND',
+]);
+
+export const listingType = pgEnum('listingType', ['SALE', 'RENT']);
+
+export const country = pgEnum('country', ['SOMALIA', 'KENYA']);
+
+export const priceType = pgEnum('priceType', ['FIXED', 'NEGOTIABLE', 'AUCTION', 'FROM']);
+
+export const rentFrequency = pgEnum('rentFrequency', ['WEEKLY', 'FORTNIGHTLY', 'MONTHLY']);
+
+export const propertyStatus = pgEnum('propertyStatus', ['ACTIVE', 'SOLD', 'RENTED', 'WITHDRAWN']);
+
+// Media related enums
+export const mediaType = pgEnum('mediaType', ['IMAGE', 'VIDEO', 'VIRTUAL_TOUR', 'FLOOR_PLAN']);
+
 export const permission = pgEnum('permission', [
   // User management permissions
   'USER_READ',

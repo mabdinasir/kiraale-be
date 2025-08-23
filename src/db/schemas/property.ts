@@ -1,0 +1,80 @@
+import {
+  boolean,
+  decimal,
+  index,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+  uuid,
+} from 'drizzle-orm/pg-core';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import {
+  country,
+  listingType,
+  priceType,
+  propertyStatus,
+  propertyType,
+  rentFrequency,
+} from './enums';
+import { user } from './user';
+
+export const property = pgTable(
+  'property',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    userId: uuid('userId')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+
+    // Basic info
+    title: text('title').notNull(),
+    description: text('description'),
+    propertyType: propertyType('propertyType').notNull(),
+    listingType: listingType('listingType').notNull(),
+
+    // Core features
+    bedrooms: integer('bedrooms'),
+    bathrooms: integer('bathrooms'),
+    parkingSpaces: integer('parkingSpaces'),
+    landSize: decimal('landSize'), // in sqm
+    floorArea: decimal('floorArea'), // in sqm
+    hasAirConditioning: boolean('hasAirConditioning').default(false),
+
+    // Location
+    address: text('address').notNull(),
+    country: country('country').notNull(),
+
+    // Pricing
+    price: decimal('price').notNull(),
+    priceType: priceType('priceType').notNull(),
+    rentFrequency: rentFrequency('rentFrequency'),
+
+    // Status
+    status: propertyStatus('status').default('ACTIVE').notNull(),
+    availableFrom: timestamp('availableFrom'),
+
+    // Metadata
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+    deletedAt: timestamp('deletedAt'),
+  },
+  (table) => [
+    // Indexes for faster queries
+    index('property_userId_idx').on(table.userId),
+    index('property_propertyType_idx').on(table.propertyType),
+    index('property_listingType_idx').on(table.listingType),
+    index('property_status_idx').on(table.status),
+    index('property_country_idx').on(table.country),
+    index('property_price_idx').on(table.price),
+    index('property_bedrooms_idx').on(table.bedrooms),
+    index('property_bathrooms_idx').on(table.bathrooms),
+    index('property_createdAt_idx').on(table.createdAt),
+  ],
+);
+
+export const insertPropertySchema = createInsertSchema(property).omit({ id: true });
+export const selectPropertySchema = createSelectSchema(property);
+
+export type Property = typeof property.$inferSelect;
+export type NewProperty = typeof property.$inferInsert;

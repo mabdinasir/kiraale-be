@@ -1,30 +1,42 @@
-import { boolean, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { boolean, index, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 import { role } from './enums';
 
-export const user = pgTable('user', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  firstName: text('firstName').notNull(),
-  lastName: text('lastName').notNull(),
-  email: text('email').notNull().unique(),
-  mobile: text('mobile').unique(),
-  password: text('password').notNull(),
-  role: role('role').default('USER').notNull(),
-  nationalId: text('nationalId'),
-  passportNumber: text('passportNumber'),
-  hasAcceptedTnC: boolean('hasAcceptedTnC').default(false).notNull(),
-  isActive: boolean('isActive').default(true).notNull(),
-  isSignedIn: boolean('isSignedIn').default(false).notNull(),
-  isDeleted: boolean('isDeleted').default(false).notNull(),
-  profilePicture: text('profilePicture'),
-  bio: text('bio'),
-  address: text('address'),
-  agentNumber: text('agentNumber'),
-  agencyName: text('agencyName'),
-  createdAt: timestamp('createdAt').defaultNow().notNull(),
-  updatedAt: timestamp('updatedAt').defaultNow().notNull(),
-  deletedAt: timestamp('deletedAt'),
-});
+export const user = pgTable(
+  'user',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    firstName: text('firstName').notNull(),
+    lastName: text('lastName').notNull(),
+    email: text('email').notNull().unique(),
+    mobile: text('mobile').unique(),
+    password: text('password').notNull(),
+    role: role('role').default('USER').notNull(),
+    nationalId: text('nationalId'),
+    passportNumber: text('passportNumber'),
+    hasAcceptedTnC: boolean('hasAcceptedTnC').default(false).notNull(),
+    isActive: boolean('isActive').default(true).notNull(),
+    isSignedIn: boolean('isSignedIn').default(false).notNull(),
+    isDeleted: boolean('isDeleted').default(false).notNull(),
+    profilePicture: text('profilePicture'),
+    bio: text('bio'),
+    address: text('address'),
+    agentNumber: text('agentNumber'),
+    agencyName: text('agencyName'),
+    createdAt: timestamp('createdAt').defaultNow().notNull(),
+    updatedAt: timestamp('updatedAt').defaultNow().notNull(),
+    deletedAt: timestamp('deletedAt'),
+  },
+  (table) => [
+    // Indexes for faster queries
+    index('user_email_idx').on(table.email),
+    index('user_mobile_idx').on(table.mobile),
+    index('user_role_idx').on(table.role),
+    index('user_isActive_idx').on(table.isActive),
+    index('user_isDeleted_idx').on(table.isDeleted),
+    index('user_createdAt_idx').on(table.createdAt),
+  ],
+);
 
 export const insertUserSchema = createInsertSchema(user).omit({ id: true });
 export const selectUserSchema = createSelectSchema(user);

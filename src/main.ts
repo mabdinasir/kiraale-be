@@ -54,9 +54,9 @@ app.use(
 app.use(apiRateLimiter);
 
 // Body parsing with reasonable limits
-app.use(express.json({ limit: '20mb' }));
-app.use(bodyParser.json({ limit: '20mb', type: 'application/json' }));
-app.use(bodyParser.urlencoded({ limit: '20mb', extended: true }));
+app.use(express.json({ limit: '15mb' }));
+app.use(bodyParser.json({ limit: '15mb', type: 'application/json' }));
+app.use(bodyParser.urlencoded({ limit: '15mb', extended: true }));
 app.use(cookieParser());
 
 const router = express.Router();

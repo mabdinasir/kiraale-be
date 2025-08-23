@@ -1,4 +1,5 @@
 import { insertUserSchema, selectUserSchema } from '@db/schemas';
+import { allowedImageTypes, maxFileSize, maxFileSizeMB } from '@lib/config/fileUpload';
 import { z } from 'zod';
 
 export const getUserByIdSchema = selectUserSchema
@@ -41,6 +42,20 @@ export const deleteParamsSchema = selectUserSchema
   })
   .strict();
 
+// Profile picture upload schema
+export const profilePicUploadSchema = z.object({
+  fileType: z.string().refine((type) => allowedImageTypes.includes(type), {
+    message: 'Invalid file type. Only JPEG, PNG, GIF images are allowed',
+  }),
+  fileSize: z.number().max(maxFileSize, {
+    message: `File size cannot exceed ${maxFileSizeMB}MB`,
+  }),
+  checksum: z.string().min(1, {
+    message: 'Checksum is required',
+  }),
+});
+
 export type GetUserByIdParams = z.infer<typeof getUserByIdSchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;
 export type DeleteParams = z.infer<typeof deleteParamsSchema>;
+export type ProfilePicUploadData = z.infer<typeof profilePicUploadSchema>;

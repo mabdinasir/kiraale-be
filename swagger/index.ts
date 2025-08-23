@@ -1,9 +1,7 @@
 import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
-import { authPaths } from './paths/auth.js';
-import { healthPaths } from './paths/health.js';
-import { userPaths } from './paths/users.js';
-import { schemas } from './schemas.js';
+import { paths } from './paths';
+import { schemas } from './schemas';
 
 const swaggerDefinition = {
   openapi: '3.0.0',
@@ -54,12 +52,20 @@ const swaggerDefinition = {
       name: 'Users',
       description: 'User management endpoints',
     },
+    {
+      name: 'Properties',
+      description: 'Property listing and management endpoints',
+    },
+    {
+      name: 'Media',
+      description: 'Property media management endpoints',
+    },
+    {
+      name: 'File Uploads',
+      description: 'File upload endpoints for AWS S3',
+    },
   ],
-  paths: {
-    ...healthPaths,
-    ...authPaths,
-    ...userPaths,
-  },
+  paths,
 };
 
 const options: swaggerJSDoc.Options = {

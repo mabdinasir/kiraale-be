@@ -2,6 +2,8 @@ import type { RouteGroup } from '@models/routes';
 import type { Router } from 'express';
 import authRoutes from './auth.routes';
 import healthRoutes from './health.routes';
+import mediaRoutes from './media.routes';
+import propertyRoutes from './property.routes';
 import { registerSwaggerRoutes } from './swagger.routes';
 import userRoutes from './user.routes';
 
@@ -19,7 +21,7 @@ function configureRoutes(router: Router): void {
   registerSwaggerRoutes(router);
 
   // Register other route groups
-  const routeGroups = [authRoutes, healthRoutes, userRoutes];
+  const routeGroups = [authRoutes, healthRoutes, userRoutes, propertyRoutes, mediaRoutes];
   registerRouteGroups(router, routeGroups);
 }
 

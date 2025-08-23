@@ -1,0 +1,20 @@
+ 
+import { authPaths } from './auth';
+import { fileUploadPaths } from './fileUploads';
+import { healthPaths } from './health';
+import { mediaBasicPaths } from './mediaBasic';
+import { mediaDetailsPaths } from './mediaDetails';
+import { mediaUploadsPaths } from './mediaUploads';
+import { propertyPaths } from './properties';
+import { userPaths } from './users';
+
+export const paths = {
+  ...healthPaths,
+  ...authPaths,
+  ...userPaths,
+  ...propertyPaths,
+  ...mediaBasicPaths,
+  ...mediaDetailsPaths,
+  ...mediaUploadsPaths,
+  ...fileUploadPaths,
+};

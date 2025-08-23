@@ -1,0 +1,74 @@
+import db from '@db/index';
+import { media } from '@db/schemas';
+import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import { queryMediaSchema } from '@schemas/media.schema';
+import { and, eq } from 'drizzle-orm';
+import type { RequestHandler } from 'express';
+import { z } from 'zod';
+
+const getMediaList: RequestHandler = async (request, response) => {
+  try {
+    const {
+      propertyId,
+      type,
+      isPrimary,
+      page = 1,
+      limit = 20,
+    } = queryMediaSchema.parse(request.query);
+
+    // Build filters
+    const filters = [];
+
+    if (propertyId) {
+      filters.push(eq(media.propertyId, propertyId));
+    }
+    if (type) {
+      filters.push(eq(media.type, type));
+    }
+    if (isPrimary !== undefined) {
+      filters.push(eq(media.isPrimary, isPrimary));
+    }
+
+    const offset = (page - 1) * limit;
+
+    const mediaList = await db
+      .select()
+      .from(media)
+      .where(and(...filters))
+      .limit(limit)
+      .offset(offset)
+      .orderBy(media.displayOrder, media.uploadedAt);
+
+    // Get total count for pagination
+    const [countResult] = await db
+      .select({ count: media.id })
+      .from(media)
+      .where(and(...filters));
+
+    const totalMedia = Number(countResult?.count || 0);
+    const totalPages = Math.ceil(totalMedia / limit);
+
+    response.status(200).json({
+      success: true,
+      data: {
+        media: mediaList,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: totalMedia,
+          itemsPerPage: limit,
+        },
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      handleValidationError(error, response);
+      return;
+    }
+
+    logError(error, 'GET_MEDIA_LIST');
+    sendErrorResponse(response, 500, 'Failed to retrieve media list.');
+  }
+};
+
+export default getMediaList;

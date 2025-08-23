@@ -1,0 +1,516 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+export const mediaPaths = {
+  '/api/media': {
+    get: {
+      tags: ['Media'],
+      summary: 'Get all media',
+      description: 'Retrieve a paginated list of media with optional filtering',
+      parameters: [
+        {
+          name: 'page',
+          in: 'query',
+          description: 'Page number for pagination',
+          required: false,
+          schema: { type: 'integer', minimum: 1, default: 1 },
+        },
+        {
+          name: 'limit',
+          in: 'query',
+          description: 'Number of items per page',
+          required: false,
+          schema: { type: 'integer', minimum: 1, maximum: 50, default: 20 },
+        },
+        {
+          name: 'propertyId',
+          in: 'query',
+          description: 'Filter by property ID',
+          required: false,
+          schema: { type: 'string', format: 'uuid' },
+        },
+        {
+          name: 'type',
+          in: 'query',
+          description: 'Filter by media type',
+          required: false,
+          schema: {
+            type: 'string',
+            enum: ['IMAGE', 'VIDEO', 'VIRTUAL_TOUR', 'FLOOR_PLAN'],
+          },
+        },
+        {
+          name: 'isPrimary',
+          in: 'query',
+          description: 'Filter by primary media',
+          required: false,
+          schema: { type: 'boolean' },
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Media retrieved successfully',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/MediaPaginatedResponse' },
+            },
+          },
+        },
+        400: {
+          description: 'Invalid query parameters',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        500: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+    post: {
+      tags: ['Media'],
+      summary: 'Create media record',
+      description: 'Create a new media record manually (property owner or admin only)',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/CreateMediaRequest' },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: 'Media created successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Media created successfully' },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      media: { $ref: '#/components/schemas/Media' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: 'Validation error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized - Authentication required',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        403: {
+          description: 'Forbidden - Access denied',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        404: {
+          description: 'Property not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        500: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+  },
+  '/api/media/{id}': {
+    get: {
+      tags: ['Media'],
+      summary: 'Get media by ID',
+      description: 'Retrieve a specific media item by its ID',
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          description: 'Media ID',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Media retrieved successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      media: { $ref: '#/components/schemas/Media' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        404: {
+          description: 'Media not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        500: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+    put: {
+      tags: ['Media'],
+      summary: 'Update media metadata',
+      description: 'Update media metadata (property owner or admin only)',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          description: 'Media ID',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/UpdateMediaRequest' },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Media updated successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Media updated successfully' },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      media: { $ref: '#/components/schemas/Media' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: 'Validation error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized - Authentication required',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        403: {
+          description: 'Forbidden - Access denied',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        404: {
+          description: 'Media not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        500: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+    delete: {
+      tags: ['Media'],
+      summary: 'Delete media record',
+      description: 'Delete media record from database only (property owner or admin only)',
+      security: [{ bearerAuth: [] }],
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          description: 'Media ID',
+          required: true,
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      responses: {
+        200: {
+          description: 'Media deleted successfully',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/SuccessResponse' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized - Authentication required',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        403: {
+          description: 'Forbidden - Access denied',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        404: {
+          description: 'Media not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        500: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+  },
+  '/api/media/upload': {
+    post: {
+      tags: ['File Uploads'],
+      summary: 'Upload property media files',
+      description: 'Upload property media files to AWS S3 (First upload requires 4+ images, Max 15MB each)',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'multipart/form-data': {
+            schema: {
+              type: 'object',
+              required: ['propertyId', 'files'],
+              properties: {
+                propertyId: {
+                  type: 'string',
+                  format: 'uuid',
+                  description: 'ID of the property to upload media for',
+                },
+                files: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    format: 'binary',
+                  },
+                  description: 'Media files to upload (images/videos)',
+                  minItems: 1,
+                  maxItems: 10,
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        201: {
+          description: 'Media uploaded successfully',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/FileUploadResponse' },
+            },
+          },
+        },
+        400: {
+          description: 'Validation error (file type, size, or first upload requirements)',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized - Authentication required',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        403: {
+          description: 'Forbidden - Can only upload to own properties',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        404: {
+          description: 'Property not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        500: {
+          description: 'Internal server error or S3 upload failed',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+  },
+  '/api/media/upload/delete': {
+    delete: {
+      tags: ['File Uploads'],
+      summary: 'Delete media files from S3 and database',
+      description: 'Delete media files from both S3 and database (property owner or admin only)',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: { $ref: '#/components/schemas/DeleteMediaRequest' },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Media files deleted successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Media deleted successfully' },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      deletedIds: {
+                        type: 'array',
+                        items: { type: 'string', format: 'uuid' },
+                        example: ['123e4567-e89b-12d3-a456-426614174000'],
+                      },
+                      deletedCount: { type: 'integer', example: 1 },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: 'Validation error or media IDs mismatch',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ValidationError' },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized - Authentication required',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        403: {
+          description: 'Forbidden - Can only delete from own properties',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        404: {
+          description: 'Property not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        500: {
+          description: 'Internal server error or S3 deletion failed',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+  },
+};

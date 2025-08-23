@@ -1,4 +1,4 @@
-import { deleteUser, getUser, getUsers, updateUser } from '@controllers/api/user';
+import { deleteUser, getUser, getUsers, updateUser, uploadProfilePic } from '@controllers/api/user';
 import { authMiddleware } from '@middleware/authMiddleware';
 import type { RouteGroup } from '@models/routes';
 
@@ -28,6 +28,12 @@ const userRoutes: RouteGroup = {
       method: 'delete',
       middlewares: [authMiddleware],
       handler: deleteUser,
+    },
+    {
+      path: '/profile-picture/upload',
+      method: 'post',
+      middlewares: [authMiddleware],
+      handler: uploadProfilePic,
     },
   ],
 };

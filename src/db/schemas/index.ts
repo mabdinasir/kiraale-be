@@ -2,6 +2,8 @@
 export * from './enums';
 
 // Export all tables
+export * from './media';
+export * from './property';
 export * from './resetToken';
 export * from './rolePermission';
 export * from './tokenBlacklist';

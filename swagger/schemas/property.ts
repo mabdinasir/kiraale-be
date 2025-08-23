@@ -1,0 +1,325 @@
+/* eslint-disable @typescript-eslint/naming-convention */
+export const propertySchemas = {
+  Property: {
+    type: 'object',
+    properties: {
+      id: {
+        type: 'string',
+        format: 'uuid',
+        example: '123e4567-e89b-12d3-a456-426614174000',
+      },
+      userId: {
+        type: 'string',
+        format: 'uuid',
+        example: '123e4567-e89b-12d3-a456-426614174000',
+      },
+      title: {
+        type: 'string',
+        example: 'Beautiful 3BR House',
+      },
+      description: {
+        type: 'string',
+        example: 'Spacious house with garden',
+      },
+      propertyType: {
+        type: 'string',
+        enum: ['HOUSE', 'APARTMENT', 'CONDO', 'TOWNHOUSE', 'VILLA', 'STUDIO', 'LAND', 'COMMERCIAL', 'OTHER'],
+        example: 'HOUSE',
+      },
+      listingType: {
+        type: 'string',
+        enum: ['RENT', 'SALE'],
+        example: 'RENT',
+      },
+      bedrooms: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 20,
+        example: 3,
+      },
+      bathrooms: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 20,
+        example: 2,
+      },
+      parkingSpaces: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 10,
+        example: 2,
+      },
+      landSize: {
+        type: 'number',
+        example: 500.5,
+      },
+      floorArea: {
+        type: 'number',
+        example: 150.0,
+      },
+      hasAirConditioning: {
+        type: 'boolean',
+        example: true,
+      },
+      address: {
+        type: 'string',
+        example: '123 Main St, Downtown',
+      },
+      country: {
+        type: 'string',
+        enum: ['SOMALIA', 'KENYA', 'ETHIOPIA', 'DJIBOUTI'],
+        example: 'SOMALIA',
+      },
+      price: {
+        type: 'number',
+        example: 1500.00,
+      },
+      priceType: {
+        type: 'string',
+        enum: ['FIXED', 'NEGOTIABLE'],
+        example: 'NEGOTIABLE',
+      },
+      rentFrequency: {
+        type: 'string',
+        enum: ['MONTHLY', 'YEARLY', 'WEEKLY', 'DAILY'],
+        example: 'MONTHLY',
+      },
+      status: {
+        type: 'string',
+        enum: ['PENDING', 'APPROVED', 'REJECTED', 'AVAILABLE', 'RENTED', 'SOLD'],
+        example: 'AVAILABLE',
+      },
+      availableFrom: {
+        type: 'string',
+        format: 'date',
+        example: '2024-02-01',
+      },
+      createdAt: {
+        type: 'string',
+        format: 'date-time',
+        example: '2024-01-15T10:30:00Z',
+      },
+      updatedAt: {
+        type: 'string',
+        format: 'date-time',
+        example: '2024-01-15T10:30:00Z',
+      },
+    },
+  },
+  CreatePropertyRequest: {
+    type: 'object',
+    required: ['title', 'propertyType', 'listingType', 'address', 'country', 'price'],
+    properties: {
+      title: {
+        type: 'string',
+        minLength: 5,
+        maxLength: 200,
+        example: 'Beautiful 3BR House',
+      },
+      description: {
+        type: 'string',
+        maxLength: 2000,
+        example: 'Spacious house with garden',
+      },
+      propertyType: {
+        type: 'string',
+        enum: ['HOUSE', 'APARTMENT', 'CONDO', 'TOWNHOUSE', 'VILLA', 'STUDIO', 'LAND', 'COMMERCIAL', 'OTHER'],
+        example: 'HOUSE',
+      },
+      listingType: {
+        type: 'string',
+        enum: ['RENT', 'SALE'],
+        example: 'RENT',
+      },
+      bedrooms: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 20,
+        default: 0,
+        example: 3,
+      },
+      bathrooms: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 20,
+        default: 0,
+        example: 2,
+      },
+      parkingSpaces: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 10,
+        default: 0,
+        example: 2,
+      },
+      landSize: {
+        type: 'number',
+        minimum: 0,
+        example: 500.5,
+      },
+      floorArea: {
+        type: 'number',
+        minimum: 0,
+        example: 150.0,
+      },
+      hasAirConditioning: {
+        type: 'boolean',
+        default: false,
+        example: true,
+      },
+      address: {
+        type: 'string',
+        minLength: 10,
+        maxLength: 500,
+        example: '123 Main St, Downtown',
+      },
+      country: {
+        type: 'string',
+        enum: ['SOMALIA', 'KENYA', 'ETHIOPIA', 'DJIBOUTI'],
+        example: 'SOMALIA',
+      },
+      price: {
+        type: 'number',
+        minimum: 0,
+        example: 1500.00,
+      },
+      priceType: {
+        type: 'string',
+        enum: ['FIXED', 'NEGOTIABLE'],
+        default: 'NEGOTIABLE',
+        example: 'NEGOTIABLE',
+      },
+      rentFrequency: {
+        type: 'string',
+        enum: ['MONTHLY', 'YEARLY', 'WEEKLY', 'DAILY'],
+        example: 'MONTHLY',
+      },
+      availableFrom: {
+        type: 'string',
+        format: 'date',
+        example: '2024-02-01',
+      },
+    },
+  },
+  UpdatePropertyRequest: {
+    type: 'object',
+    properties: {
+      title: {
+        type: 'string',
+        minLength: 5,
+        maxLength: 200,
+        example: 'Updated Beautiful 3BR House',
+      },
+      description: {
+        type: 'string',
+        maxLength: 2000,
+        example: 'Updated spacious house with garden',
+      },
+      propertyType: {
+        type: 'string',
+        enum: ['HOUSE', 'APARTMENT', 'CONDO', 'TOWNHOUSE', 'VILLA', 'STUDIO', 'LAND', 'COMMERCIAL', 'OTHER'],
+        example: 'HOUSE',
+      },
+      listingType: {
+        type: 'string',
+        enum: ['RENT', 'SALE'],
+        example: 'RENT',
+      },
+      bedrooms: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 20,
+        example: 3,
+      },
+      bathrooms: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 20,
+        example: 2,
+      },
+      parkingSpaces: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 10,
+        example: 2,
+      },
+      landSize: {
+        type: 'number',
+        minimum: 0,
+        example: 500.5,
+      },
+      floorArea: {
+        type: 'number',
+        minimum: 0,
+        example: 150.0,
+      },
+      hasAirConditioning: {
+        type: 'boolean',
+        example: true,
+      },
+      address: {
+        type: 'string',
+        minLength: 10,
+        maxLength: 500,
+        example: '123 Main St, Downtown',
+      },
+      country: {
+        type: 'string',
+        enum: ['SOMALIA', 'KENYA', 'ETHIOPIA', 'DJIBOUTI'],
+        example: 'SOMALIA',
+      },
+      price: {
+        type: 'number',
+        minimum: 0,
+        example: 1500.00,
+      },
+      priceType: {
+        type: 'string',
+        enum: ['FIXED', 'NEGOTIABLE'],
+        example: 'NEGOTIABLE',
+      },
+      rentFrequency: {
+        type: 'string',
+        enum: ['MONTHLY', 'YEARLY', 'WEEKLY', 'DAILY'],
+        example: 'MONTHLY',
+      },
+      status: {
+        type: 'string',
+        enum: ['PENDING', 'APPROVED', 'REJECTED', 'AVAILABLE', 'RENTED', 'SOLD'],
+        example: 'AVAILABLE',
+      },
+      availableFrom: {
+        type: 'string',
+        format: 'date',
+        example: '2024-02-01',
+      },
+    },
+  },
+  PropertyPaginatedResponse: {
+    type: 'object',
+    properties: {
+      success: {
+        type: 'boolean',
+        example: true,
+      },
+      data: {
+        type: 'object',
+        properties: {
+          properties: {
+            type: 'array',
+            items: { $ref: '#/components/schemas/Property' },
+          },
+          pagination: {
+            type: 'object',
+            properties: {
+              currentPage: { type: 'integer', example: 1 },
+              totalPages: { type: 'integer', example: 5 },
+              totalItems: { type: 'integer', example: 47 },
+              itemsPerPage: { type: 'integer', example: 10 },
+            },
+          },
+        },
+      },
+    },
+  },
+};
