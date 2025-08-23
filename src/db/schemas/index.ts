@@ -2,6 +2,8 @@
 export * from './enums';
 
 // Export all tables
+export * from './agency';
+export * from './favorite';
 export * from './media';
 export * from './property';
 export * from './resetToken';

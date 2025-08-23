@@ -1,6 +1,5 @@
 import db from '@db/index';
 import { property } from '@db/schemas';
-import { adminPermissions } from '@lib/permissions';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { deletePropertySchema } from '@schemas/property.schema';
 import { eq } from 'drizzle-orm';
@@ -11,34 +10,15 @@ const deleteProperty: RequestHandler = async (request, response) => {
   try {
     const { id } = deletePropertySchema.parse(request.params);
 
-    const requestingUserId = request.user?.id;
-    const requestingUserRole = request.user?.role;
-
-    if (!requestingUserId || !requestingUserRole) {
-      sendErrorResponse(response, 401, 'Authentication required');
-      return;
-    }
-
     // Check if property exists
     const [existingProperty] = await db.select().from(property).where(eq(property.id, id));
 
     if (!existingProperty) {
-      response.status(404).json({
-        success: false,
-        message: 'Property not found',
-      });
+      sendErrorResponse(response, 404, 'Property not found');
       return;
     }
 
-    // Check if user can delete this property (owner or admin)
-    const canDelete =
-      existingProperty.userId === requestingUserId ||
-      adminPermissions.canAccess(requestingUserRole);
-
-    if (!canDelete) {
-      sendErrorResponse(response, 403, 'Access denied. You can only delete your own properties.');
-      return;
-    }
+    // Permission checks are now handled by middleware
 
     // Soft delete - set deletedAt timestamp
     await db

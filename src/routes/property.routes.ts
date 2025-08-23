@@ -5,6 +5,7 @@ import {
   getProperty,
   updateProperty,
 } from '@controllers/api/property';
+import { requireResourceAccess } from '@lib/permissions/middleware';
 import { authMiddleware } from '@middleware/authMiddleware';
 import type { RouteGroup } from '@models/routes';
 
@@ -26,19 +27,25 @@ const propertyRoutes: RouteGroup = {
     {
       path: '/',
       method: 'post',
-      middlewares: [authMiddleware], // Requires authentication to create
+      middlewares: [authMiddleware], // Authenticated users can create properties
       handler: createProperty,
     },
     {
       path: '/:id',
       method: 'put',
-      middlewares: [authMiddleware], // Requires authentication to update
+      middlewares: [
+        authMiddleware,
+        requireResourceAccess((req) => req.params.propertyOwnerId, 'PROPERTY_WRITE'),
+      ], // Property owner or admin
       handler: updateProperty,
     },
     {
       path: '/:id',
       method: 'delete',
-      middlewares: [authMiddleware], // Requires authentication to delete
+      middlewares: [
+        authMiddleware,
+        requireResourceAccess((req) => req.params.propertyOwnerId, 'PROPERTY_DELETE'),
+      ], // Property owner or admin
       handler: deleteProperty,
     },
   ],

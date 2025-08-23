@@ -13,10 +13,7 @@ const getMedia: RequestHandler = async (request, response) => {
     const [existingMedia] = await db.select().from(media).where(eq(media.id, id));
 
     if (!existingMedia) {
-      response.status(404).json({
-        success: false,
-        message: 'Media not found',
-      });
+      sendErrorResponse(response, 404, 'Media not found');
       return;
     }
 

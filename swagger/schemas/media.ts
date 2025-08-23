@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import { mediaTypeValues } from '@db/schemas/enums';
+
 export const mediaSchemas = {
   Media: {
     type: 'object',
@@ -15,7 +17,7 @@ export const mediaSchemas = {
       },
       type: {
         type: 'string',
-        enum: ['IMAGE', 'VIDEO', 'VIRTUAL_TOUR', 'FLOOR_PLAN'],
+        enum: mediaTypeValues,
         example: 'IMAGE',
       },
       url: {
@@ -58,7 +60,7 @@ export const mediaSchemas = {
       },
       type: {
         type: 'string',
-        enum: ['IMAGE', 'VIDEO', 'VIRTUAL_TOUR', 'FLOOR_PLAN'],
+        enum: mediaTypeValues,
         example: 'IMAGE',
       },
       url: {
@@ -96,7 +98,7 @@ export const mediaSchemas = {
     properties: {
       type: {
         type: 'string',
-        enum: ['IMAGE', 'VIDEO', 'VIRTUAL_TOUR', 'FLOOR_PLAN'],
+        enum: mediaTypeValues,
         example: 'IMAGE',
       },
       url: {

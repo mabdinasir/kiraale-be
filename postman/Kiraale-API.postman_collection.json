@@ -1077,6 +1077,305 @@
       "description": "Media management endpoints - CRUD operations for property media files"
     },
     {
+      "name": "Agency Management",
+      "item": [
+        {
+          "name": "Get All Agencies",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains agencies data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data).to.have.property('agencies');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agencies?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["agencies"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Get all agencies with pagination (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Agency",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.agency && response.data.agency.id) {",
+                  "        pm.environment.set(\"agency_id\", response.data.agency.id);",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains agency data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data).to.have.property('agency');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kiraale Properties\",\n  \"description\": \"Leading real estate agency in Mogadishu\",\n  \"country\": \"SOMALIA\",\n  \"address\": \"Hamarweyne District, Mogadishu, Somalia\",\n  \"phone\": \"+252-1-234567\",\n  \"email\": \"info@kiraaleproperties.so\",\n  \"website\": \"https://kiraaleproperties.so\",\n  \"licenseNumber\": \"REA-2024-001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agencies",
+              "host": ["{{base_url}}"],
+              "path": ["agencies"]
+            },
+            "description": "Create a new real estate agency (Requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Agency by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains agency data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data).to.have.property('agency');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/agencies/{{agency_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "{{agency_id}}"]
+            },
+            "description": "Get agency details by ID (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Agency",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kiraale Properties Updated\",\n  \"description\": \"Updated description for leading real estate agency\",\n  \"address\": \"Updated address, Mogadishu, Somalia\",\n  \"phone\": \"+252-1-999999\",\n  \"website\": \"https://updated-kiraaleproperties.so\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agencies/{{agency_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "{{agency_id}}"]
+            },
+            "description": "Update agency information (Agency owner/admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Add Agent to Agency",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{user_id}}\",\n  \"role\": \"AGENT\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/agencies/{{agency_id}}/agents",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "{{agency_id}}", "agents"]
+            },
+            "description": "Add an agent to the agency (Agency admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Agent from Agency",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agencies/{{agency_id}}/agents/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "{{agency_id}}", "agents", "{{user_id}}"]
+            },
+            "description": "Remove an agent from agency (Agency admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Agency",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains success message\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/agencies/{{agency_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["agencies", "{{agency_id}}"]
+            },
+            "description": "Delete agency (Agency owner or admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Agency management endpoints - Create, read, update, delete agencies and manage agents"
+    },
+    {
       "name": "Error Testing",
       "item": [
         {
@@ -1304,6 +1603,11 @@
     },
     {
       "key": "media_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agency_id",
       "value": "",
       "type": "string"
     }

@@ -1,6 +1,5 @@
 import db from '@db/index';
-import { media, property } from '@db/schemas';
-import { adminPermissions } from '@lib/permissions';
+import { media } from '@db/schemas';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { deleteMediaSchema } from '@schemas/media.schema';
 import { eq } from 'drizzle-orm';
@@ -11,45 +10,15 @@ const deleteMedia: RequestHandler = async (request, response) => {
   try {
     const { id } = deleteMediaSchema.parse(request.params);
 
-    const requestingUserId = request.user?.id;
-    const requestingUserRole = request.user?.role;
-
-    if (!requestingUserId || !requestingUserRole) {
-      sendErrorResponse(response, 401, 'Authentication required');
-      return;
-    }
-
-    // Check if media exists and get property info
-    const [existingMedia] = await db
-      .select({
-        media,
-        propertyUserId: property.userId,
-      })
-      .from(media)
-      .innerJoin(property, eq(media.propertyId, property.id))
-      .where(eq(media.id, id));
+    // Check if media exists
+    const [existingMedia] = await db.select().from(media).where(eq(media.id, id));
 
     if (!existingMedia) {
-      response.status(404).json({
-        success: false,
-        message: 'Media not found',
-      });
+      sendErrorResponse(response, 404, 'Media not found');
       return;
     }
 
-    // Check if user can delete this media (property owner or admin)
-    const canDelete =
-      existingMedia.propertyUserId === requestingUserId ||
-      adminPermissions.canAccess(requestingUserRole);
-
-    if (!canDelete) {
-      sendErrorResponse(
-        response,
-        403,
-        'Access denied. You can only delete media for your own properties.',
-      );
-      return;
-    }
+    // Permission checks are now handled by middleware
 
     // Hard delete media (since it's just a file reference)
     await db.delete(media).where(eq(media.id, id));

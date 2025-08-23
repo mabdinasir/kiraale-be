@@ -21,14 +21,17 @@ export const roleDefinitions: Record<Role, RoleDefinition> = {
     permissions: [
       // User permissions (inherited)
       'USER_READ',
-      'PROPERTY_READ',
-
-      // Additional agent permissions
       'USER_WRITE', // Update own profile
+      'PROPERTY_READ',
       'PROPERTY_WRITE', // List/manage own properties
 
-      // Agency management (if they belong to one)
+      // Agency permissions - agents can view and create agencies
       'AGENCY_READ',
+      'AGENCY_WRITE', // Create and manage agencies they own
+
+      // Media permissions for property listings
+      'MEDIA_READ',
+      'MEDIA_WRITE',
 
       // Basic analytics for their properties
       'ANALYTICS_READ',

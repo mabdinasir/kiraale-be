@@ -1,9 +1,9 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
-import { handleValidationError, logError } from '@lib/utils/error/errorHandler';
+import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { hashPassword } from '@lib/utils/security/hashPassword';
 import { omitPassword } from '@lib/utils/security/omitPassword';
-import { signUpSchema } from '@schemas/index';
+import { signUpSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
@@ -16,7 +16,7 @@ const signUp: RequestHandler = async (request, response) => {
     // Check for existing user
     const [existingUser] = await db.select().from(user).where(eq(user.email, userData.email));
     if (existingUser) {
-      response.status(409).json({ success: false, message: 'User already exists!' });
+      sendErrorResponse(response, 409, 'User already exists!');
       return;
     }
     // Hash password and create user
@@ -47,10 +47,7 @@ const signUp: RequestHandler = async (request, response) => {
     }
 
     logError(error, 'SIGNUP');
-    response.status(500).json({
-      success: false,
-      message: `Internal error occurred: ${(error as Error).message}`,
-    });
+    sendErrorResponse(response, 500, `Internal error occurred: ${(error as Error).message}`);
   }
 };
 

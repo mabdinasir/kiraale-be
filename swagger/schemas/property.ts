@@ -1,4 +1,13 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import {
+  countryValues,
+  listingTypeValues,
+  priceTypeValues,
+  propertyStatusValues,
+  propertyTypeValues,
+  rentFrequencyValues,
+} from '@db/schemas/enums';
+
 export const propertySchemas = {
   Property: {
     type: 'object',
@@ -23,12 +32,12 @@ export const propertySchemas = {
       },
       propertyType: {
         type: 'string',
-        enum: ['HOUSE', 'APARTMENT', 'CONDO', 'TOWNHOUSE', 'VILLA', 'STUDIO', 'LAND', 'COMMERCIAL', 'OTHER'],
+        enum: propertyTypeValues,
         example: 'HOUSE',
       },
       listingType: {
         type: 'string',
-        enum: ['RENT', 'SALE'],
+        enum: listingTypeValues,
         example: 'RENT',
       },
       bedrooms: {
@@ -67,7 +76,7 @@ export const propertySchemas = {
       },
       country: {
         type: 'string',
-        enum: ['SOMALIA', 'KENYA', 'ETHIOPIA', 'DJIBOUTI'],
+        enum: countryValues,
         example: 'SOMALIA',
       },
       price: {
@@ -76,17 +85,17 @@ export const propertySchemas = {
       },
       priceType: {
         type: 'string',
-        enum: ['FIXED', 'NEGOTIABLE'],
+        enum: priceTypeValues,
         example: 'NEGOTIABLE',
       },
       rentFrequency: {
         type: 'string',
-        enum: ['MONTHLY', 'YEARLY', 'WEEKLY', 'DAILY'],
+        enum: rentFrequencyValues,
         example: 'MONTHLY',
       },
       status: {
         type: 'string',
-        enum: ['PENDING', 'APPROVED', 'REJECTED', 'AVAILABLE', 'RENTED', 'SOLD'],
+        enum: propertyStatusValues,
         example: 'AVAILABLE',
       },
       availableFrom: {
@@ -123,12 +132,12 @@ export const propertySchemas = {
       },
       propertyType: {
         type: 'string',
-        enum: ['HOUSE', 'APARTMENT', 'CONDO', 'TOWNHOUSE', 'VILLA', 'STUDIO', 'LAND', 'COMMERCIAL', 'OTHER'],
+        enum: propertyTypeValues,
         example: 'HOUSE',
       },
       listingType: {
         type: 'string',
-        enum: ['RENT', 'SALE'],
+        enum: listingTypeValues,
         example: 'RENT',
       },
       bedrooms: {
@@ -175,7 +184,7 @@ export const propertySchemas = {
       },
       country: {
         type: 'string',
-        enum: ['SOMALIA', 'KENYA', 'ETHIOPIA', 'DJIBOUTI'],
+        enum: countryValues,
         example: 'SOMALIA',
       },
       price: {
@@ -185,13 +194,13 @@ export const propertySchemas = {
       },
       priceType: {
         type: 'string',
-        enum: ['FIXED', 'NEGOTIABLE'],
+        enum: priceTypeValues,
         default: 'NEGOTIABLE',
         example: 'NEGOTIABLE',
       },
       rentFrequency: {
         type: 'string',
-        enum: ['MONTHLY', 'YEARLY', 'WEEKLY', 'DAILY'],
+        enum: rentFrequencyValues,
         example: 'MONTHLY',
       },
       availableFrom: {
@@ -217,12 +226,12 @@ export const propertySchemas = {
       },
       propertyType: {
         type: 'string',
-        enum: ['HOUSE', 'APARTMENT', 'CONDO', 'TOWNHOUSE', 'VILLA', 'STUDIO', 'LAND', 'COMMERCIAL', 'OTHER'],
+        enum: propertyTypeValues,
         example: 'HOUSE',
       },
       listingType: {
         type: 'string',
-        enum: ['RENT', 'SALE'],
+        enum: listingTypeValues,
         example: 'RENT',
       },
       bedrooms: {
@@ -265,7 +274,7 @@ export const propertySchemas = {
       },
       country: {
         type: 'string',
-        enum: ['SOMALIA', 'KENYA', 'ETHIOPIA', 'DJIBOUTI'],
+        enum: countryValues,
         example: 'SOMALIA',
       },
       price: {
@@ -275,17 +284,17 @@ export const propertySchemas = {
       },
       priceType: {
         type: 'string',
-        enum: ['FIXED', 'NEGOTIABLE'],
+        enum: priceTypeValues,
         example: 'NEGOTIABLE',
       },
       rentFrequency: {
         type: 'string',
-        enum: ['MONTHLY', 'YEARLY', 'WEEKLY', 'DAILY'],
+        enum: rentFrequencyValues,
         example: 'MONTHLY',
       },
       status: {
         type: 'string',
-        enum: ['PENDING', 'APPROVED', 'REJECTED', 'AVAILABLE', 'RENTED', 'SOLD'],
+        enum: propertyStatusValues,
         example: 'AVAILABLE',
       },
       availableFrom: {

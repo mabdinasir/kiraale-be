@@ -1,4 +1,11 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import {
+  countryValues,
+  listingTypeValues,
+  propertyStatusValues,
+  propertyTypeValues,
+} from '@db/schemas/enums';
+
 export const propertyPaths = {
   '/api/properties': {
     get: {
@@ -27,7 +34,7 @@ export const propertyPaths = {
           required: false,
           schema: {
             type: 'string',
-            enum: ['HOUSE', 'APARTMENT', 'TOWNHOUSE', 'VILLA', 'LAND'],
+            enum: propertyTypeValues,
           },
         },
         {
@@ -35,14 +42,14 @@ export const propertyPaths = {
           in: 'query',
           description: 'Filter by listing type',
           required: false,
-          schema: { type: 'string', enum: ['SALE', 'RENT'] },
+          schema: { type: 'string', enum: listingTypeValues },
         },
         {
           name: 'country',
           in: 'query',
           description: 'Filter by country',
           required: false,
-          schema: { type: 'string', enum: ['SOMALIA', 'KENYA'] },
+          schema: { type: 'string', enum: countryValues },
         },
         {
           name: 'minPrice',
@@ -84,7 +91,7 @@ export const propertyPaths = {
           in: 'query',
           description: 'Filter by property status',
           required: false,
-          schema: { type: 'string', enum: ['ACTIVE', 'INACTIVE', 'SOLD', 'RENTED'] },
+          schema: { type: 'string', enum: propertyStatusValues },
         },
       ],
       responses: {

@@ -1,4 +1,15 @@
-import { deleteUser, getUser, getUsers, updateUser, uploadProfilePic } from '@controllers/api/user';
+import {
+  addToFavorites,
+  deleteUser,
+  getMyFavorites,
+  getMyProperties,
+  getUser,
+  getUsers,
+  removeFromFavorites,
+  updateUser,
+  uploadProfilePic,
+} from '@controllers/api/user';
+import { requireResourceAccess, userMiddleware } from '@lib/permissions/middleware';
 import { authMiddleware } from '@middleware/authMiddleware';
 import type { RouteGroup } from '@models/routes';
 
@@ -8,32 +19,56 @@ const userRoutes: RouteGroup = {
     {
       path: '/',
       method: 'get',
-      middlewares: [authMiddleware],
+      middlewares: [authMiddleware, userMiddleware.canRead], // Admin can list all users
       handler: getUsers,
     },
     {
       path: '/:id',
       method: 'get',
-      middlewares: [authMiddleware],
+      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_READ')], // Self or admin
       handler: getUser,
     },
     {
       path: '/:id',
       method: 'put',
-      middlewares: [authMiddleware],
+      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_WRITE')], // Self or admin
       handler: updateUser,
     },
     {
       path: '/:id',
       method: 'delete',
-      middlewares: [authMiddleware],
+      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_DELETE')], // Self or admin
       handler: deleteUser,
     },
     {
       path: '/profile-picture/upload',
       method: 'post',
-      middlewares: [authMiddleware],
+      middlewares: [authMiddleware], // Authenticated users can upload their own profile picture
       handler: uploadProfilePic,
+    },
+    {
+      path: '/myProperties',
+      method: 'get',
+      middlewares: [authMiddleware], // Users can view their own properties
+      handler: getMyProperties,
+    },
+    {
+      path: '/myFavorites',
+      method: 'get',
+      middlewares: [authMiddleware], // Users can view their own favorites
+      handler: getMyFavorites,
+    },
+    {
+      path: '/favorites',
+      method: 'post',
+      middlewares: [authMiddleware], // Users can add to their own favorites
+      handler: addToFavorites,
+    },
+    {
+      path: '/favorites/:propertyId',
+      method: 'delete',
+      middlewares: [authMiddleware], // Users can remove from their own favorites
+      handler: removeFromFavorites,
     },
   ],
 };

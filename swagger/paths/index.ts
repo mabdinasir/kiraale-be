@@ -1,4 +1,5 @@
- 
+import { adminPaths } from './admin';
+import { agencyPaths } from './agencies';
 import { authPaths } from './auth';
 import { fileUploadPaths } from './fileUploads';
 import { healthPaths } from './health';
@@ -12,6 +13,8 @@ export const paths = {
   ...healthPaths,
   ...authPaths,
   ...userPaths,
+  ...adminPaths,
+  ...agencyPaths,
   ...propertyPaths,
   ...mediaBasicPaths,
   ...mediaDetailsPaths,

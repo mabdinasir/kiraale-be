@@ -22,7 +22,6 @@ export const updateUserSchema = insertUserSchema
     bio: true,
     address: true,
     agentNumber: true,
-    agencyName: true,
   })
   .partial()
   .extend({

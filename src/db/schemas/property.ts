@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm';
 import {
   boolean,
   decimal,
@@ -9,6 +10,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+import { agency } from './agency';
 import {
   country,
   listingType,
@@ -26,6 +28,7 @@ export const property = pgTable(
     userId: uuid('userId')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
+    agencyId: uuid('agencyId').references(() => agency.id, { onDelete: 'set null' }),
 
     // Basic info
     title: text('title').notNull(),
@@ -51,8 +54,14 @@ export const property = pgTable(
     rentFrequency: rentFrequency('rentFrequency'),
 
     // Status
-    status: propertyStatus('status').default('ACTIVE').notNull(),
+    status: propertyStatus('status').default('PENDING').notNull(),
     availableFrom: timestamp('availableFrom'),
+
+    // Approval workflow
+    reviewedAt: timestamp('reviewedAt'),
+    reviewedBy: uuid('reviewedBy').references(() => user.id, { onDelete: 'set null' }),
+    rejectionReason: text('rejectionReason'),
+    adminNotes: text('adminNotes'),
 
     // Metadata
     createdAt: timestamp('createdAt').defaultNow().notNull(),
@@ -72,6 +81,18 @@ export const property = pgTable(
     index('property_createdAt_idx').on(table.createdAt),
   ],
 );
+
+// Relations
+export const propertyRelations = relations(property, ({ one }) => ({
+  user: one(user, {
+    fields: [property.userId],
+    references: [user.id],
+  }),
+  agency: one(agency, {
+    fields: [property.agencyId],
+    references: [agency.id],
+  }),
+}));
 
 export const insertPropertySchema = createInsertSchema(property).omit({ id: true });
 export const selectPropertySchema = createSelectSchema(property);

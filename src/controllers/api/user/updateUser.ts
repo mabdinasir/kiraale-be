@@ -1,9 +1,8 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
-import { adminPermissions, canModifyResource } from '@lib/permissions';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { omitPassword } from '@lib/utils/security/omitPassword';
-import { getUserByIdSchema, updateUserSchema } from '@schemas/index';
+import { getUserByIdSchema, updateUserSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
@@ -13,36 +12,14 @@ const updateUser: RequestHandler = async (request, response) => {
     const { id } = getUserByIdSchema.parse(request.params);
     const updateData = updateUserSchema.parse(request.body);
 
-    const requestingUserId = request.user?.id;
-    const requestingUserRole = request.user?.role;
-
-    if (!requestingUserId || !requestingUserRole) {
-      sendErrorResponse(response, 401, 'Authentication required');
-      return;
-    }
-
     // Check if user exists
     const [existingUser] = await db.select().from(user).where(eq(user.id, id));
     if (!existingUser) {
-      response.status(404).json({ success: false, message: 'User not found' });
+      sendErrorResponse(response, 404, 'User not found');
       return;
     }
 
-    // Check if user can modify this resource
-    const canModify =
-      canModifyResource(
-        requestingUserRole,
-        requestingUserId,
-        existingUser.id,
-        existingUser.role,
-        'USER_WRITE',
-      ) ?? adminPermissions.canAccess(requestingUserRole);
-
-    if (!canModify) {
-      sendErrorResponse(response, 403, 'Access denied. You can only update your own profile.');
-      return;
-    }
-
+    // Permission checks are now handled by middleware
     // Update user
     await db
       .update(user)

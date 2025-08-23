@@ -1,21 +1,36 @@
 import db from '@db/index';
-import { property } from '@db/schemas';
-import { handleValidationError, logError } from '@lib/utils/error/errorHandler';
+import { agencyAgent, property } from '@db/schemas';
+import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { createPropertySchema } from '@schemas/property.schema';
+import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
 const createProperty: RequestHandler = async (request, response) => {
   try {
+    const userId = request.user?.id;
     const propertyData = createPropertySchema.parse({
       ...request.body,
-      userId: request.user?.id, // Set userId from authenticated user
+      userId, // Set userId from authenticated user
     });
+
+    // Check if user is an agent to auto-assign property to their agency
+    let agencyId = null;
+    if (userId) {
+      const [activeAgency] = await db
+        .select({ agencyId: agencyAgent.agencyId })
+        .from(agencyAgent)
+        .where(eq(agencyAgent.userId, userId))
+        .limit(1); // Get first active agency if user has multiple
+
+      agencyId = activeAgency?.agencyId || null;
+    }
 
     const [createdProperty] = await db
       .insert(property)
       .values({
         ...propertyData,
+        agencyId, // Auto-assign to user's agency if they're an agent
         price: propertyData.price.toString(),
         landSize: propertyData.landSize ? propertyData.landSize.toString() : undefined,
         floorArea: propertyData.floorArea ? propertyData.floorArea.toString() : undefined,
@@ -38,10 +53,7 @@ const createProperty: RequestHandler = async (request, response) => {
     }
 
     logError(error, 'CREATE_PROPERTY');
-    response.status(500).json({
-      success: false,
-      message: `Internal error occurred: ${(error as Error).message}`,
-    });
+    sendErrorResponse(response, 500, `Internal error occurred: ${(error as Error).message}`);
   }
 };
 

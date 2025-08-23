@@ -1,5 +1,9 @@
+export { default as addToFavorites } from './addToFavorites';
 export { default as deleteUser } from './deleteUser';
+export { default as getMyFavorites } from './getMyFavorites';
+export { default as getMyProperties } from './getMyProperties';
 export { default as getUser } from './getUser';
 export { default as getUsers } from './getUsers';
+export { default as removeFromFavorites } from './removeFromFavorites';
 export { default as updateUser } from './updateUser';
 export { default as uploadProfilePic } from './uploadProfilePic';

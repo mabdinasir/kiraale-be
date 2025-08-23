@@ -1,0 +1,92 @@
+import db from '@db/index';
+import { agency } from '@db/schemas';
+import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import { getAgenciesSchema } from '@schemas/agency.schema';
+import { and, count, eq, ilike, or } from 'drizzle-orm';
+import type { RequestHandler } from 'express';
+import { z } from 'zod';
+
+const getAgencies: RequestHandler = async (request, response) => {
+  try {
+    const validatedQuery = getAgenciesSchema.parse(request.query);
+    const { page, limit, country, isActive, search } = validatedQuery;
+
+    const offset = (page - 1) * limit;
+
+    // Build where conditions
+    const whereConditions = [];
+
+    if (country) {
+      whereConditions.push(eq(agency.country, country));
+    }
+
+    if (isActive !== undefined) {
+      whereConditions.push(eq(agency.isActive, isActive));
+    }
+
+    if (search) {
+      whereConditions.push(
+        or(
+          ilike(agency.name, `%${search}%`),
+          ilike(agency.description, `%${search}%`),
+          ilike(agency.address, `%${search}%`),
+        ),
+      );
+    }
+
+    const whereClause = whereConditions.length > 0 ? and(...whereConditions) : undefined;
+
+    // Get agencies with pagination
+    const agencies = await db
+      .select({
+        id: agency.id,
+        name: agency.name,
+        description: agency.description,
+        country: agency.country,
+        address: agency.address,
+        phone: agency.phone,
+        email: agency.email,
+        website: agency.website,
+        licenseNumber: agency.licenseNumber,
+        isActive: agency.isActive,
+        createdAt: agency.createdAt,
+        updatedAt: agency.updatedAt,
+      })
+      .from(agency)
+      .where(whereClause)
+      .limit(limit)
+      .offset(offset)
+      .orderBy(agency.createdAt);
+
+    // Get total count
+    const [{ totalCount }] = await db
+      .select({ totalCount: count(agency.id) })
+      .from(agency)
+      .where(whereClause);
+
+    const totalPages = Math.ceil(totalCount / limit);
+
+    response.status(200).json({
+      success: true,
+      data: {
+        agencies,
+        pagination: {
+          currentPage: page,
+          totalPages,
+          totalItems: totalCount,
+          itemsPerPage: limit,
+        },
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      handleValidationError(error, response);
+      return;
+    }
+
+    logError(error, 'GET_AGENCIES');
+    sendErrorResponse(response, 500, `Failed to retrieve agencies: ${(error as Error).message}`);
+  }
+};
+
+export default getAgencies;

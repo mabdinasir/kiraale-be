@@ -1,10 +1,10 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
 import { generateJwtToken, generateRefreshToken } from '@lib/utils/auth/generateJwtToken';
-import { handleValidationError, logError } from '@lib/utils/error/errorHandler';
+import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { verifyPassword } from '@lib/utils/security/hashPassword';
 import { omitPassword } from '@lib/utils/security/omitPassword';
-import { loginSchema } from '@schemas/index';
+import { loginSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
@@ -16,17 +16,14 @@ const login: RequestHandler = async (request, response) => {
 
     const [existingUser] = await db.select().from(user).where(eq(user.email, userData.email));
     if (!existingUser) {
-      response.status(404).json({ success: false, message: 'Sorry, user not found!' });
+      sendErrorResponse(response, 404, 'Sorry, user not found!');
       return;
     }
 
     // Verify password
     const isValidPassword = await verifyPassword(userData.password, existingUser?.password ?? '');
     if (!isValidPassword) {
-      response.status(401).json({
-        success: false,
-        message: 'Invalid email or password',
-      });
+      sendErrorResponse(response, 401, 'Invalid email or password');
       return;
     }
 
@@ -64,10 +61,7 @@ const login: RequestHandler = async (request, response) => {
     }
 
     logError(error, 'LOGIN');
-    response.status(500).json({
-      success: false,
-      message: `Internal error occurred: ${(error as Error).message}`,
-    });
+    sendErrorResponse(response, 500, `Internal error occurred: ${(error as Error).message}`);
   }
 };
 

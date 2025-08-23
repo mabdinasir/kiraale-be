@@ -1,6 +1,5 @@
 import db from '@db/index';
 import { media, property } from '@db/schemas';
-import { adminPermissions } from '@lib/permissions';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { createMediaSchema } from '@schemas/media.schema';
 import { eq } from 'drizzle-orm';
@@ -11,41 +10,18 @@ const createMedia: RequestHandler = async (request, response) => {
   try {
     const mediaData = createMediaSchema.parse(request.body);
 
-    const requestingUserId = request.user?.id;
-    const requestingUserRole = request.user?.role;
-
-    if (!requestingUserId || !requestingUserRole) {
-      sendErrorResponse(response, 401, 'Authentication required');
-      return;
-    }
-
-    // Check if property exists and user has permission to add media
+    // Check if property exists
     const [existingProperty] = await db
       .select()
       .from(property)
       .where(eq(property.id, mediaData.propertyId));
 
     if (!existingProperty) {
-      response.status(404).json({
-        success: false,
-        message: 'Property not found',
-      });
+      sendErrorResponse(response, 404, 'Property not found');
       return;
     }
 
-    // Check if user can add media to this property (owner or admin)
-    const canAddMedia =
-      existingProperty.userId === requestingUserId ||
-      adminPermissions.canAccess(requestingUserRole);
-
-    if (!canAddMedia) {
-      sendErrorResponse(
-        response,
-        403,
-        'Access denied. You can only add media to your own properties.',
-      );
-      return;
-    }
+    // Permission checks are now handled by middleware
 
     // If setting as primary, unset other primary media for this property
     if (mediaData.isPrimary) {
@@ -77,10 +53,7 @@ const createMedia: RequestHandler = async (request, response) => {
     }
 
     logError(error, 'CREATE_MEDIA');
-    response.status(500).json({
-      success: false,
-      message: `Internal error occurred: ${(error as Error).message}`,
-    });
+    sendErrorResponse(response, 500, `Internal error occurred: ${(error as Error).message}`);
   }
 };
 

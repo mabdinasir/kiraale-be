@@ -1,6 +1,5 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
-import { adminPermissions } from '@lib/permissions';
 import { logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { omitPassword } from '@lib/utils/security/omitPassword';
 import { eq } from 'drizzle-orm';
@@ -8,13 +7,7 @@ import type { RequestHandler } from 'express';
 
 const getUsers: RequestHandler = async (request, response) => {
   try {
-    const requestingUserRole = request.user?.role;
-
-    if (!requestingUserRole || !adminPermissions.canAccess(requestingUserRole)) {
-      sendErrorResponse(response, 403, 'Access denied. Admin role required.');
-      return;
-    }
-
+    // Permission checks are now handled by middleware
     const users = await db.select().from(user).where(eq(user.isDeleted, false));
 
     const usersWithoutPasswords = users.map(omitPassword);

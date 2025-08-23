@@ -1,6 +1,6 @@
 export const resetPasswordTemplate = (resetUrl: string, userName?: string) => ({
-  subject: 'Password Reset Request',
-  text: `Please reset your password by clicking this link: ${resetUrl}\n\nThis link expires in 15 minutes.`,
+  subject: 'Password Reset Request / Codsiga Cusub ee Sirta',
+  text: `Please reset your password by clicking this link: ${resetUrl}\n\nThis link expires in 15 minutes.\n\n---\n\nFadlan dib u deji sirta cusub adigoo ku dhufanaya linkiga: ${resetUrl}\n\nLinkigan wuxuu dhammaan doonaa 15 daqiiqo kadib.`,
   html: `
     <!DOCTYPE html>
     <html>
@@ -105,22 +105,40 @@ export const resetPasswordTemplate = (resetUrl: string, userName?: string) => ({
             <div class="card">
                 <div class="header">
                     <img src="https://kiraale.com/logo.png" alt="Kiraale Logo" class="logo">
-                    <h1>Password Reset</h1>
+                    <h1>Password Reset / Dib u dejinta Sirta</h1>
                 </div>
 
-                <p class="greeting">Hi ${userName ?? 'there'},</p>
-                <p class="instruction">We received a request to reset your password. Click the button below to set a new password:</p>
+                <p class="greeting">Hi ${userName ?? 'there'} / Asc wr wb ${userName ?? 'saaxiib'},</p>
 
-                <div class="button-container">
-                    <a href="${resetUrl}" class="button">Reset Password</a>
+                <!-- English Version -->
+                <div style="margin-bottom: 30px;">
+                    <h2 style="color: #16A34A; margin-bottom: 16px;">🔐 Password Reset Request</h2>
+                    <p class="instruction">We received a request to reset your password. Click the button below to set a new password:</p>
+
+                    <div class="button-container">
+                        <a href="${resetUrl}" class="button">Reset Password</a>
+                    </div>
+                </div>
+
+                <div style="border-top: 2px solid #e2e8f0; padding-top: 30px; margin-bottom: 30px;">
+                    <h2 style="color: #16A34A; margin-bottom: 16px;">🔐 Codsiga Cusub ee Sirta</h2>
+                    <p class="instruction">Waxaan helay codsiga ah in aad dib u dejiso sirta. Ku dhufo batoonka hoose si aad u dejiso sir cusub:</p>
+
+                    <div class="button-container">
+                        <a href="${resetUrl}" class="button">Dib u deji Sirta</a>
+                    </div>
                 </div>
 
                 <div class="divider"></div>
 
-                <p class="text-muted">If you didn't request this password reset, please ignore this email or contact our support team.</p>
+                <div class="text-muted">
+                    <p>If you didn't request this password reset, please ignore this email or contact our support team.</p>
+                    <p><em>Haddii aadan codsanin dib u dejinta sirta, fadlan iska indho tir emailkan ama la xiriir kooxda taageerada.</em></p>
+                </div>
 
                 <div class="expiry-notice">
-                    ⏳ This link expires in 15 minutes
+                    <p>⏳ This link expires in 15 minutes</p>
+                    <p><em>⏳ Linkigan wuxuu dhammaan doonaa 15 daqiiqo kadib</em></p>
                 </div>
 
                 <div class="footer">

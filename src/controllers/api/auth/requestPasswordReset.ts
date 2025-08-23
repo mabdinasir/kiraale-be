@@ -4,7 +4,7 @@ import { resetPasswordTemplate } from '@lib/emailTemplates/resetPasswordTemplate
 import { sendEmail } from '@lib/utils/email/nodeMailer';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { generateExpiringToken } from '@lib/utils/security/secureTokens';
-import { requestPasswordResetSchema } from '@schemas/index';
+import { requestPasswordResetSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

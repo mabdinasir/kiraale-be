@@ -19,14 +19,14 @@ const getProperties: RequestHandler = async (request, response) => {
       bedrooms,
       bathrooms,
       hasAirConditioning,
-      status = 'ACTIVE',
     } = queryPropertiesSchema.parse(request.query);
 
     // Build filters
     const filters = [];
 
-    // Only show active properties by default unless status is specified
-    filters.push(eq(property.status, status));
+    // For public listings, only show APPROVED properties
+    // Status parameter is ignored for security - public can't see pending/rejected
+    filters.push(eq(property.status, 'APPROVED'));
 
     if (propertyType) {
       filters.push(eq(property.propertyType, propertyType));

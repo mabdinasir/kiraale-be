@@ -2,13 +2,20 @@ import { pgEnum } from 'drizzle-orm/pg-core';
 
 export const role = pgEnum('role', ['USER', 'AGENT', 'ADMIN']);
 
+// Agency related enums
+export const agencyRole = pgEnum('agencyRole', ['ADMIN', 'AGENT']);
+
 // Property related enums
 export const propertyType = pgEnum('propertyType', [
   'HOUSE',
   'APARTMENT',
+  'CONDO',
   'TOWNHOUSE',
   'VILLA',
+  'STUDIO',
   'LAND',
+  'COMMERCIAL',
+  'OTHER',
 ]);
 
 export const listingType = pgEnum('listingType', ['SALE', 'RENT']);
@@ -17,9 +24,24 @@ export const country = pgEnum('country', ['SOMALIA', 'KENYA']);
 
 export const priceType = pgEnum('priceType', ['FIXED', 'NEGOTIABLE', 'AUCTION', 'FROM']);
 
-export const rentFrequency = pgEnum('rentFrequency', ['WEEKLY', 'FORTNIGHTLY', 'MONTHLY']);
+export const rentFrequency = pgEnum('rentFrequency', [
+  'DAILY',
+  'WEEKLY',
+  'FORTNIGHTLY',
+  'MONTHLY',
+  'YEARLY',
+]);
 
-export const propertyStatus = pgEnum('propertyStatus', ['ACTIVE', 'SOLD', 'RENTED', 'WITHDRAWN']);
+export const propertyStatus = pgEnum('propertyStatus', [
+  'PENDING',
+  'APPROVED',
+  'REJECTED',
+  'AVAILABLE',
+  'RENTED',
+  'SOLD',
+  'ACTIVE',
+  'WITHDRAWN',
+]);
 
 // Media related enums
 export const mediaType = pgEnum('mediaType', ['IMAGE', 'VIDEO', 'VIRTUAL_TOUR', 'FLOOR_PLAN']);
@@ -71,3 +93,27 @@ export const permission = pgEnum('permission', [
   'SYSTEM_CONFIG',
   'AUDIT_LOG_READ',
 ]);
+
+// Export enum values for non-database usage (like swagger/validation)
+export const roleValues = role.enumValues;
+export const agencyRoleValues = agencyRole.enumValues;
+export const propertyTypeValues = propertyType.enumValues;
+export const listingTypeValues = listingType.enumValues;
+export const countryValues = country.enumValues;
+export const priceTypeValues = priceType.enumValues;
+export const rentFrequencyValues = rentFrequency.enumValues;
+export const propertyStatusValues = propertyStatus.enumValues;
+export const mediaTypeValues = mediaType.enumValues;
+export const permissionValues = permission.enumValues;
+
+// Type definitions
+export type Role = (typeof role.enumValues)[number];
+export type AgencyRole = (typeof agencyRole.enumValues)[number];
+export type PropertyType = (typeof propertyType.enumValues)[number];
+export type ListingType = (typeof listingType.enumValues)[number];
+export type Country = (typeof country.enumValues)[number];
+export type PriceType = (typeof priceType.enumValues)[number];
+export type RentFrequency = (typeof rentFrequency.enumValues)[number];
+export type PropertyStatus = (typeof propertyStatus.enumValues)[number];
+export type MediaType = (typeof mediaType.enumValues)[number];
+export type Permission = (typeof permission.enumValues)[number];

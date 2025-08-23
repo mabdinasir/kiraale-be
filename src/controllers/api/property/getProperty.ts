@@ -2,7 +2,7 @@ import db from '@db/index';
 import { property } from '@db/schemas';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { getPropertyByIdSchema } from '@schemas/property.schema';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -10,13 +10,14 @@ const getProperty: RequestHandler = async (request, response) => {
   try {
     const { id } = getPropertyByIdSchema.parse(request.params);
 
-    const [existingProperty] = await db.select().from(property).where(eq(property.id, id));
+    const [existingProperty] = await db
+      .select()
+      .from(property)
+      .where(and(eq(property.id, id), eq(property.status, 'APPROVED')))
+      .limit(1);
 
     if (!existingProperty) {
-      response.status(404).json({
-        success: false,
-        message: 'Property not found',
-      });
+      sendErrorResponse(response, 404, 'Property not found');
       return;
     }
 

@@ -2,7 +2,6 @@
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import db from '@db/index';
 import { media, property } from '@db/schemas';
-import { adminPermissions } from '@lib/permissions';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { deleteMediaUploadSchema } from '@schemas/media.schema';
 import { and, eq, inArray } from 'drizzle-orm';
@@ -11,14 +10,6 @@ import { z } from 'zod';
 
 const deleteMediaUpload: RequestHandler = async (request, response) => {
   try {
-    const requestingUserId = request.user?.id;
-    const requestingUserRole = request.user?.role;
-
-    if (!requestingUserId || !requestingUserRole) {
-      sendErrorResponse(response, 401, 'Authentication required');
-      return;
-    }
-
     // Initialize S3 client for profile pictures
     if (
       !process.env.AWS_BUCKET_REGION ||
@@ -26,10 +17,7 @@ const deleteMediaUpload: RequestHandler = async (request, response) => {
       !process.env.PROPERTIES_SECRET_ACCESS_KEY ||
       !process.env.PROPERTIES_BUCKET_NAME
     ) {
-      response.status(500).json({
-        success: false,
-        message: 'AWS configuration is incomplete',
-      });
+      sendErrorResponse(response, 500, 'AWS configuration is incomplete');
       return;
     }
 
@@ -43,30 +31,15 @@ const deleteMediaUpload: RequestHandler = async (request, response) => {
 
     const { mediaIds, propertyId } = deleteMediaUploadSchema.parse(request.body);
 
-    // Check if property exists and get ownership info
+    // Check if property exists
     const [existingProperty] = await db.select().from(property).where(eq(property.id, propertyId));
 
     if (!existingProperty) {
-      response.status(404).json({
-        success: false,
-        message: 'Property not found',
-      });
+      sendErrorResponse(response, 404, 'Property not found');
       return;
     }
 
-    // Check permissions (owner or admin)
-    const canDelete =
-      existingProperty.userId === requestingUserId ||
-      adminPermissions.canAccess(requestingUserRole);
-
-    if (!canDelete) {
-      sendErrorResponse(
-        response,
-        403,
-        'Access denied. You can only delete media from your own properties.',
-      );
-      return;
-    }
+    // Permission checks are now handled by middleware
 
     // Get media to delete
     const mediaToDelete = await db
@@ -75,10 +48,7 @@ const deleteMediaUpload: RequestHandler = async (request, response) => {
       .where(and(inArray(media.id, mediaIds), eq(media.propertyId, propertyId)));
 
     if (mediaToDelete.length !== mediaIds.length) {
-      response.status(400).json({
-        success: false,
-        message: 'Some media IDs do not belong to this property',
-      });
+      sendErrorResponse(response, 400, 'Some media IDs do not belong to this property');
       return;
     }
 

@@ -22,7 +22,6 @@ export const user = pgTable(
     bio: text('bio'),
     address: text('address'),
     agentNumber: text('agentNumber'),
-    agencyName: text('agencyName'),
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
     deletedAt: timestamp('deletedAt'),
@@ -37,6 +36,8 @@ export const user = pgTable(
     index('user_createdAt_idx').on(table.createdAt),
   ],
 );
+
+// User relations with agencies are defined in agency.ts to avoid circular imports
 
 export const insertUserSchema = createInsertSchema(user).omit({ id: true });
 export const selectUserSchema = createSelectSchema(user);

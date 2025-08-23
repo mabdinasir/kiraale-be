@@ -1,7 +1,7 @@
 import db from '@db/index';
 import { tokenBlacklist, user } from '@db/schemas';
 import { generateJwtToken, verifyRefreshToken } from '@lib/utils/auth/generateJwtToken';
-import { handleValidationError, logError } from '@lib/utils/error/errorHandler';
+import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { omitPassword } from '@lib/utils/security/omitPassword';
 import { refreshTokenSchema } from '@schemas/auth.schema';
 import { eq } from 'drizzle-orm';
@@ -22,10 +22,7 @@ const refreshToken: RequestHandler = async (request, response) => {
       .limit(1);
 
     if (blacklistedToken) {
-      response.status(401).json({
-        success: false,
-        message: 'Refresh token has been revoked',
-      });
+      sendErrorResponse(response, 401, 'Refresh token has been revoked');
       return;
     }
 
@@ -33,10 +30,7 @@ const refreshToken: RequestHandler = async (request, response) => {
     const decoded = verifyRefreshToken(token);
 
     if (decoded.type !== 'refresh') {
-      response.status(401).json({
-        success: false,
-        message: 'Invalid token type',
-      });
+      sendErrorResponse(response, 401, 'Invalid token type');
       return;
     }
 
@@ -44,10 +38,7 @@ const refreshToken: RequestHandler = async (request, response) => {
     const [existingUser] = await db.select().from(user).where(eq(user.id, decoded.userId)).limit(1);
 
     if (!existingUser || existingUser.isDeleted || !existingUser.isActive) {
-      response.status(404).json({
-        success: false,
-        message: 'User not found or inactive',
-      });
+      sendErrorResponse(response, 404, 'User not found or inactive');
       return;
     }
 
@@ -67,18 +58,12 @@ const refreshToken: RequestHandler = async (request, response) => {
     });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      response.status(401).json({
-        success: false,
-        message: 'Refresh token expired',
-      });
+      sendErrorResponse(response, 401, 'Refresh token expired');
       return;
     }
 
     if (error instanceof jwt.JsonWebTokenError) {
-      response.status(401).json({
-        success: false,
-        message: 'Invalid refresh token',
-      });
+      sendErrorResponse(response, 401, 'Invalid refresh token');
       return;
     }
 
@@ -88,10 +73,7 @@ const refreshToken: RequestHandler = async (request, response) => {
     }
 
     logError(error, 'REFRESH_TOKEN');
-    response.status(500).json({
-      success: false,
-      message: `Internal error occurred: ${(error as Error).message}`,
-    });
+    sendErrorResponse(response, 500, `Internal error occurred: ${(error as Error).message}`);
   }
 };
 

@@ -1,6 +1,6 @@
 import db from '@db/index';
 import { insertTokenBlacklistSchema, tokenBlacklist, user } from '@db/schemas';
-import { handleValidationError, logError } from '@lib/utils/error/errorHandler';
+import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
@@ -11,18 +11,12 @@ const logout: RequestHandler = async (request, response) => {
     const { token } = request;
 
     if (!userId) {
-      response.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      });
+      sendErrorResponse(response, 401, 'Authentication required');
       return;
     }
 
     if (!token) {
-      response.status(400).json({
-        success: false,
-        message: 'Token is required',
-      });
+      sendErrorResponse(response, 400, 'Token is required');
       return;
     }
 
@@ -56,10 +50,7 @@ const logout: RequestHandler = async (request, response) => {
       return;
     }
     logError(error, 'LOGOUT');
-    response.status(500).json({
-      success: false,
-      message: `Logout failed: ${(error as Error).message}`,
-    });
+    sendErrorResponse(response, 500, `Logout failed: ${(error as Error).message}`);
   }
 };
 

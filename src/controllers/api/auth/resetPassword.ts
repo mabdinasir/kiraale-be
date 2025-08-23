@@ -3,7 +3,7 @@ import { resetToken as resetTokenTable, user as userTable } from '@db/schemas';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { hashPassword } from '@lib/utils/security/hashPassword';
 import { isTokenExpired } from '@lib/utils/security/secureTokens';
-import { resetPasswordSchema } from '@schemas/index';
+import { resetPasswordSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 

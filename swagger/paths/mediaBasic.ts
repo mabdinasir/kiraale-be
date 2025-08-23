@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
+import { mediaTypeValues } from '@db/schemas/enums';
+
 export const mediaBasicPaths = {
   '/api/media': {
     get: {
@@ -34,7 +36,7 @@ export const mediaBasicPaths = {
           required: false,
           schema: {
             type: 'string',
-            enum: ['IMAGE', 'VIDEO', 'VIRTUAL_TOUR', 'FLOOR_PLAN'],
+            enum: mediaTypeValues,
           },
         },
         {

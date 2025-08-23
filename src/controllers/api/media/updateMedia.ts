@@ -1,6 +1,5 @@
 import db from '@db/index';
-import { media, property } from '@db/schemas';
-import { adminPermissions } from '@lib/permissions';
+import { media } from '@db/schemas';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { getMediaByIdSchema, updateMediaSchema } from '@schemas/media.schema';
 import { eq } from 'drizzle-orm';
@@ -12,52 +11,22 @@ const updateMedia: RequestHandler = async (request, response) => {
     const { id } = getMediaByIdSchema.parse(request.params);
     const updateData = updateMediaSchema.parse(request.body);
 
-    const requestingUserId = request.user?.id;
-    const requestingUserRole = request.user?.role;
-
-    if (!requestingUserId || !requestingUserRole) {
-      sendErrorResponse(response, 401, 'Authentication required');
-      return;
-    }
-
-    // Check if media exists and get property info
-    const [existingMedia] = await db
-      .select({
-        media,
-        propertyUserId: property.userId,
-      })
-      .from(media)
-      .innerJoin(property, eq(media.propertyId, property.id))
-      .where(eq(media.id, id));
+    // Check if media exists
+    const [existingMedia] = await db.select().from(media).where(eq(media.id, id));
 
     if (!existingMedia) {
-      response.status(404).json({
-        success: false,
-        message: 'Media not found',
-      });
+      sendErrorResponse(response, 404, 'Media not found');
       return;
     }
 
-    // Check if user can modify this media (property owner or admin)
-    const canModify =
-      existingMedia.propertyUserId === requestingUserId ||
-      adminPermissions.canAccess(requestingUserRole);
-
-    if (!canModify) {
-      sendErrorResponse(
-        response,
-        403,
-        'Access denied. You can only update media for your own properties.',
-      );
-      return;
-    }
+    // Permission checks are now handled by middleware
 
     // If setting as primary, unset other primary media for this property
     if (updateData.isPrimary) {
       await db
         .update(media)
         .set({ isPrimary: false })
-        .where(eq(media.propertyId, existingMedia.media.propertyId));
+        .where(eq(media.propertyId, existingMedia.propertyId));
     }
 
     // Update media

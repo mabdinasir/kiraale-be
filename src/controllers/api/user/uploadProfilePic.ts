@@ -27,10 +27,7 @@ const uploadProfilePic: RequestHandler = async (request, response) => {
 
     const { file } = request;
     if (!file) {
-      response.status(400).json({
-        success: false,
-        message: 'No file uploaded',
-      });
+      sendErrorResponse(response, 400, 'No file uploaded');
       return;
     }
 
@@ -50,10 +47,7 @@ const uploadProfilePic: RequestHandler = async (request, response) => {
       !process.env.PROFILE_PIC_ACCESS_KEY_ID ||
       !process.env.PROFILE_PIC_SECRET_ACCESS_KEY
     ) {
-      response.status(500).json({
-        success: false,
-        message: 'AWS configuration is incomplete',
-      });
+      sendErrorResponse(response, 500, 'AWS configuration is incomplete');
       return;
     }
 
@@ -81,10 +75,7 @@ const uploadProfilePic: RequestHandler = async (request, response) => {
 
       if (oldKey) {
         if (!process.env.PROFILE_PIC_BUCKET_NAME) {
-          response.status(500).json({
-            success: false,
-            message: 'Profile picture bucket name is not configured',
-          });
+          sendErrorResponse(response, 500, 'Profile picture bucket name is not configured');
           return;
         }
 
@@ -99,10 +90,7 @@ const uploadProfilePic: RequestHandler = async (request, response) => {
 
     // Create S3 upload command
     if (!process.env.PROFILE_PIC_BUCKET_NAME) {
-      response.status(500).json({
-        success: false,
-        message: 'Profile picture bucket name is not configured',
-      });
+      sendErrorResponse(response, 500, 'Profile picture bucket name is not configured');
       return;
     }
 
@@ -128,10 +116,7 @@ const uploadProfilePic: RequestHandler = async (request, response) => {
     });
 
     if (!uploadResponse.ok) {
-      response.status(500).json({
-        success: false,
-        message: 'S3 upload failed',
-      });
+      sendErrorResponse(response, 500, 'S3 upload failed');
       return;
     }
 
@@ -169,10 +154,7 @@ const uploadProfilePic: RequestHandler = async (request, response) => {
     }
 
     logError(error, 'UPLOAD_PROFILE_PIC');
-    response.status(500).json({
-      success: false,
-      message: `Internal error occurred: ${(error as Error).message}`,
-    });
+    sendErrorResponse(response, 500, `Internal error occurred: ${(error as Error).message}`);
   }
 };
 

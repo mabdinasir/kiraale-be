@@ -4,7 +4,6 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import db from '@db/index';
 import { media, property } from '@db/schemas';
 import { maxPropertyMediaFiles, minFirstUploadFiles } from '@lib/config/fileUpload';
-import { adminPermissions } from '@lib/permissions';
 import computeSHA256 from '@lib/utils/crypto/computeSHA256';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { propertyMediaUploadSchema } from '@schemas/media.schema';
@@ -18,9 +17,8 @@ const upload = multer({ storage: multer.memoryStorage() });
 const uploadMedia: RequestHandler = async (request, response) => {
   try {
     const requestingUserId = request.user?.id;
-    const requestingUserRole = request.user?.role;
 
-    if (!requestingUserId || !requestingUserRole) {
+    if (!requestingUserId) {
       sendErrorResponse(response, 401, 'Authentication required');
       return;
     }
@@ -29,45 +27,24 @@ const uploadMedia: RequestHandler = async (request, response) => {
     const { propertyId } = request.body;
 
     if (!files || files.length === 0) {
-      response.status(400).json({
-        success: false,
-        message: 'At least 1 file must be uploaded',
-      });
+      sendErrorResponse(response, 400, 'At least 1 file must be uploaded');
       return;
     }
 
     if (!propertyId) {
-      response.status(400).json({
-        success: false,
-        message: 'Property ID is required',
-      });
+      sendErrorResponse(response, 400, 'Property ID is required');
       return;
     }
 
-    // Check if property exists and user has permission
+    // Check if property exists
     const [existingProperty] = await db.select().from(property).where(eq(property.id, propertyId));
 
     if (!existingProperty) {
-      response.status(404).json({
-        success: false,
-        message: 'Property not found',
-      });
+      sendErrorResponse(response, 404, 'Property not found');
       return;
     }
 
-    // Check permissions (owner or admin)
-    const canUpload =
-      existingProperty.userId === requestingUserId ||
-      adminPermissions.canAccess(requestingUserRole);
-
-    if (!canUpload) {
-      sendErrorResponse(
-        response,
-        403,
-        'Access denied. You can only upload media to your own properties.',
-      );
-      return;
-    }
+    // Permission checks are now handled by middleware
 
     // Check existing media count
     const existingMediaCount = await db
@@ -79,10 +56,11 @@ const uploadMedia: RequestHandler = async (request, response) => {
     const isFirstUpload = currentCount === 0;
 
     if (isFirstUpload && files.length < minFirstUploadFiles) {
-      response.status(400).json({
-        success: false,
-        message: `First-time uploads must include at least ${minFirstUploadFiles} images`,
-      });
+      sendErrorResponse(
+        response,
+        400,
+        `First-time uploads must include at least ${minFirstUploadFiles} images`,
+      );
       return;
     }
 
@@ -92,10 +70,7 @@ const uploadMedia: RequestHandler = async (request, response) => {
       !process.env.PROPERTIES_ACCESS_KEY_ID ||
       !process.env.PROPERTIES_SECRET_ACCESS_KEY
     ) {
-      response.status(500).json({
-        success: false,
-        message: 'AWS configuration is incomplete',
-      });
+      sendErrorResponse(response, 500, 'AWS configuration is incomplete');
       return;
     }
 
@@ -196,10 +171,7 @@ const uploadMedia: RequestHandler = async (request, response) => {
     }
 
     logError(error, 'UPLOAD_MEDIA');
-    response.status(500).json({
-      success: false,
-      message: `Internal error occurred: ${(error as Error).message}`,
-    });
+    sendErrorResponse(response, 500, `Internal error occurred: ${(error as Error).message}`);
   }
 };
 

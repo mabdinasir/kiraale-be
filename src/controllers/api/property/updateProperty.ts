@@ -1,6 +1,5 @@
 import db from '@db/index';
 import { property } from '@db/schemas';
-import { adminPermissions } from '@lib/permissions';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { getPropertyByIdSchema, updatePropertySchema } from '@schemas/property.schema';
 import { eq } from 'drizzle-orm';
@@ -12,40 +11,30 @@ const updateProperty: RequestHandler = async (request, response) => {
     const { id } = getPropertyByIdSchema.parse(request.params);
     const updateData = updatePropertySchema.parse(request.body);
 
-    const requestingUserId = request.user?.id;
-    const requestingUserRole = request.user?.role;
-
-    if (!requestingUserId || !requestingUserRole) {
-      sendErrorResponse(response, 401, 'Authentication required');
-      return;
-    }
-
     // Check if property exists
     const [existingProperty] = await db.select().from(property).where(eq(property.id, id));
 
     if (!existingProperty) {
-      response.status(404).json({
-        success: false,
-        message: 'Property not found',
-      });
+      sendErrorResponse(response, 404, 'Property not found');
       return;
     }
 
-    // Check if user can modify this property (owner or admin)
-    const canModify =
-      existingProperty.userId === requestingUserId ||
-      adminPermissions.canAccess(requestingUserRole);
-
-    if (!canModify) {
-      sendErrorResponse(response, 403, 'Access denied. You can only update your own properties.');
-      return;
-    }
+    // Permission checks are now handled by middleware
+    // Prepare update data - if property was rejected, set it back to pending for review
+    // Keep the review history for admin reference
+    const statusUpdate =
+      existingProperty.status === 'REJECTED'
+        ? {
+            status: 'PENDING' as const,
+          }
+        : {};
 
     // Update property
     const [updatedProperty] = await db
       .update(property)
       .set({
         ...updateData,
+        ...statusUpdate,
         price: updateData.price ? updateData.price.toString() : undefined,
         landSize: updateData.landSize ? updateData.landSize.toString() : undefined,
         floorArea: updateData.floorArea ? updateData.floorArea.toString() : undefined,

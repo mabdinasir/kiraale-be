@@ -25,7 +25,7 @@ export const authMiddleware: RequestHandler = async (request, response, next) =>
     const jwtSecret = process.env.JWT_SECRET;
 
     if (!jwtSecret || jwtSecret === '') {
-      response.status(500).json({ success: false, message: 'Server configuration error' });
+      sendErrorResponse(response, 500, 'Server configuration error');
       return;
     }
 
@@ -34,7 +34,7 @@ export const authMiddleware: RequestHandler = async (request, response, next) =>
     const [, token] = authorizationHeader.split(' ') as [string, string];
 
     if (!token || token === '') {
-      response.status(401).json({ success: false, message: 'Authorization token missing' });
+      sendErrorResponse(response, 401, 'Authorization token missing');
       return;
     }
 
@@ -44,9 +44,7 @@ export const authMiddleware: RequestHandler = async (request, response, next) =>
     // Check token blacklist first (most critical)
     const blacklistedToken = await checkTokenBlacklist(token);
     if (blacklistedToken) {
-      response
-        .status(401)
-        .json({ success: false, message: 'Token used has been revoked! Please sign in first!' });
+      sendErrorResponse(response, 401, 'Token used has been revoked! Please sign in first!');
       return;
     }
 
@@ -62,34 +60,22 @@ export const authMiddleware: RequestHandler = async (request, response, next) =>
       .limit(1);
 
     if (!currentUser) {
-      response.status(401).json({
-        success: false,
-        message: 'User account not found',
-      });
+      sendErrorResponse(response, 401, 'User account not found');
       return;
     }
 
     if (!currentUser.isSignedIn) {
-      response.status(401).json({
-        success: false,
-        message: 'Session ended. Please sign in again.',
-      });
+      sendErrorResponse(response, 401, 'Session ended. Please sign in again.');
       return;
     }
 
     if (!currentUser.isActive) {
-      response.status(401).json({
-        success: false,
-        message: 'Account has been deactivated',
-      });
+      sendErrorResponse(response, 401, 'Account has been deactivated');
       return;
     }
 
     if (currentUser.isDeleted) {
-      response.status(401).json({
-        success: false,
-        message: 'Account no longer exists',
-      });
+      sendErrorResponse(response, 401, 'Account no longer exists');
       return;
     }
 
@@ -99,12 +85,12 @@ export const authMiddleware: RequestHandler = async (request, response, next) =>
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
-      response.status(401).json({ success: false, message: 'Session expired' });
+      sendErrorResponse(response, 401, 'Session expired');
       return;
     }
 
     if (error instanceof jwt.JsonWebTokenError) {
-      response.status(401).json({ success: false, message: 'Invalid session' });
+      sendErrorResponse(response, 401, 'Invalid session');
       return;
     }
 
