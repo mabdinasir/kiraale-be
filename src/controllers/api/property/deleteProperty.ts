@@ -18,7 +18,14 @@ const deleteProperty: RequestHandler = async (request, response) => {
       return;
     }
 
-    // Permission checks are now handled by middleware
+    // Check ownership - only owner or admin can delete
+    const userId = request.user?.id;
+    const userRole = request.user?.role;
+
+    if (userRole !== 'ADMIN' && existingProperty.userId !== userId) {
+      sendErrorResponse(response, 403, 'Not authorized to delete this property');
+      return;
+    }
 
     // Soft delete - set deletedAt timestamp
     await db

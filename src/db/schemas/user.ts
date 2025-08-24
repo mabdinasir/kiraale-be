@@ -37,7 +37,7 @@ export const user = pgTable(
   ],
 );
 
-// User relations with agencies are defined in agency.ts to avoid circular imports
+// User relation with agency is defined in agency.ts to avoid circular imports
 
 export const insertUserSchema = createInsertSchema(user).omit({ id: true });
 export const selectUserSchema = createSelectSchema(user);

@@ -19,7 +19,14 @@ const updateProperty: RequestHandler = async (request, response) => {
       return;
     }
 
-    // Permission checks are now handled by middleware
+    // Check ownership - only owner or admin can update
+    const userId = request.user?.id;
+    const userRole = request.user?.role;
+
+    if (userRole !== 'ADMIN' && existingProperty.userId !== userId) {
+      sendErrorResponse(response, 403, 'Not authorized to update this property');
+      return;
+    }
     // Prepare update data - if property was rejected, set it back to pending for review
     // Keep the review history for admin reference
     const statusUpdate =

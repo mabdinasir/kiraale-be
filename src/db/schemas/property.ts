@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm';
+import { relations, sql } from 'drizzle-orm';
 import {
   boolean,
   decimal,
@@ -63,6 +63,9 @@ export const property = pgTable(
     rejectionReason: text('rejectionReason'),
     adminNotes: text('adminNotes'),
 
+    // Full-text search
+    searchVector: text('searchVector').$type<string>(),
+
     // Metadata
     createdAt: timestamp('createdAt').defaultNow().notNull(),
     updatedAt: timestamp('updatedAt').defaultNow().notNull(),
@@ -79,6 +82,11 @@ export const property = pgTable(
     index('property_bedrooms_idx').on(table.bedrooms),
     index('property_bathrooms_idx').on(table.bathrooms),
     index('property_createdAt_idx').on(table.createdAt),
+    // Full-text search index
+    index('property_searchVector_idx').using(
+      'gin',
+      sql`to_tsvector('english', ${table.searchVector})`,
+    ),
   ],
 );
 

@@ -2,6 +2,7 @@ import { agencySchemas } from './agency';
 import { commonSchemas } from './common';
 import { mediaSchemas } from './media';
 import { propertySchemas } from './property';
+import { propertyAnalyticsSchemas } from './propertyAnalytics';
 import { userSchemas } from './user';
 
 export const schemas = {
@@ -9,5 +10,6 @@ export const schemas = {
   ...userSchemas,
   ...agencySchemas,
   ...propertySchemas,
+  ...propertyAnalyticsSchemas,
   ...mediaSchemas,
 };

@@ -9,9 +9,6 @@ export const roleDefinitions: Record<Role, RoleDefinition> = {
     permissions: [
       // Basic property browsing
       'PROPERTY_READ',
-
-      // Own user profile
-      'USER_READ',
     ],
   },
 

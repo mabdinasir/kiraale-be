@@ -7,6 +7,7 @@ import { mediaBasicPaths } from './mediaBasic';
 import { mediaDetailsPaths } from './mediaDetails';
 import { mediaUploadsPaths } from './mediaUploads';
 import { propertyPaths } from './properties';
+import { propertySearchPaths } from './propertySearch';
 import { userPaths } from './users';
 
 export const paths = {
@@ -16,6 +17,7 @@ export const paths = {
   ...adminPaths,
   ...agencyPaths,
   ...propertyPaths,
+  ...propertySearchPaths,
   ...mediaBasicPaths,
   ...mediaDetailsPaths,
   ...mediaUploadsPaths,

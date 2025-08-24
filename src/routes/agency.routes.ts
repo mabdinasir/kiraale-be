@@ -7,7 +7,7 @@ import {
   removeAgent,
   updateAgency,
 } from '@controllers/api/agency';
-import { agencyMiddleware, requireAgencyAccess } from '@lib/permissions/middleware';
+import { requireAgencyAccess } from '@lib/permissions/middleware';
 import { authMiddleware } from '@middleware/authMiddleware';
 import type { RouteGroup } from '@models/routes';
 
@@ -22,8 +22,8 @@ const agencyRoutes: RouteGroup = {
     {
       path: '/',
       method: 'post',
-      middlewares: [authMiddleware, agencyMiddleware.canWrite],
-      handler: createAgency, // Authenticated agents can create agencies
+      middlewares: [authMiddleware],
+      handler: createAgency, // Any authenticated user can create an agency
     },
     {
       path: '/:id',

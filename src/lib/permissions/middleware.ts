@@ -1,4 +1,8 @@
+import db from '@db/index';
+import { agencyAgent } from '@db/schemas';
+import { sendErrorResponse } from '@lib/utils';
 import type { Permission } from '@models/permisions';
+import { and, eq } from 'drizzle-orm';
 import type { Request, RequestHandler } from 'express';
 import { hasAllPermissions, hasAnyPermission, hasPermission } from './checker';
 
@@ -113,7 +117,7 @@ export function requireResourceAccess(
 
 // Agency-specific permission checker
 export function requireAgencyAccess(permission: Permission): RequestHandler {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     const userRole = req.user?.role;
     const userId = req.user?.id;
     const agencyId = req.params.id || req.params.agencyId;
@@ -125,27 +129,56 @@ export function requireAgencyAccess(permission: Permission): RequestHandler {
       });
     }
 
-    // Admins can access everything
+    // Platform admins can access everything
     if (hasPermission(userRole, 'ADMIN_ACCESS')) {
       next();
       return null;
     }
 
-    // Check if user has the general permission
+    // Check if user has the general permission (like AGENCY_WRITE)
     if (hasPermission(userRole, permission)) {
-      // For agency-specific operations, check if they have access to this agency
+      // For agency-specific operations, check if they have access to this specific agency
       if (agencyId) {
-        // TODO: Add database check to see if user is owner/admin of this agency
-        // For now, we'll implement basic permission checking
+        try {
+          const [agencyMembership] = await db
+            .select()
+            .from(agencyAgent)
+            .where(
+              and(
+                eq(agencyAgent.agencyId, agencyId),
+                eq(agencyAgent.userId, userId),
+                eq(agencyAgent.isActive, true),
+              ),
+            )
+            .limit(1);
+
+          // User must be an active member of this agency
+          if (!agencyMembership) {
+            sendErrorResponse(res, 403, 'Access denied. You are not a member of this agency.');
+          }
+
+          // For write operations, user must be an agency admin
+          if (permission === 'AGENCY_WRITE' && agencyMembership.role !== 'ADMIN') {
+            sendErrorResponse(
+              res,
+              403,
+              'Access denied. Only agency admins can perform this action.',
+            );
+          }
+        } catch (error) {
+          sendErrorResponse(
+            res,
+            500,
+            `Failed to verify agency access: ${(error as Error).message}`,
+          );
+        }
       }
       next();
       return null;
     }
 
-    return res.status(403).json({
-      success: false,
-      message: `Access denied. Required permission: ${permission}`,
-    });
+    sendErrorResponse(res, 403, `Access denied. Required permission: ${permission}`);
+    return null;
   };
 }
 

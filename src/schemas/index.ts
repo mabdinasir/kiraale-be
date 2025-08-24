@@ -4,4 +4,5 @@ export * from './auth.schema';
 export * from './favorite.schema';
 export * from './media.schema';
 export * from './property.schema';
+export * from './propertySearch.schema';
 export * from './user.schema';

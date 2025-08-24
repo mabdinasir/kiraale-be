@@ -364,7 +364,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"bio\": \"Updated bio for John Doe - Real Estate Professional\",\n  \"agencyName\": \"Kiraale Properties\",\n  \"agentNumber\": \"KP001\",\n  \"address\": \"Mogadishu, Somalia\"\n}"
+              "raw": "{\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"bio\": \"Updated bio for John Doe - Real Estate Professional\",\n  \"mobile\": \"+252123456789\",\n  \"address\": \"Mogadishu, Somalia\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/users/{{user_id}}",
@@ -372,6 +372,90 @@
               "path": ["users", "{{user_id}}"]
             },
             "description": "Update user profile (requires USER_WRITE permission)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Properties",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/myProperties",
+              "host": ["{{base_url}}"],
+              "path": ["users", "myProperties"]
+            },
+            "description": "Get current user's properties"
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Favorites",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/myFavorites",
+              "host": ["{{base_url}}"],
+              "path": ["users", "myFavorites"]
+            },
+            "description": "Get current user's favorite properties"
+          },
+          "response": []
+        },
+        {
+          "name": "Add to Favorites",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"{{property_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/users/favorites",
+              "host": ["{{base_url}}"],
+              "path": ["users", "favorites"]
+            },
+            "description": "Add property to favorites"
+          },
+          "response": []
+        },
+        {
+          "name": "Remove from Favorites",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/users/favorites/{{property_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["users", "favorites", "{{property_id}}"]
+            },
+            "description": "Remove property from favorites"
           },
           "response": []
         },
@@ -728,9 +812,272 @@
             "description": "Soft delete property (Owner or Admin only)"
           },
           "response": []
+        },
+        {
+          "name": "Search Properties",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains properties array\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('properties');",
+                  "    pm.expect(jsonData.data.properties).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains filters info\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('filters');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/properties/search?search=house&minPrice=50000&maxPrice=500000&minBedrooms=2&maxBedrooms=4&propertyType=HOUSE&country=SOMALIA&sortBy=price&sortOrder=asc",
+              "host": ["{{base_url}}"],
+              "path": ["properties", "search"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "house"
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "disabled": true
+                },
+                {
+                  "key": "propertyType",
+                  "value": "HOUSE"
+                },
+                {
+                  "key": "listingType",
+                  "value": "SALE",
+                  "disabled": true
+                },
+                {
+                  "key": "country",
+                  "value": "SOMALIA"
+                },
+                {
+                  "key": "minPrice",
+                  "value": "50000"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "500000"
+                },
+                {
+                  "key": "minBedrooms",
+                  "value": "2"
+                },
+                {
+                  "key": "maxBedrooms",
+                  "value": "4"
+                },
+                {
+                  "key": "minBathrooms",
+                  "value": "1",
+                  "disabled": true
+                },
+                {
+                  "key": "maxBathrooms",
+                  "value": "3",
+                  "disabled": true
+                },
+                {
+                  "key": "hasAirConditioning",
+                  "value": "true",
+                  "disabled": true
+                },
+                {
+                  "key": "address",
+                  "value": "Mogadishu",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "price"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc"
+                }
+              ]
+            },
+            "description": "Advanced search properties with comprehensive filtering (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Trending Properties",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains properties with view counts\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('properties');",
+                  "    pm.expect(jsonData.data.properties).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/properties/trending?period=week&limit=10&country=SOMALIA",
+              "host": ["{{base_url}}"],
+              "path": ["properties", "trending"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "period",
+                  "value": "week"
+                },
+                {
+                  "key": "country",
+                  "value": "SOMALIA"
+                },
+                {
+                  "key": "propertyType",
+                  "value": "HOUSE",
+                  "disabled": true
+                },
+                {
+                  "key": "listingType",
+                  "value": "SALE",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get trending properties based on views (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Record Property View",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 or 200\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  "",
+                  "pm.test(\"Response indicates view status\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('recorded');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"propertyId\": \"{{property_id}}\",\n  \"sessionId\": \"anonymous-session-123\",\n  \"userAgent\": \"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)\",\n  \"referrer\": \"https://kiraale.com/search\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/properties/views/record",
+              "host": ["{{base_url}}"],
+              "path": ["properties", "views", "record"]
+            },
+            "description": "Manually record a property view (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Property Analytics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains analytics data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('overview');",
+                  "    pm.expect(jsonData.data).to.have.property('dailyViews');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/properties/{{property_id}}/analytics?period=week",
+              "host": ["{{base_url}}"],
+              "path": ["properties", "{{property_id}}", "analytics"],
+              "query": [
+                {
+                  "key": "period",
+                  "value": "week"
+                },
+                {
+                  "key": "startDate",
+                  "value": "2024-01-01T00:00:00Z",
+                  "disabled": true
+                },
+                {
+                  "key": "endDate",
+                  "value": "2024-01-31T23:59:59Z",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get property analytics and view statistics (Property owner or Admin only)"
+          },
+          "response": []
         }
       ],
-      "description": "Property management endpoints - CRUD operations for property listings"
+      "description": "Property management endpoints - CRUD operations, search, analytics, and view tracking"
     },
     {
       "name": "Media Management",

@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Response } from 'express';
 
 interface ErrorResponse {
@@ -43,9 +44,9 @@ export const logError = (error: unknown, context?: string): void => {
   const contextStr = context ? `[${context}] ` : '';
 
   if (error instanceof Error) {
-    throw new Error(`${timestamp} ${contextStr}ERROR: ${error.message} ${error.stack}`);
+    console.error(`${timestamp} ${contextStr}ERROR: ${error.message} ${error.stack}`);
   } else {
-    throw new Error(`${timestamp} ${contextStr}ERROR: ${String(error)}`);
+    console.error(`${timestamp} ${contextStr}ERROR: ${String(error)}`);
   }
 };
 
@@ -55,16 +56,47 @@ export const handleDatabaseError = (error: unknown, response: Response): void =>
 };
 
 export const handleValidationError = (error: unknown, response: Response): void => {
-  logError(error, 'VALIDATION');
+  console.error('Full Validation Error:', JSON.stringify(error, null, 2));
 
   if (error && typeof error === 'object' && 'issues' in error) {
-    const zodError = error as { issues: { path: (string | number)[]; message: string }[] };
-    const errors = zodError.issues.map((err) => ({
-      field: err.path.join('.'),
-      message: err.message,
-    }));
+    const zodError = error as {
+      issues: { path: (string | number)[]; message: string; code: string; keys?: string[] }[];
+    };
+    const errors = zodError.issues.map((err) => {
+      const field = err.path.length > 0 ? err.path.join('.') : 'request body';
+      let friendlyMessage = err.message;
 
-    sendErrorResponse(response, 400, 'Validation failed', errors);
+      // Make error messages more user-friendly
+      if (err.code === 'unrecognized_keys') {
+        // Extract field names from keys array or message
+        const unrecognizedKeys = err.keys ?? [];
+        const keysList =
+          unrecognizedKeys.length > 0
+            ? unrecognizedKeys.join(', ')
+            : (/"(?<fieldName>[^"]+)"/u.exec(err.message)?.groups?.fieldName ?? 'unknown field');
+        friendlyMessage = `Field(s) not allowed: ${keysList}`;
+      } else if (err.code === 'invalid_type') {
+        friendlyMessage = `Expected different data type for '${field}': ${err.message}`;
+      } else if (err.code === 'too_small') {
+        friendlyMessage = `Field '${field}' is too short: ${err.message}`;
+      } else if (err.code === 'too_big') {
+        friendlyMessage = `Field '${field}' is too long: ${err.message}`;
+      } else if (err.code === 'invalid_string') {
+        friendlyMessage = `Invalid format for '${field}': ${err.message}`;
+      }
+
+      return {
+        field,
+        message: friendlyMessage,
+      };
+    });
+
+    const fieldNames = errors
+      .map((err) => (err.field === 'request body' ? err.message.split(':')[0] : err.field))
+      .join(', ');
+    const mainMessage = `Validation error in: ${fieldNames}`;
+
+    sendErrorResponse(response, 400, mainMessage, errors);
   } else {
     sendErrorResponse(response, 400, 'Invalid request data');
   }

@@ -4,7 +4,7 @@ import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/e
 import { hashPassword } from '@lib/utils/security/hashPassword';
 import { omitPassword } from '@lib/utils/security/omitPassword';
 import { signUpSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -13,11 +13,21 @@ const signUp: RequestHandler = async (request, response) => {
     // Validate request body with simple schema
     const userData = await signUpSchema.parseAsync(request.body);
 
-    // Check for existing user
-    const [existingUser] = await db.select().from(user).where(eq(user.email, userData.email));
+    // Check for existing user by email or mobile
+    const [existingUser] = await db
+      .select()
+      .from(user)
+      .where(or(eq(user.email, userData.email), eq(user.mobile, userData.mobile)));
+
     if (existingUser) {
-      sendErrorResponse(response, 409, 'User already exists!');
-      return;
+      if (existingUser.email === userData.email) {
+        sendErrorResponse(response, 409, 'An account with this email already exists!');
+        return;
+      }
+      if (existingUser.mobile === userData.mobile) {
+        sendErrorResponse(response, 409, 'An account with this phone number already exists!');
+        return;
+      }
     }
     // Hash password and create user
     const hashedPassword = await hashPassword(userData.password);

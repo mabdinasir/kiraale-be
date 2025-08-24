@@ -1,0 +1,138 @@
+import db from '@db/index';
+import { property, propertyView } from '@db/schemas';
+import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import { trendingPropertiesSchema } from '@schemas/property.schema';
+import { count, desc, eq, sql } from 'drizzle-orm';
+import type { RequestHandler } from 'express';
+import { z } from 'zod';
+
+const getTrendingProperties: RequestHandler = async (request, response) => {
+  try {
+    const { limit, period, country, propertyType, listingType } = trendingPropertiesSchema.parse(
+      request.query,
+    );
+
+    // Calculate date range based on period
+    const endDate = new Date();
+    const startDate = new Date();
+
+    switch (period) {
+      case 'day':
+        startDate.setDate(startDate.getDate() - 1);
+        break;
+      case 'week':
+        startDate.setDate(startDate.getDate() - 7);
+        break;
+      case 'month':
+        startDate.setMonth(startDate.getMonth() - 1);
+        break;
+      default:
+        startDate.setDate(startDate.getDate() - 7);
+    }
+
+    // Build property filters
+    const propertyFilters = [eq(property.status, 'APPROVED')];
+
+    if (country) {
+      propertyFilters.push(sql`${property.country} = ${country}`);
+    }
+    if (propertyType) {
+      propertyFilters.push(eq(property.propertyType, propertyType));
+    }
+    if (listingType) {
+      propertyFilters.push(eq(property.listingType, listingType));
+    }
+
+    // Get trending properties based on views
+    const trendingProperties = await db
+      .select({
+        id: property.id,
+        title: property.title,
+        description: property.description,
+        propertyType: property.propertyType,
+        listingType: property.listingType,
+        address: property.address,
+        country: property.country,
+        price: property.price,
+        priceType: property.priceType,
+        rentFrequency: property.rentFrequency,
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        landSize: property.landSize,
+        floorArea: property.floorArea,
+        hasAirConditioning: property.hasAirConditioning,
+        availableFrom: property.availableFrom,
+        createdAt: property.createdAt,
+        viewCount: sql<number>`coalesce(${count(propertyView.id)}, 0)`,
+        uniqueViewCount: sql<number>`coalesce(count(distinct coalesce(${propertyView.userId}::text, ${propertyView.sessionId})), 0)`,
+      })
+      .from(property)
+      .leftJoin(
+        propertyView,
+        sql`${property.id} = ${propertyView.propertyId} AND ${propertyView.viewedAt} >= ${startDate} AND ${propertyView.viewedAt} <= ${endDate}`,
+      )
+      .where(sql`${sql.join(propertyFilters, sql.raw(' AND '))}`)
+      .groupBy(
+        property.id,
+        property.title,
+        property.description,
+        property.propertyType,
+        property.listingType,
+        property.address,
+        property.country,
+        property.price,
+        property.priceType,
+        property.rentFrequency,
+        property.bedrooms,
+        property.bathrooms,
+        property.landSize,
+        property.floorArea,
+        property.hasAirConditioning,
+        property.availableFrom,
+        property.createdAt,
+      )
+      .orderBy(
+        desc(
+          sql`coalesce(count(distinct coalesce(${propertyView.userId}::text, ${propertyView.sessionId})), 0)`,
+        ),
+      )
+      .limit(limit);
+
+    // Get total properties count for context
+    const [{ totalProperties }] = await db
+      .select({ totalProperties: count() })
+      .from(property)
+      .where(sql`${sql.join(propertyFilters, sql.raw(' AND '))}`);
+
+    response.status(200).json({
+      success: true,
+      data: {
+        properties: trendingProperties,
+        period: {
+          type: period,
+          startDate: startDate.toISOString(),
+          endDate: endDate.toISOString(),
+        },
+        metadata: {
+          totalProperties,
+          showing: trendingProperties.length,
+          filters: {
+            ...(country && { country }),
+            ...(propertyType && { propertyType }),
+            ...(listingType && { listingType }),
+          },
+        },
+      },
+    });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      handleValidationError(error, response);
+      return;
+    }
+
+    logError(error, 'GET_TRENDING_PROPERTIES');
+    sendErrorResponse(response, 500, 'Failed to retrieve trending properties.');
+  }
+};
+
+export default getTrendingProperties;

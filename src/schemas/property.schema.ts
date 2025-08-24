@@ -38,6 +38,10 @@ export const createPropertySchema = insertPropertySchema
       .min(1, 'Address is required')
       .max(500, 'Address cannot exceed 500 characters'),
     price: z.number().positive('Price must be greater than 0'),
+    availableFrom: z
+      .string()
+      .transform((str) => new Date(str))
+      .optional(),
   })
   .strict();
 
@@ -80,6 +84,10 @@ export const updatePropertySchema = insertPropertySchema
       .max(500, 'Address cannot exceed 500 characters')
       .optional(),
     price: z.number().positive('Price must be greater than 0').optional(),
+    availableFrom: z
+      .string()
+      .transform((str) => new Date(str))
+      .optional(),
   })
   .partial()
   .strict();
@@ -136,8 +144,18 @@ export const deletePropertySchema = selectPropertySchema
   })
   .strict();
 
+// Trending properties schema
+export const trendingPropertiesSchema = z.object({
+  limit: z.coerce.number().int().positive().max(50).default(10),
+  period: z.enum(['day', 'week', 'month']).default('week'),
+  country: z.enum(country.enumValues).optional(),
+  propertyType: z.enum(propertyType.enumValues).optional(),
+  listingType: z.enum(listingType.enumValues).optional(),
+});
+
 export type CreatePropertyData = z.infer<typeof createPropertySchema>;
 export type UpdatePropertyData = z.infer<typeof updatePropertySchema>;
 export type GetPropertyByIdParams = z.infer<typeof getPropertyByIdSchema>;
 export type QueryPropertiesParams = z.infer<typeof queryPropertiesSchema>;
 export type DeletePropertyParams = z.infer<typeof deletePropertySchema>;
+export type TrendingPropertiesParams = z.infer<typeof trendingPropertiesSchema>;

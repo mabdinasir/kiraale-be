@@ -9,7 +9,7 @@ import {
   updateUser,
   uploadProfilePic,
 } from '@controllers/api/user';
-import { requireResourceAccess, userMiddleware } from '@lib/permissions/middleware';
+import { adminMiddleware, requireResourceAccess } from '@lib/permissions/middleware';
 import { authMiddleware } from '@middleware/authMiddleware';
 import type { RouteGroup } from '@models/routes';
 
@@ -19,7 +19,7 @@ const userRoutes: RouteGroup = {
     {
       path: '/',
       method: 'get',
-      middlewares: [authMiddleware, userMiddleware.canRead], // Admin can list all users
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Only admins can list all users
       handler: getUsers,
     },
     {
