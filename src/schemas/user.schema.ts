@@ -54,7 +54,17 @@ export const profilePicUploadSchema = z.object({
   }),
 });
 
+// Get users query schema for admin/pagination
+export const getUsersQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1).optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(10).optional(),
+    role: z.enum(['USER', 'ADMIN', 'AGENT']).optional(),
+  })
+  .optional();
+
 export type GetUserByIdParams = z.infer<typeof getUserByIdSchema>;
+export type GetUsersQueryParams = z.infer<typeof getUsersQuerySchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;
 export type DeleteParams = z.infer<typeof deleteParamsSchema>;
 export type ProfilePicUploadData = z.infer<typeof profilePicUploadSchema>;

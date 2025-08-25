@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { property } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { getPropertyByIdSchema, updatePropertySchema } from '@schemas/property.schema';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -50,12 +55,8 @@ const updateProperty: RequestHandler = async (request, response) => {
       .where(eq(property.id, id))
       .returning();
 
-    response.status(200).json({
-      success: true,
-      message: 'Property updated successfully',
-      data: {
-        property: updatedProperty,
-      },
+    sendSuccessResponse(response, 200, 'Property updated successfully', {
+      property: updatedProperty,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

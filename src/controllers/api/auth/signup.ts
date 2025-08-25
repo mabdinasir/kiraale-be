@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { hashPassword } from '@lib/utils/security/hashPassword';
 import { omitPassword } from '@lib/utils/security/omitPassword';
 import { signUpSchema } from '@schemas';
@@ -43,12 +48,8 @@ const signUp: RequestHandler = async (request, response) => {
     // Remove password from response
     const userWithoutPassword = omitPassword(createdUser);
 
-    response.status(201).json({
-      success: true,
-      message: 'User created successfully!',
-      data: {
-        user: userWithoutPassword,
-      },
+    sendSuccessResponse(response, 201, 'User created successfully!', {
+      user: userWithoutPassword,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

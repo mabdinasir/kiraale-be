@@ -1,7 +1,12 @@
 import db from '@db/index';
 import { tokenBlacklist, user } from '@db/schemas';
 import { generateJwtToken, verifyRefreshToken } from '@lib/utils/auth/generateJwtToken';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { omitPassword } from '@lib/utils/security/omitPassword';
 import { refreshTokenSchema } from '@schemas/auth.schema';
 import { eq } from 'drizzle-orm';
@@ -46,15 +51,11 @@ const refreshToken: RequestHandler = async (request, response) => {
     const newAccessToken = generateJwtToken(existingUser);
     const userWithoutPassword = omitPassword(existingUser);
 
-    response.status(200).json({
-      success: true,
-      message: 'Token refreshed successfully',
-      data: {
-        user: userWithoutPassword,
-        accessToken: newAccessToken,
-        // Note: Refresh token stays the same (single rotation)
-        // For higher security, we could generate a new refresh token here
-      },
+    sendSuccessResponse(response, 200, 'Token refreshed successfully', {
+      user: userWithoutPassword,
+      accessToken: newAccessToken,
+      // Note: Refresh token stays the same (single rotation)
+      // For higher security, we could generate a new refresh token here
     });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

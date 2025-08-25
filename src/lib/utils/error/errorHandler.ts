@@ -1,11 +1,6 @@
 /* eslint-disable no-console */
+import type { ErrorResponse, SuccessResponse } from '@models/apiResponse';
 import type { Response } from 'express';
-
-interface ErrorResponse {
-  success: false;
-  message: string;
-  errors?: { field: string; message: string }[];
-}
 
 export const sanitizeError = (error: unknown): string => {
   // In production, return generic messages for most errors
@@ -37,6 +32,22 @@ export const sendErrorResponse = (
   }
 
   response.status(statusCode).json(errorResponse);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+export const sendSuccessResponse = <T>(
+  response: Response,
+  statusCode: number,
+  message: string,
+  data: T,
+): void => {
+  const successResponse: SuccessResponse<T> = {
+    success: true,
+    message,
+    data,
+  };
+
+  response.status(statusCode).json(successResponse);
 };
 
 export const logError = (error: unknown, context?: string): void => {

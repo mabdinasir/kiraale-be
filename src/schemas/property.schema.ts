@@ -146,6 +146,7 @@ export const deletePropertySchema = selectPropertySchema
 
 // Trending properties schema
 export const trendingPropertiesSchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().positive().max(50).default(10),
   period: z.enum(['day', 'week', 'month']).default('week'),
   country: z.enum(country.enumValues).optional(),

@@ -1,7 +1,12 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
 import { generateJwtToken, generateRefreshToken } from '@lib/utils/auth/generateJwtToken';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { verifyPassword } from '@lib/utils/security/hashPassword';
 import { omitPassword } from '@lib/utils/security/omitPassword';
 import { loginSchema } from '@schemas';
@@ -45,14 +50,11 @@ const login: RequestHandler = async (request, response) => {
     const refreshToken = generateRefreshToken(loggedInUser.id);
     const userWithoutPassword = omitPassword(loggedInUser);
 
-    response.status(200).json({
-      success: true,
-      message: 'User signed in successfully!',
-      data: {
-        user: userWithoutPassword,
-        accessToken,
-        refreshToken,
-      },
+    sendSuccessResponse(response, 200, 'User signed in successfully!', {
+      user: userWithoutPassword,
+      jwt: accessToken,
+      refreshToken,
+      id: loggedInUser.id,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

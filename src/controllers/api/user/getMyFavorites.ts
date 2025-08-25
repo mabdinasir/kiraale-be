@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { favorite, property, user } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { getMyFavoritesSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -60,16 +65,13 @@ const getMyFavorites: RequestHandler = async (request, response) => {
     const totalFavorites = Number(countResult?.count || 0);
     const totalPages = Math.ceil(totalFavorites / limit);
 
-    response.status(200).json({
-      success: true,
-      data: {
-        favorites: myFavorites,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: totalFavorites,
-          itemsPerPage: limit,
-        },
+    sendSuccessResponse(response, 200, 'Your favorites retrieved successfully', {
+      favorites: myFavorites,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalFavorites,
+        itemsPerPage: limit,
       },
     });
   } catch (error) {

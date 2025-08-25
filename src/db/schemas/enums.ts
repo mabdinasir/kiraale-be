@@ -46,6 +46,26 @@ export const propertyStatus = pgEnum('propertyStatus', [
 // Media related enums
 export const mediaType = pgEnum('mediaType', ['IMAGE', 'VIDEO', 'VIRTUAL_TOUR', 'FLOOR_PLAN']);
 
+// Payment related enums
+export const paymentStatus = pgEnum('paymentStatus', [
+  'PENDING',
+  'COMPLETED',
+  'FAILED',
+  'CANCELLED',
+]);
+
+export const paymentMethod = pgEnum('paymentMethod', ['MPESA', 'EVC']);
+
+// Service pricing related enums
+export const serviceType = pgEnum('serviceType', [
+  'PROPERTY_LISTING',
+  'HOTEL_LISTING',
+  'FEATURED_PROPERTY',
+  'URGENT_LISTING',
+]);
+
+export const currency = pgEnum('currency', ['USD', 'KES', 'SOS']);
+
 export const permission = pgEnum('permission', [
   // User management permissions
   'USER_READ',
@@ -104,6 +124,10 @@ export const priceTypeValues = priceType.enumValues;
 export const rentFrequencyValues = rentFrequency.enumValues;
 export const propertyStatusValues = propertyStatus.enumValues;
 export const mediaTypeValues = mediaType.enumValues;
+export const paymentStatusValues = paymentStatus.enumValues;
+export const paymentMethodValues = paymentMethod.enumValues;
+export const serviceTypeValues = serviceType.enumValues;
+export const currencyValues = currency.enumValues;
 export const permissionValues = permission.enumValues;
 
 // Type definitions
@@ -116,4 +140,8 @@ export type PriceType = (typeof priceType.enumValues)[number];
 export type RentFrequency = (typeof rentFrequency.enumValues)[number];
 export type PropertyStatus = (typeof propertyStatus.enumValues)[number];
 export type MediaType = (typeof mediaType.enumValues)[number];
+export type PaymentStatus = (typeof paymentStatus.enumValues)[number];
+export type PaymentMethod = (typeof paymentMethod.enumValues)[number];
+export type ServiceType = (typeof serviceType.enumValues)[number];
+export type Currency = (typeof currency.enumValues)[number];
 export type Permission = (typeof permission.enumValues)[number];

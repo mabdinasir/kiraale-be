@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { media } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { getMediaByIdSchema } from '@schemas/media.schema';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -17,11 +22,8 @@ const getMedia: RequestHandler = async (request, response) => {
       return;
     }
 
-    response.status(200).json({
-      success: true,
-      data: {
-        media: existingMedia,
-      },
+    sendSuccessResponse(response, 200, 'Media retrieved successfully', {
+      media: existingMedia,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

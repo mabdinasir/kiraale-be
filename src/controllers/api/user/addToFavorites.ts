@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { favorite, property } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils';
 import { addToFavoritesSchema } from '@schemas';
 import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -50,12 +55,8 @@ const addToFavorites: RequestHandler = async (request, response) => {
       })
       .returning();
 
-    response.status(201).json({
-      success: true,
-      message: 'Property added to favorites successfully',
-      data: {
-        favorite: newFavorite,
-      },
+    sendSuccessResponse(response, 201, 'Property added to favorites successfully', {
+      favorite: newFavorite,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

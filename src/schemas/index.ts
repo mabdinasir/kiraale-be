@@ -3,6 +3,8 @@ export * from './agency.schema';
 export * from './auth.schema';
 export * from './favorite.schema';
 export * from './media.schema';
+export * from './payment.schema';
+export * from './pricing.schema';
 export * from './property.schema';
 export * from './propertySearch.schema';
 export * from './user.schema';

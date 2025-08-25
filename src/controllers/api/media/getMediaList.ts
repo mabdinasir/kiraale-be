@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { media } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { queryMediaSchema } from '@schemas/media.schema';
 import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -48,16 +53,13 @@ const getMediaList: RequestHandler = async (request, response) => {
     const totalMedia = Number(countResult?.count || 0);
     const totalPages = Math.ceil(totalMedia / limit);
 
-    response.status(200).json({
-      success: true,
-      data: {
-        media: mediaList,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: totalMedia,
-          itemsPerPage: limit,
-        },
+    sendSuccessResponse(response, 200, 'Media list retrieved successfully', {
+      media: mediaList,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalMedia,
+        itemsPerPage: limit,
       },
     });
   } catch (error) {

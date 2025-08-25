@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { agencyAgent, property } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { createPropertySchema } from '@schemas/property.schema';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -39,12 +44,8 @@ const createProperty: RequestHandler = async (request, response) => {
       })
       .returning();
 
-    response.status(201).json({
-      success: true,
-      message: 'Property created successfully',
-      data: {
-        property: createdProperty,
-      },
+    sendSuccessResponse(response, 201, 'Property created successfully', {
+      property: createdProperty,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

@@ -28,7 +28,8 @@
       "@config/*": ["lib/config/*"],
       "@schemas": ["schemas/index"],
       "@schemas/*": ["schemas/*"],
-      "@security/*": ["lib/utils/security/*"]
+      "@security/*": ["lib/utils/security/*"],
+      "@services/*": ["services/*"]
     }
   },
   "exclude": ["node_modules", "dist", "eslint.config.js"]

@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { favorite } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { removeFromFavoritesParamsSchema } from '@schemas';
 import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -33,10 +38,7 @@ const removeFromFavorites: RequestHandler = async (request, response) => {
       .delete(favorite)
       .where(and(eq(favorite.userId, userId), eq(favorite.propertyId, propertyId)));
 
-    response.status(200).json({
-      success: true,
-      message: 'Property removed from favorites successfully',
-    });
+    sendSuccessResponse(response, 200, 'Property removed from favorites successfully', {});
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

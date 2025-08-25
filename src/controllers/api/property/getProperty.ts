@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { property } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils';
 import { getPropertyByIdSchema } from '@schemas/property.schema';
 import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -21,11 +26,8 @@ const getProperty: RequestHandler = async (request, response) => {
       return;
     }
 
-    response.status(200).json({
-      success: true,
-      data: {
-        property: existingProperty,
-      },
+    sendSuccessResponse(response, 200, 'Property retrieved successfully', {
+      property: existingProperty,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

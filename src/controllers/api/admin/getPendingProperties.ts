@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { property, user } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { getPendingPropertiesSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -50,16 +55,13 @@ const getPendingProperties: RequestHandler = async (request, response) => {
     const totalProperties = Number(countResult?.count || 0);
     const totalPages = Math.ceil(totalProperties / limit);
 
-    response.status(200).json({
-      success: true,
-      data: {
-        properties: pendingProperties,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: totalProperties,
-          itemsPerPage: limit,
-        },
+    sendSuccessResponse(response, 200, 'Pending properties retrieved successfully', {
+      properties: pendingProperties,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalProperties,
+        itemsPerPage: limit,
       },
     });
   } catch (error) {

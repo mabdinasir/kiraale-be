@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { property } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { queryPropertiesSchema } from '@schemas/property.schema';
 import { and, eq, gte, lte } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -10,7 +15,7 @@ const getProperties: RequestHandler = async (request, response) => {
   try {
     const {
       page = 1,
-      limit = 10,
+      limit = 50,
       propertyType,
       listingType,
       country,
@@ -72,16 +77,13 @@ const getProperties: RequestHandler = async (request, response) => {
     const totalProperties = Number(countResult?.count || 0);
     const totalPages = Math.ceil(totalProperties / limit);
 
-    response.status(200).json({
-      success: true,
-      data: {
-        properties,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: totalProperties,
-          itemsPerPage: limit,
-        },
+    sendSuccessResponse(response, 200, 'Properties retrieved successfully', {
+      properties,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalProperties,
+        itemsPerPage: limit,
       },
     });
   } catch (error) {

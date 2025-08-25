@@ -1,5 +1,8 @@
+import { logError } from '@lib/utils/error/errorHandler';
+
 const computeSHA256 = async (file: Express.Multer.File) => {
   if (!file) {
+    logError('File is undefined');
     throw new Error('File is undefined');
   }
 

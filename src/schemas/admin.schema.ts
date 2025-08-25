@@ -23,8 +23,32 @@ export const getPendingPropertiesSchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
 });
 
+// Get payments schema for admin
+export const getPaymentsSchema = z.object({
+  page: z
+    .string()
+    .optional()
+    .default('1')
+    .transform((val) => parseInt(val, 10)),
+  limit: z
+    .string()
+    .optional()
+    .default('20')
+    .transform((val) => parseInt(val, 10)),
+  status: z.enum(['PENDING', 'COMPLETED', 'FAILED']).optional(),
+  method: z.enum(['MPESA', 'EVC']).optional(),
+  search: z.string().optional(),
+  propertyId: z.string().optional(),
+});
+
+export const getPaymentByIdSchema = z.object({
+  paymentId: z.uuid('Invalid payment ID'),
+});
+
 export type ApprovePropertyParams = z.infer<typeof approvePropertyParamsSchema>;
 export type ApprovePropertyBody = z.infer<typeof approvePropertyBodySchema>;
 export type RejectPropertyParams = z.infer<typeof rejectPropertyParamsSchema>;
 export type RejectPropertyBody = z.infer<typeof rejectPropertyBodySchema>;
 export type GetPendingPropertiesQuery = z.infer<typeof getPendingPropertiesSchema>;
+export type AdminGetPaymentsQuery = z.infer<typeof getPaymentsSchema>;
+export type GetPaymentByIdParams = z.infer<typeof getPaymentByIdSchema>;

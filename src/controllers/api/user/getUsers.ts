@@ -1,22 +1,59 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
-import { logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { omitPassword } from '@lib/utils/security/omitPassword';
-import { eq } from 'drizzle-orm';
+import { getUsersQuerySchema } from '@schemas/user.schema';
+import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
 const getUsers: RequestHandler = async (request, response) => {
   try {
-    // Permission checks are now handled by middleware
-    const users = await db.select().from(user).where(eq(user.isDeleted, false));
+    // Validate query parameters
+    const queryValidation = getUsersQuerySchema.safeParse(request.query);
+    if (!queryValidation.success) {
+      handleValidationError(queryValidation.error, response);
+      return;
+    }
+
+    const { page = 1, limit = 50, role } = queryValidation.data ?? {};
+
+    // Build query conditions
+    const conditions = [eq(user.isDeleted, false)];
+    if (role) {
+      conditions.push(eq(user.role, role));
+    }
+
+    // Get users with pagination
+    const users = await db
+      .select()
+      .from(user)
+      .where(and(...conditions))
+      .limit(limit)
+      .offset((page - 1) * limit);
+
+    // Get total count for pagination
+    const [countResult] = await db
+      .select({ count: user.id })
+      .from(user)
+      .where(and(...conditions));
+
+    const totalUsers = Number(countResult?.count || 0);
+    const totalPages = Math.ceil(totalUsers / limit);
 
     const usersWithoutPasswords = users.map(omitPassword);
 
-    response.status(200).json({
-      success: true,
-      message: 'Users retrieved successfully',
-      data: {
-        users: usersWithoutPasswords,
+    sendSuccessResponse(response, 200, 'Users retrieved successfully', {
+      users: usersWithoutPasswords,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalUsers,
+        itemsPerPage: limit,
       },
     });
   } catch (error) {

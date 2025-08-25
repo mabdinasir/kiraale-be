@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { property, propertyView } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { trendingPropertiesSchema } from '@schemas/property.schema';
 import { count, desc, eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -8,9 +13,8 @@ import { z } from 'zod';
 
 const getTrendingProperties: RequestHandler = async (request, response) => {
   try {
-    const { limit, period, country, propertyType, listingType } = trendingPropertiesSchema.parse(
-      request.query,
-    );
+    const { page, limit, period, country, propertyType, listingType } =
+      trendingPropertiesSchema.parse(request.query);
 
     // Calculate date range based on period
     const endDate = new Date();
@@ -96,32 +100,34 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
           sql`coalesce(count(distinct coalesce(${propertyView.userId}::text, ${propertyView.sessionId})), 0)`,
         ),
       )
-      .limit(limit);
+      .limit(limit)
+      .offset((page - 1) * limit);
 
-    // Get total properties count for context
+    // Get total properties count for pagination
     const [{ totalProperties }] = await db
       .select({ totalProperties: count() })
       .from(property)
       .where(sql`${sql.join(propertyFilters, sql.raw(' AND '))}`);
 
-    response.status(200).json({
-      success: true,
-      data: {
-        properties: trendingProperties,
-        period: {
-          type: period,
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString(),
-        },
-        metadata: {
-          totalProperties,
-          showing: trendingProperties.length,
-          filters: {
-            ...(country && { country }),
-            ...(propertyType && { propertyType }),
-            ...(listingType && { listingType }),
-          },
-        },
+    const totalPages = Math.ceil(totalProperties / limit);
+
+    sendSuccessResponse(response, 200, 'Trending properties retrieved successfully', {
+      properties: trendingProperties,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalProperties,
+        itemsPerPage: limit,
+      },
+      period: {
+        type: period,
+        startDate: startDate.toISOString(),
+        endDate: endDate.toISOString(),
+      },
+      filters: {
+        ...(country && { country }),
+        ...(propertyType && { propertyType }),
+        ...(listingType && { listingType }),
       },
     });
   } catch (error) {

@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { omitPassword } from '@lib/utils/security/omitPassword';
 import { getUserByIdSchema, updateUserSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
@@ -33,12 +38,8 @@ const updateUser: RequestHandler = async (request, response) => {
     const [updatedUser] = await db.select().from(user).where(eq(user.id, id));
     const userWithoutPassword = omitPassword(updatedUser);
 
-    response.status(200).json({
-      success: true,
-      message: 'User updated successfully',
-      data: {
-        user: userWithoutPassword,
-      },
+    sendSuccessResponse(response, 200, 'User updated successfully', {
+      user: userWithoutPassword,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

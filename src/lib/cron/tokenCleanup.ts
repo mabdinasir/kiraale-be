@@ -1,3 +1,4 @@
+import { logError } from '@lib/utils';
 import { cleanupExpiredTokens } from '@lib/utils/security/tokenCleanup';
 import cron from 'node-cron';
 
@@ -7,7 +8,7 @@ export const setupTokenCleanupCron = () => {
     try {
       await cleanupExpiredTokens();
     } catch (error) {
-      throw new Error(`Failed to clean up expired tokens: ${(error as Error).message}`);
+      logError(`Failed to clean up expired tokens: ${(error as Error).message}`);
     }
   });
 };

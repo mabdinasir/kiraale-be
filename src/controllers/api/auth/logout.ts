@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { insertTokenBlacklistSchema, tokenBlacklist, user } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
@@ -40,10 +45,7 @@ const logout: RequestHandler = async (request, response) => {
       await tx.insert(tokenBlacklist).values(tokenData);
     });
 
-    response.status(200).json({
-      success: true,
-      message: 'Logged out successfully',
-    });
+    sendSuccessResponse(response, 200, 'Logged out successfully', null);
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

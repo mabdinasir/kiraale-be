@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { omitPassword } from '@lib/utils/security/omitPassword';
 import { getUserByIdSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
@@ -21,12 +26,8 @@ const getUser: RequestHandler = async (request, response) => {
     // Permission checks are now handled by middleware
     const userWithoutPassword = omitPassword(existingUser);
 
-    response.status(200).json({
-      success: true,
-      message: 'User retrieved successfully',
-      data: {
-        user: userWithoutPassword,
-      },
+    sendSuccessResponse(response, 200, 'User retrieved successfully', {
+      user: userWithoutPassword,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

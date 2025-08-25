@@ -1,7 +1,12 @@
 import db from '@db/index';
 import { agency, agencyAgent, user } from '@db/schemas';
 import { generateJwtToken } from '@lib/utils/auth/generateJwtToken';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { createAgencySchema } from '@schemas/agency.schema';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -87,19 +92,19 @@ const createAgency: RequestHandler = async (request, response) => {
     // Generate fresh JWT with updated role
     const freshJwtToken = generateJwtToken(updatedUser);
 
-    response.status(201).json({
-      success: true,
-      message: 'Agency created successfully. You are now an agent and agency admin.',
-      data: {
+    sendSuccessResponse(
+      response,
+      201,
+      'Agency created successfully. You are now an agent and agency admin.',
+      {
         agency: result.newAgency,
         userRole: result.newRole,
         agentNumber: result.agentNumber,
         agencyMembership: result.agencyMembership,
-        // Fresh JWT token with updated role
         jwt: freshJwtToken,
         user,
       },
-    });
+    );
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

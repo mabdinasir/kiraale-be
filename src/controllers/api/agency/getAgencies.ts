@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { agency } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils';
 import { getAgenciesSchema } from '@schemas/agency.schema';
 import { and, count, eq, ilike, or } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -66,16 +71,13 @@ const getAgencies: RequestHandler = async (request, response) => {
 
     const totalPages = Math.ceil(totalCount / limit);
 
-    response.status(200).json({
-      success: true,
-      data: {
-        agencies,
-        pagination: {
-          currentPage: page,
-          totalPages,
-          totalItems: totalCount,
-          itemsPerPage: limit,
-        },
+    sendSuccessResponse(response, 200, 'Agencies retrieved successfully', {
+      agencies,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalItems: totalCount,
+        itemsPerPage: limit,
       },
     });
   } catch (error) {

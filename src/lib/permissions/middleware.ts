@@ -12,21 +12,16 @@ export function requirePermission(requiredPermission: Permission): RequestHandle
     const userRole = req.user?.role;
 
     if (!userRole) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      });
+      sendErrorResponse(res, 401, 'Authentication required');
+      return;
     }
 
     if (!hasPermission(userRole, requiredPermission)) {
-      return res.status(403).json({
-        success: false,
-        message: `Access denied. Required permission: ${requiredPermission}`,
-      });
+      sendErrorResponse(res, 403, `Access denied. Required permission: ${requiredPermission}`);
+      return;
     }
 
     next();
-    return null;
   };
 }
 
@@ -36,21 +31,20 @@ export function requireAnyPermission(requiredPermissions: Permission[]): Request
     const userRole = req.user?.role;
 
     if (!userRole) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      });
+      sendErrorResponse(res, 401, 'Authentication required');
+      return;
     }
 
     if (!hasAnyPermission(userRole, requiredPermissions)) {
-      return res.status(403).json({
-        success: false,
-        message: `Access denied. Required one of: ${requiredPermissions.join(', ')}`,
-      });
+      sendErrorResponse(
+        res,
+        403,
+        `Access denied. Required one of: ${requiredPermissions.join(', ')}`,
+      );
+      return;
     }
 
     next();
-    return null;
   };
 }
 
@@ -60,21 +54,20 @@ export function requireAllPermissions(requiredPermissions: Permission[]): Reques
     const userRole = req.user?.role;
 
     if (!userRole) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      });
+      sendErrorResponse(res, 401, 'Authentication required');
+      return;
     }
 
     if (!hasAllPermissions(userRole, requiredPermissions)) {
-      return res.status(403).json({
-        success: false,
-        message: `Access denied. Required all of: ${requiredPermissions.join(', ')}`,
-      });
+      sendErrorResponse(
+        res,
+        403,
+        `Access denied. Required all of: ${requiredPermissions.join(', ')}`,
+      );
+      return;
     }
 
     next();
-    return null;
   };
 }
 
@@ -88,10 +81,8 @@ export function requireResourceAccess(
     const userId = req.user?.id;
 
     if (!userRole || !userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      });
+      sendErrorResponse(res, 401, 'Authentication required');
+      return;
     }
 
     const resourceOwnerId = getResourceOwnerId(req);
@@ -99,19 +90,20 @@ export function requireResourceAccess(
     // If user owns the resource, allow access
     if (userId === resourceOwnerId) {
       next();
-      return null;
+      return;
     }
 
     // Otherwise check if they have the fallback permission
     if (!hasPermission(userRole, fallbackPermission)) {
-      return res.status(403).json({
-        success: false,
-        message: `Access denied. Required permission: ${fallbackPermission} or resource ownership`,
-      });
+      sendErrorResponse(
+        res,
+        403,
+        `Access denied. Required permission: ${fallbackPermission} or resource ownership`,
+      );
+      return;
     }
 
     next();
-    return null;
   };
 }
 
@@ -123,16 +115,14 @@ export function requireAgencyAccess(permission: Permission): RequestHandler {
     const agencyId = req.params.id || req.params.agencyId;
 
     if (!userRole || !userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Authentication required',
-      });
+      sendErrorResponse(res, 401, 'Authentication required');
+      return;
     }
 
     // Platform admins can access everything
     if (hasPermission(userRole, 'ADMIN_ACCESS')) {
       next();
-      return null;
+      return;
     }
 
     // Check if user has the general permission (like AGENCY_WRITE)
@@ -174,11 +164,10 @@ export function requireAgencyAccess(permission: Permission): RequestHandler {
         }
       }
       next();
-      return null;
+      return;
     }
 
     sendErrorResponse(res, 403, `Access denied. Required permission: ${permission}`);
-    return null;
   };
 }
 

@@ -5,6 +5,8 @@ import agencyRoutes from './agency.routes';
 import authRoutes from './auth.routes';
 import healthRoutes from './health.routes';
 import mediaRoutes from './media.routes';
+import paymentRoutes from './payment.routes';
+import pricingRoutes from './pricing.routes';
 import propertyRoutes from './property.routes';
 import { registerSwaggerRoutes } from './swagger.routes';
 import userRoutes from './user.routes';
@@ -30,6 +32,8 @@ function configureRoutes(router: Router): void {
     healthRoutes,
     mediaRoutes,
     propertyRoutes,
+    paymentRoutes,
+    pricingRoutes,
     userRoutes,
   ];
   registerRouteGroups(router, routeGroups);

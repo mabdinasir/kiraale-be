@@ -1723,6 +1723,398 @@
       "description": "Agency management endpoints - Create, read, update, delete agencies and manage agents"
     },
     {
+      "name": "Payment System",
+      "item": [
+        {
+          "name": "M-Pesa STK Push",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains payment data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData.data).to.have.property('CheckoutRequestID');",
+                  "    pm.expect(jsonData).to.have.property('receiptNumber');",
+                  "    pm.expect(jsonData).to.have.property('amount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+254712345678\",\n  \"userId\": \"{{user_id}}\",\n  \"propertyId\": \"{{property_id}}\",\n  \"serviceType\": \"PROPERTY_LISTING\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/mpesa/stkpush",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "mpesa", "stkpush"]
+            },
+            "description": "Initiate M-Pesa STK Push payment for property listing (Requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "EVC Payment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains payment data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.eql(true);",
+                  "    pm.expect(jsonData).to.have.property('amount');",
+                  "    pm.expect(jsonData).to.have.property('serviceType');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+252612345678\",\n  \"userId\": \"{{user_id}}\",\n  \"propertyId\": \"{{property_id}}\",\n  \"serviceType\": \"PROPERTY_LISTING\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/evc",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "evc"]
+            },
+            "description": "Initiate EVC payment for property listing (Requires authentication)"
+          },
+          "response": []
+        },
+        {
+          "name": "M-Pesa Callback",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response indicates callback processed\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('ResultCode');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"Body\": {\n    \"stkCallback\": {\n      \"MerchantRequestID\": \"29115-34620561-1\",\n      \"CheckoutRequestID\": \"ws_CO_191220191020363925\",\n      \"ResultCode\": 0,\n      \"ResultDesc\": \"The service request is processed successfully.\",\n      \"CallbackMetadata\": {\n        \"Item\": [\n          {\n            \"Name\": \"Amount\",\n            \"Value\": 20.00\n          },\n          {\n            \"Name\": \"MpesaReceiptNumber\",\n            \"Value\": \"NLJ7RT61SV\"\n          },\n          {\n            \"Name\": \"TransactionDate\",\n            \"Value\": 20191219102115\n          },\n          {\n            \"Name\": \"PhoneNumber\",\n            \"Value\": 254712345678\n          }\n        ]\n      }\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/payments/callbacks/mpesa",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "callbacks", "mpesa"]
+            },
+            "description": "M-Pesa payment callback endpoint (Public webhook endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains payment status\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('payment');",
+                  "    pm.expect(jsonData.data.payment).to.have.property('status');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/payments/status/{{checkout_request_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["payments", "status", "{{checkout_request_id}}"]
+            },
+            "description": "Get payment status by checkout request ID (Requires authentication)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Payment system endpoints - M-Pesa STK Push, EVC payments, callbacks, and status checking"
+    },
+    {
+      "name": "Service Pricing Management",
+      "item": [
+        {
+          "name": "Get All Active Pricing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains pricing data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pricing",
+              "host": ["{{base_url}}"],
+              "path": ["pricing"]
+            },
+            "description": "Get all active service pricing (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Service Price",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains price data\", function () {",
+                  "    const jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.data).to.have.property('serviceType');",
+                  "    pm.expect(jsonData.data).to.have.property('amount');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pricing/PROPERTY_LISTING",
+              "host": ["{{base_url}}"],
+              "path": ["pricing", "PROPERTY_LISTING"]
+            },
+            "description": "Get pricing for specific service type (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "Create Service Pricing (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    if (response.data && response.data.id) {",
+                  "        pm.environment.set(\"pricing_id\", response.data.id);",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test(\"Status code is 201 or 403\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 403]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 201) {",
+                  "    pm.test(\"Response contains created pricing\", function () {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.data).to.have.property('serviceType');",
+                  "        pm.expect(jsonData.data).to.have.property('amount');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"serviceType\": \"PREMIUM_LISTING\",\n  \"serviceName\": \"Premium Property Listing\",\n  \"amount\": 50,\n  \"currency\": \"USD\",\n  \"description\": \"Premium listing with enhanced visibility and features (amount can be 0 for free promotions)\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/pricing",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "pricing"]
+            },
+            "description": "Create new service pricing (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Update Service Pricing (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Response contains updated pricing\", function () {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.data).to.have.property('serviceType');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 0,\n  \"serviceName\": \"Free Property Listing (Limited Time)\",\n  \"description\": \"Free property listing promotion - no charge for first month\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/admin/pricing/{{pricing_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "pricing", "{{pricing_id}}"]
+            },
+            "description": "Update service pricing (Admin only)"
+          },
+          "response": []
+        },
+        {
+          "name": "Deactivate Service Pricing (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 403]);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    pm.test(\"Response contains success message\", function () {",
+                  "        const jsonData = pm.response.json();",
+                  "        pm.expect(jsonData.success).to.eql(true);",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/pricing/{{pricing_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "pricing", "{{pricing_id}}"]
+            },
+            "description": "Deactivate service pricing (Admin only)"
+          },
+          "response": []
+        }
+      ],
+      "description": "Service pricing management endpoints - View pricing, admin CRUD operations"
+    },
+    {
       "name": "Error Testing",
       "item": [
         {
@@ -1955,6 +2347,16 @@
     },
     {
       "key": "agency_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "checkout_request_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "pricing_id",
       "value": "",
       "type": "string"
     }

@@ -1,6 +1,11 @@
 import db from '@db/index';
 import { agency } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  handleValidationError,
+  logError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib/utils/error/errorHandler';
 import { getAgencyByIdSchema } from '@schemas/agency.schema';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -30,12 +35,8 @@ const deleteAgency: RequestHandler = async (request, response) => {
       .where(eq(agency.id, id))
       .returning();
 
-    response.status(200).json({
-      success: true,
-      message: 'Agency deleted successfully',
-      data: {
-        agency: deletedAgency,
-      },
+    sendSuccessResponse(response, 200, 'Agency deleted successfully', {
+      agency: deletedAgency,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

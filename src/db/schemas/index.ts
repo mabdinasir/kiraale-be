@@ -5,6 +5,8 @@ export * from './enums';
 export * from './agency';
 export * from './favorite';
 export * from './media';
+export * from './payment';
+export * from './pricing';
 export * from './property';
 export * from './propertyView';
 export * from './resetToken';

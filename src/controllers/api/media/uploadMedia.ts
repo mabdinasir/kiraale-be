@@ -100,7 +100,7 @@ const uploadMedia: RequestHandler = async (request, response) => {
 
       // Create S3 upload command
       if (!process.env.PROPERTIES_BUCKET_NAME) {
-        throw new Error('Properties bucket name is not configured');
+        logError('Properties bucket name is not configured');
       }
 
       const putCommand = new PutObjectCommand({
@@ -125,7 +125,7 @@ const uploadMedia: RequestHandler = async (request, response) => {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error(`S3 upload failed for file ${file.originalname}`);
+        logError(`S3 upload failed for file ${file.originalname}`);
       }
 
       const [mediaUrl] = signedUrl.split('?');

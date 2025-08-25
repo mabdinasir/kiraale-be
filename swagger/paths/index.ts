@@ -6,6 +6,8 @@ import { healthPaths } from './health';
 import { mediaBasicPaths } from './mediaBasic';
 import { mediaDetailsPaths } from './mediaDetails';
 import { mediaUploadsPaths } from './mediaUploads';
+import { PaymentPaths } from './payments';
+import { PricingPaths } from './pricing';
 import { propertyPaths } from './properties';
 import { propertySearchPaths } from './propertySearch';
 import { userPaths } from './users';
@@ -22,4 +24,6 @@ export const paths = {
   ...mediaDetailsPaths,
   ...mediaUploadsPaths,
   ...fileUploadPaths,
+  ...PaymentPaths,
+  ...PricingPaths,
 };
