@@ -69,6 +69,28 @@ export const getUsersQuerySchema = z
   })
   .optional();
 
+// Password validation schema matching auth.schema.ts
+const passwordSchema = z
+  .string()
+  .min(1, 'Password is required')
+  .min(8, 'Password must be at least 8 characters')
+  .regex(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/u,
+    'Password must contain at least one uppercase, lowercase, number, and special character',
+  );
+
+export const changePasswordSchema = z
+  .object({
+    currentPassword: z.string().min(1, 'Current password is required'),
+    newPassword: passwordSchema,
+    confirmNewPassword: passwordSchema,
+  })
+  .refine((data) => data.newPassword === data.confirmNewPassword, {
+    message: "Passwords don't match",
+    path: ['confirmNewPassword'],
+  })
+  .strict();
+
 export type GetUserByIdParams = z.infer<typeof getUserByIdSchema>;
 export type GetUsersQueryParams = z.infer<typeof getUsersQuerySchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;

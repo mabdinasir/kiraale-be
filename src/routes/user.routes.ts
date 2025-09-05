@@ -1,3 +1,4 @@
+import { changePassword } from '@controllers/api/auth';
 import {
   addToFavorites,
   deactivateUser,
@@ -40,6 +41,12 @@ const userRoutes: RouteGroup = {
       method: 'delete',
       middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_DELETE')], // Self or admin
       handler: deleteUser,
+    },
+    {
+      path: '/change-password',
+      method: 'patch',
+      middlewares: [authMiddleware], // Users can change their own password
+      handler: changePassword,
     },
     {
       path: '/deactivate',
