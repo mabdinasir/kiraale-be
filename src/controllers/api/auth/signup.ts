@@ -1,5 +1,6 @@
 import db from '@db/index';
 import { user } from '@db/schemas';
+import { generateJwtToken, generateRefreshToken } from '@lib/utils/auth/generateJwtToken';
 import {
   handleValidationError,
   logError,
@@ -45,11 +46,15 @@ const signUp: RequestHandler = async (request, response) => {
       })
       .returning();
 
-    // Remove password from response
+    // Generate tokens and remove password from response
+    const accessToken = generateJwtToken(createdUser);
+    const refreshToken = generateRefreshToken(createdUser.id);
     const userWithoutPassword = omitPassword(createdUser);
 
     sendSuccessResponse(response, 201, 'User created successfully!', {
       user: userWithoutPassword,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

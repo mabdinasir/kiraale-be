@@ -38,6 +38,7 @@ const login: RequestHandler = async (request, response) => {
       .set({
         isSignedIn: true,
         isDeleted: false,
+        isActive: true,
         updatedAt: new Date(),
       })
       .where(eq(user.id, existingUser.id));
@@ -52,9 +53,8 @@ const login: RequestHandler = async (request, response) => {
 
     sendSuccessResponse(response, 200, 'User signed in successfully!', {
       user: userWithoutPassword,
-      jwt: accessToken,
+      accessToken,
       refreshToken,
-      id: loggedInUser.id,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

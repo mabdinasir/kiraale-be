@@ -1,5 +1,6 @@
 import {
   addToFavorites,
+  deactivateUser,
   deleteUser,
   getMyFavorites,
   getMyProperties,
@@ -39,6 +40,12 @@ const userRoutes: RouteGroup = {
       method: 'delete',
       middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_DELETE')], // Self or admin
       handler: deleteUser,
+    },
+    {
+      path: '/deactivate',
+      method: 'patch',
+      middlewares: [authMiddleware], // Users can deactivate their own account
+      handler: deactivateUser,
     },
     {
       path: '/profile-picture/upload',

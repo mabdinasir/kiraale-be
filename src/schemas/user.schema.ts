@@ -41,6 +41,12 @@ export const deleteParamsSchema = selectUserSchema
   })
   .strict();
 
+export const deactivateParamsSchema = selectUserSchema
+  .pick({
+    id: true,
+  })
+  .strict();
+
 // Profile picture upload schema
 export const profilePicUploadSchema = z.object({
   fileType: z.string().refine((type) => allowedImageTypes.includes(type), {
@@ -67,4 +73,5 @@ export type GetUserByIdParams = z.infer<typeof getUserByIdSchema>;
 export type GetUsersQueryParams = z.infer<typeof getUsersQuerySchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;
 export type DeleteParams = z.infer<typeof deleteParamsSchema>;
+export type DeactivateParams = z.infer<typeof deactivateParamsSchema>;
 export type ProfilePicUploadData = z.infer<typeof profilePicUploadSchema>;

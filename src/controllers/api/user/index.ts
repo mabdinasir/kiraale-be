@@ -1,4 +1,5 @@
 export { default as addToFavorites } from './addToFavorites';
+export { default as deactivateUser } from './deactivateUser';
 export { default as deleteUser } from './deleteUser';
 export { default as getMyFavorites } from './getMyFavorites';
 export { default as getMyProperties } from './getMyProperties';
