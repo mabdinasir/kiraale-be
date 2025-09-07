@@ -157,6 +157,115 @@ export const userPaths = {
       },
     },
   },
+  '/api/users/change-password': {
+    patch: {
+      tags: ['Users'],
+      summary: 'Change user password',
+      description: 'Change the authenticated user\'s password',
+      security: [{ bearerAuth: [] }],
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['currentPassword', 'newPassword', 'confirmNewPassword'],
+              properties: {
+                currentPassword: {
+                  type: 'string',
+                  description: 'Current password',
+                  example: 'CurrentPass123@',
+                },
+                newPassword: {
+                  type: 'string',
+                  description: 'New password (min 8 chars, must contain uppercase, lowercase, number, special char)',
+                  example: 'NewPass123@',
+                  minLength: 8,
+                },
+                confirmNewPassword: {
+                  type: 'string',
+                  description: 'Confirm new password (must match newPassword)',
+                  example: 'NewPass123@',
+                  minLength: 8,
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'Password changed successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Password changed successfully' },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: 'Bad request - validation error or invalid current password',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+              examples: {
+                invalidCurrentPassword: {
+                  summary: 'Invalid current password',
+                  value: {
+                    success: false,
+                    message: 'Current password is incorrect',
+                  },
+                },
+                samePassword: {
+                  summary: 'Same password',
+                  value: {
+                    success: false,
+                    message: 'New password must be different from current password',
+                  },
+                },
+                passwordMismatch: {
+                  summary: 'Passwords don\'t match',
+                  value: {
+                    success: false,
+                    message: 'Passwords don\'t match',
+                  },
+                },
+              },
+            },
+          },
+        },
+        401: {
+          description: 'Unauthorized',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        404: {
+          description: 'User not found',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        500: {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+  },
   '/users/favorites': {
     post: {
       tags: ['Users', 'Favorites'],

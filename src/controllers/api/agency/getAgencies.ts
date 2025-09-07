@@ -43,20 +43,7 @@ const getAgencies: RequestHandler = async (request, response) => {
 
     // Get agencies with pagination
     const agencies = await db
-      .select({
-        id: agency.id,
-        name: agency.name,
-        description: agency.description,
-        country: agency.country,
-        address: agency.address,
-        phone: agency.phone,
-        email: agency.email,
-        website: agency.website,
-        licenseNumber: agency.licenseNumber,
-        isActive: agency.isActive,
-        createdAt: agency.createdAt,
-        updatedAt: agency.updatedAt,
-      })
+      .select()
       .from(agency)
       .where(whereClause)
       .limit(limit)

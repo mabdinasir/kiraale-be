@@ -24,24 +24,7 @@ const userRoutes: RouteGroup = {
       middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Only admins can list all users
       handler: getUsers,
     },
-    {
-      path: '/:id',
-      method: 'get',
-      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_READ')], // Self or admin
-      handler: getUser,
-    },
-    {
-      path: '/:id',
-      method: 'put',
-      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_WRITE')], // Self or admin
-      handler: updateUser,
-    },
-    {
-      path: '/:id',
-      method: 'delete',
-      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_DELETE')], // Self or admin
-      handler: deleteUser,
-    },
+    // Specific routes must come before parameterized routes to avoid conflicts
     {
       path: '/change-password',
       method: 'patch',
@@ -83,6 +66,25 @@ const userRoutes: RouteGroup = {
       method: 'delete',
       middlewares: [authMiddleware], // Users can remove from their own favorites
       handler: removeFromFavorites,
+    },
+    // Parameterized routes come last to avoid matching specific routes
+    {
+      path: '/:id',
+      method: 'get',
+      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_READ')], // Self or admin
+      handler: getUser,
+    },
+    {
+      path: '/:id',
+      method: 'put',
+      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_WRITE')], // Self or admin
+      handler: updateUser,
+    },
+    {
+      path: '/:id',
+      method: 'delete',
+      middlewares: [authMiddleware, requireResourceAccess((req) => req.params.id, 'USER_DELETE')], // Self or admin
+      handler: deleteUser,
     },
   ],
 };

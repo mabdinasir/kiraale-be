@@ -10,17 +10,10 @@ export const removeFromFavoritesParamsSchema = z.object({
 });
 
 export const getMyFavoritesSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(10),
-});
-
-export const getMyPropertiesSchema = z.object({
-  page: z.coerce.number().min(1).default(1),
-  limit: z.coerce.number().min(1).max(100).default(10),
-  status: z.enum(['PENDING', 'APPROVED', 'REJECTED']).optional(),
+  page: z.string().transform(Number).pipe(z.number().int().min(1)).optional(),
+  limit: z.string().transform(Number).pipe(z.number().int().min(1).max(100)).optional(),
 });
 
 export type AddToFavoritesBody = z.infer<typeof addToFavoritesSchema>;
 export type RemoveFromFavoritesParams = z.infer<typeof removeFromFavoritesParamsSchema>;
 export type GetMyFavoritesQuery = z.infer<typeof getMyFavoritesSchema>;
-export type GetMyPropertiesQuery = z.infer<typeof getMyPropertiesSchema>;

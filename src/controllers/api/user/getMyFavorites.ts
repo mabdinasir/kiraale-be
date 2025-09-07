@@ -20,34 +20,13 @@ const getMyFavorites: RequestHandler = async (request, response) => {
       return;
     }
 
-    const { page, limit } = getMyFavoritesSchema.parse(request.query);
+    const { page = 1, limit = 10 } = getMyFavoritesSchema.parse(request.query);
 
     const offset = (page - 1) * limit;
 
     // Get user's favorite properties with property and owner details
-    const myFavorites = await db
-      .select({
-        favoriteId: favorite.id,
-        favoritedAt: favorite.createdAt,
-        property: {
-          id: property.id,
-          title: property.title,
-          description: property.description,
-          propertyType: property.propertyType,
-          listingType: property.listingType,
-          address: property.address,
-          country: property.country,
-          price: property.price,
-          priceType: property.priceType,
-          status: property.status,
-          createdAt: property.createdAt,
-        },
-        owner: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
-      })
+    const myFavoritesRaw = await db
+      .select()
       .from(favorite)
       .innerJoin(property, eq(favorite.propertyId, property.id))
       .innerJoin(user, eq(property.userId, user.id))
@@ -55,6 +34,39 @@ const getMyFavorites: RequestHandler = async (request, response) => {
       .orderBy(favorite.createdAt)
       .limit(limit)
       .offset(offset);
+
+    // Transform the data to match frontend expectations
+    const myFavorites = myFavoritesRaw.map((row) => ({
+      favoriteId: row.favorite.id,
+      favoritedAt: row.favorite.createdAt,
+      property: {
+        id: row.property.id,
+        title: row.property.title,
+        description: row.property.description,
+        propertyType: row.property.propertyType,
+        listingType: row.property.listingType,
+        bedrooms: row.property.bedrooms,
+        bathrooms: row.property.bathrooms,
+        parkingSpaces: row.property.parkingSpaces,
+        landSize: row.property.landSize,
+        floorArea: row.property.floorArea,
+        hasAirConditioning: row.property.hasAirConditioning,
+        address: row.property.address,
+        country: row.property.country,
+        price: row.property.price,
+        priceType: row.property.priceType,
+        rentFrequency: row.property.rentFrequency,
+        status: row.property.status,
+        availableFrom: row.property.availableFrom,
+        createdAt: row.property.createdAt,
+        updatedAt: row.property.updatedAt,
+      },
+      owner: {
+        id: row.user.id,
+        firstName: row.user.firstName,
+        lastName: row.user.lastName,
+      },
+    }));
 
     // Get total count for pagination
     const [countResult] = await db

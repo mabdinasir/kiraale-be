@@ -154,9 +154,17 @@ export const trendingPropertiesSchema = z.object({
   listingType: z.enum(listingType.enumValues).optional(),
 });
 
+// Get my properties schema
+export const getMyPropertiesSchema = z.object({
+  page: z.string().transform(Number).pipe(z.number().int().min(1)).optional(),
+  limit: z.string().transform(Number).pipe(z.number().int().min(1).max(100)).optional(),
+  status: z.enum(propertyStatus.enumValues).optional(),
+});
+
 export type CreatePropertyData = z.infer<typeof createPropertySchema>;
 export type UpdatePropertyData = z.infer<typeof updatePropertySchema>;
 export type GetPropertyByIdParams = z.infer<typeof getPropertyByIdSchema>;
 export type QueryPropertiesParams = z.infer<typeof queryPropertiesSchema>;
 export type DeletePropertyParams = z.infer<typeof deletePropertySchema>;
 export type TrendingPropertiesParams = z.infer<typeof trendingPropertiesSchema>;
+export type GetMyPropertiesQuery = z.infer<typeof getMyPropertiesSchema>;

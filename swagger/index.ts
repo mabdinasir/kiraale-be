@@ -53,6 +53,10 @@ const swaggerDefinition = {
       description: 'User management endpoints',
     },
     {
+      name: 'Admin',
+      description: 'Administrative endpoints for managing the platform',
+    },
+    {
       name: 'Properties',
       description: 'Property listing and management endpoints',
     },
@@ -63,6 +67,22 @@ const swaggerDefinition = {
     {
       name: 'File Uploads',
       description: 'File upload endpoints for AWS S3',
+    },
+    {
+      name: 'Agencies',
+      description: 'Real estate agency management endpoints',
+    },
+    {
+      name: 'Payments',
+      description: 'Payment processing endpoints - M-Pesa, EVC, and payment callbacks',
+    },
+    {
+      name: 'Pricing',
+      description: 'Service pricing management endpoints',
+    },
+    {
+      name: 'Favorites',
+      description: 'User favorites management endpoints',
     },
   ],
   paths,

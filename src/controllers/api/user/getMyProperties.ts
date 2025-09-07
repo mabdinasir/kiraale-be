@@ -20,7 +20,7 @@ const getMyProperties: RequestHandler = async (request, response) => {
       return;
     }
 
-    const { page, limit, status } = getMyPropertiesSchema.parse(request.query);
+    const { page = 1, limit = 10, status } = getMyPropertiesSchema.parse(request.query);
 
     // Build filters
     const filters = [eq(property.userId, userId), isNull(property.deletedAt)];
@@ -31,36 +31,28 @@ const getMyProperties: RequestHandler = async (request, response) => {
 
     const offset = (page - 1) * limit;
 
-    // Get user's properties with reviewer details if reviewed
-    const myProperties = await db
-      .select({
-        id: property.id,
-        title: property.title,
-        description: property.description,
-        propertyType: property.propertyType,
-        listingType: property.listingType,
-        address: property.address,
-        country: property.country,
-        price: property.price,
-        priceType: property.priceType,
-        status: property.status,
-        reviewedAt: property.reviewedAt,
-        rejectionReason: property.rejectionReason,
-        adminNotes: property.adminNotes,
-        createdAt: property.createdAt,
-        updatedAt: property.updatedAt,
-        reviewer: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-        },
-      })
+    // Get user's properties with reviewer info when available
+    const myPropertiesRaw = await db
+      .select()
       .from(property)
       .leftJoin(user, eq(property.reviewedBy, user.id))
       .where(and(...filters))
       .orderBy(property.createdAt)
       .limit(limit)
       .offset(offset);
+
+    // Transform the data to include reviewer info
+    const myProperties = myPropertiesRaw.map((row) => ({
+      ...row.property,
+      reviewer: row.user
+        ? {
+            id: row.user.id,
+            firstName: row.user.firstName,
+            lastName: row.user.lastName,
+            email: row.user.email,
+          }
+        : null,
+    }));
 
     // Get total count for pagination
     const [countResult] = await db

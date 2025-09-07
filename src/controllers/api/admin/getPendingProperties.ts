@@ -19,26 +19,7 @@ const getPendingProperties: RequestHandler = async (request, response) => {
 
     // Get pending properties with owner details
     const pendingProperties = await db
-      .select({
-        id: property.id,
-        title: property.title,
-        description: property.description,
-        propertyType: property.propertyType,
-        listingType: property.listingType,
-        address: property.address,
-        country: property.country,
-        price: property.price,
-        priceType: property.priceType,
-        status: property.status,
-        createdAt: property.createdAt,
-        updatedAt: property.updatedAt,
-        owner: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-        },
-      })
+      .select()
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
       .where(eq(property.status, 'PENDING'))
