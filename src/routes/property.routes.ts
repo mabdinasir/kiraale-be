@@ -9,7 +9,7 @@ import {
   searchProperties,
   updateProperty,
 } from '@controllers/api/property';
-import { authMiddleware } from '@middleware/authMiddleware';
+import { authMiddleware, optionalAuthMiddleware } from '@middleware/authMiddleware';
 import type { RouteGroup } from '@models/routes';
 
 const propertyRoutes: RouteGroup = {
@@ -37,7 +37,7 @@ const propertyRoutes: RouteGroup = {
     {
       path: '/:id',
       method: 'get',
-      middlewares: [], // View tracking handled by separate API endpoint
+      middlewares: [optionalAuthMiddleware], // Optional auth to allow owners to see pending properties
       handler: getProperty,
     },
 
@@ -45,7 +45,7 @@ const propertyRoutes: RouteGroup = {
     {
       path: '/views/record',
       method: 'post',
-      middlewares: [], // Manual view recording - public
+      middlewares: [optionalAuthMiddleware], // Optional auth to allow owners to record views on pending properties
       handler: recordPropertyView,
     },
     {

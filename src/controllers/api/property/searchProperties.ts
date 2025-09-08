@@ -2,7 +2,7 @@ import db from '@db/index';
 import { property } from '@db/schemas';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { propertySearchSchema } from '@schemas';
-import { and, asc, count, desc, eq, gte, ilike, lte, or, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, ilike, lte, ne, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -46,12 +46,12 @@ const searchProperties: RequestHandler = async (request, response) => {
     // Build filters array
     const filters = [];
 
-    // Status filter - default to APPROVED for public access
+    // Status filter - show all properties except PENDING for public access
     // Admin endpoints can override this by passing status parameter
     if (status) {
       filters.push(eq(property.status, status));
     } else {
-      filters.push(eq(property.status, 'APPROVED'));
+      filters.push(ne(property.status, 'PENDING'));
     }
 
     // Text search - search in title, description, and address

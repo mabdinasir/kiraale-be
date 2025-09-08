@@ -11,14 +11,28 @@ const recordPropertyView: RequestHandler = async (request, response) => {
     const viewData = recordPropertyViewSchema.parse(request.body);
     const { propertyId, userId, sessionId, userAgent, referrer } = viewData;
 
-    // Verify property exists and is approved
+    // Get authenticated user if available
+    const authenticatedUserId = request.user?.id;
+
+    // Verify property exists and check access permissions
     const [existingProperty] = await db
-      .select({ id: property.id })
+      .select({ id: property.id, userId: property.userId, status: property.status })
       .from(property)
-      .where(and(eq(property.id, propertyId), eq(property.status, 'APPROVED')));
+      .where(eq(property.id, propertyId));
 
     if (!existingProperty) {
-      sendErrorResponse(response, 404, 'Property not found or not approved');
+      sendErrorResponse(response, 404, 'Property not found');
+      return;
+    }
+
+    // Check if user can record views for this property
+    // Rule: Users can record views for non-pending properties OR their own properties (including pending)
+    const canRecordView = authenticatedUserId
+      ? existingProperty.status !== 'PENDING' || existingProperty.userId === authenticatedUserId
+      : existingProperty.status !== 'PENDING';
+
+    if (!canRecordView) {
+      sendErrorResponse(response, 404, 'Property not found');
       return;
     }
 

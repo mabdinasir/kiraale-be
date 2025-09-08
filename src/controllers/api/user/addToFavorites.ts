@@ -30,7 +30,11 @@ const addToFavorites: RequestHandler = async (request, response) => {
       return;
     }
 
-    if (existingProperty.status !== 'APPROVED') {
+    // Check if property can be favorited
+    // Users can favorite: their own properties (any status) OR non-pending properties from others
+    const canFavorite = existingProperty.userId === userId || existingProperty.status !== 'PENDING';
+
+    if (!canFavorite) {
       sendErrorResponse(response, 400, 'Property is not available for favorites');
       return;
     }

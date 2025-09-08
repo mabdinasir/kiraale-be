@@ -26,7 +26,10 @@ export const createPropertySchema = insertPropertySchema
     availableFrom: true,
   })
   .extend({
-    title: z.string().min(4, 'Title must be at least 4 characters').max(200, 'Title cannot exceed 200 characters'),
+    title: z
+      .string()
+      .min(4, 'Title must be at least 4 characters')
+      .max(200, 'Title cannot exceed 200 characters'),
     description: z.string().max(2000, 'Description cannot exceed 2000 characters').optional(),
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),

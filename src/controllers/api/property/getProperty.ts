@@ -7,13 +7,16 @@ import {
   sendSuccessResponse,
 } from '@lib/utils';
 import { getPropertyByIdSchema } from '@schemas/property.schema';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, ne, or } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
 const getProperty: RequestHandler = async (request, response) => {
   try {
     const { id } = getPropertyByIdSchema.parse(request.params);
+
+    // Get user ID from request (if authenticated)
+    const userId = request.user?.id;
 
     const [existingProperty] = await db
       .select({
@@ -45,13 +48,22 @@ const getProperty: RequestHandler = async (request, response) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
+          mobile: user.mobile,
           profilePicture: user.profilePicture,
           agentNumber: user.agentNumber,
         },
       })
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
-      .where(and(eq(property.id, id), eq(property.status, 'APPROVED')))
+      .where(
+        and(
+          eq(property.id, id),
+          // Show property if: NOT pending OR owned by current user
+          userId
+            ? or(ne(property.status, 'PENDING'), eq(property.userId, userId))
+            : ne(property.status, 'PENDING'),
+        ),
+      )
       .limit(1);
 
     if (!existingProperty) {

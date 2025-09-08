@@ -7,7 +7,7 @@ import {
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
 import { queryPropertiesSchema } from '@schemas/property.schema';
-import { and, eq, gte, lte } from 'drizzle-orm';
+import { and, eq, gte, lte, ne } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -29,9 +29,9 @@ const getProperties: RequestHandler = async (request, response) => {
     // Build filters
     const filters = [];
 
-    // For public listings, only show APPROVED properties
-    // Status parameter is ignored for security - public can't see pending/rejected
-    filters.push(eq(property.status, 'APPROVED'));
+    // For public listings, show all properties except PENDING ones
+    // Only hide PENDING properties from regular users
+    filters.push(ne(property.status, 'PENDING'));
 
     if (propertyType) {
       filters.push(eq(property.propertyType, propertyType));
@@ -90,6 +90,7 @@ const getProperties: RequestHandler = async (request, response) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
+          mobile: user.mobile,
           profilePicture: user.profilePicture,
           agentNumber: user.agentNumber,
         },

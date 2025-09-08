@@ -7,7 +7,7 @@ import {
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
 import { trendingPropertiesSchema } from '@schemas/property.schema';
-import { count, desc, eq, sql } from 'drizzle-orm';
+import { count, desc, eq, ne, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -34,8 +34,8 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
         startDate.setDate(startDate.getDate() - 7);
     }
 
-    // Build property filters
-    const propertyFilters = [eq(property.status, 'APPROVED')];
+    // Build property filters - show all properties except PENDING ones
+    const propertyFilters = [ne(property.status, 'PENDING')];
 
     if (country) {
       propertyFilters.push(sql`${property.country} = ${country}`);

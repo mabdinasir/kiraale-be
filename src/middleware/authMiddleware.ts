@@ -20,6 +20,70 @@ const checkTokenBlacklist = async (token: string) => {
   return result[0];
 };
 
+// Optional auth middleware - sets user info if authenticated but doesn't require auth
+export const optionalAuthMiddleware: RequestHandler = async (request, _response, next) => {
+  try {
+    const jwtSecret = process.env.JWT_SECRET;
+
+    if (!jwtSecret || jwtSecret === '') {
+      // Continue without auth if JWT secret is not configured
+      next();
+      return;
+    }
+
+    const authorizationHeader = request.headers.authorization;
+
+    // If no authorization header, continue without setting user
+    if (!authorizationHeader?.startsWith('Bearer ')) {
+      next();
+      return;
+    }
+
+    const [, token] = authorizationHeader.split(' ');
+
+    if (!token) {
+      next();
+      return;
+    }
+
+    try {
+      // Verify token validity
+      const decoded = verifyJwtToken(token);
+
+      // Check token blacklist
+      const blacklistedToken = await checkTokenBlacklist(token);
+      if (blacklistedToken) {
+        next();
+        return;
+      }
+
+      // Verify user status in database
+      const [currentUser] = await db
+        .select({
+          isSignedIn: user.isSignedIn,
+          isActive: user.isActive,
+          isDeleted: user.isDeleted,
+        })
+        .from(user)
+        .where(eq(user.id, decoded.id))
+        .limit(1);
+
+      // If user is valid and active, set user context
+      if (currentUser && currentUser.isSignedIn && currentUser.isActive && !currentUser.isDeleted) {
+        request.user = decoded;
+        request.token = token;
+      }
+    } catch (_tokenError) {
+      // Invalid token, continue without auth
+    }
+
+    next();
+  } catch (_error) {
+    // On any error, continue without auth
+    next();
+  }
+};
+
 export const authMiddleware: RequestHandler = async (request, response, next) => {
   try {
     const jwtSecret = process.env.JWT_SECRET;
