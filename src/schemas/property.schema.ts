@@ -26,18 +26,18 @@ export const createPropertySchema = insertPropertySchema
     availableFrom: true,
   })
   .extend({
-    title: z.string().min(1, 'Title is required').max(200, 'Title cannot exceed 200 characters'),
+    title: z.string().min(4, 'Title must be at least 4 characters').max(200, 'Title cannot exceed 200 characters'),
     description: z.string().max(2000, 'Description cannot exceed 2000 characters').optional(),
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),
     parkingSpaces: z.number().int().min(0).max(200, 'Parking spaces cannot exceed 200').optional(),
-    landSize: z.number().positive('Land size must be positive').optional(),
-    floorArea: z.number().positive('Floor area must be positive').optional(),
+    landSize: z.coerce.number().positive('Land size must be positive').optional(),
+    floorArea: z.coerce.number().positive('Floor area must be positive').optional(),
     address: z
       .string()
       .min(1, 'Address is required')
       .max(500, 'Address cannot exceed 500 characters'),
-    price: z.number().positive('Price must be greater than 0'),
+    price: z.coerce.number().positive('Price must be greater than 0'),
     availableFrom: z
       .string()
       .transform((str) => new Date(str))
@@ -69,21 +69,21 @@ export const updatePropertySchema = insertPropertySchema
   .extend({
     title: z
       .string()
-      .min(1, 'Title is required')
+      .min(4, 'Title must be at least 4 characters')
       .max(200, 'Title cannot exceed 200 characters')
       .optional(),
     description: z.string().max(2000, 'Description cannot exceed 2000 characters').optional(),
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),
     parkingSpaces: z.number().int().min(0).max(200, 'Parking spaces cannot exceed 200').optional(),
-    landSize: z.number().positive('Land size must be positive').optional(),
-    floorArea: z.number().positive('Floor area must be positive').optional(),
+    landSize: z.coerce.number().positive('Land size must be positive').optional(),
+    floorArea: z.coerce.number().positive('Floor area must be positive').optional(),
     address: z
       .string()
       .min(1, 'Address is required')
       .max(500, 'Address cannot exceed 500 characters')
       .optional(),
-    price: z.number().positive('Price must be greater than 0').optional(),
+    price: z.coerce.number().positive('Price must be greater than 0').optional(),
     availableFrom: z
       .string()
       .transform((str) => new Date(str))

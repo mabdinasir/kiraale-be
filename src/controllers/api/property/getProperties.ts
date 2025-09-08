@@ -1,5 +1,5 @@
 import db from '@db/index';
-import { property } from '@db/schemas';
+import { property, user } from '@db/schemas';
 import {
   handleValidationError,
   logError,
@@ -61,8 +61,41 @@ const getProperties: RequestHandler = async (request, response) => {
     const offset = (page - 1) * limit; // offset is the number of records to skip
 
     const properties = await db
-      .select()
+      .select({
+        // Property fields
+        id: property.id,
+        userId: property.userId,
+        title: property.title,
+        description: property.description,
+        propertyType: property.propertyType,
+        listingType: property.listingType,
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        parkingSpaces: property.parkingSpaces,
+        landSize: property.landSize,
+        floorArea: property.floorArea,
+        hasAirConditioning: property.hasAirConditioning,
+        address: property.address,
+        country: property.country,
+        price: property.price,
+        priceType: property.priceType,
+        rentFrequency: property.rentFrequency,
+        status: property.status,
+        availableFrom: property.availableFrom,
+        createdAt: property.createdAt,
+        updatedAt: property.updatedAt,
+        // User fields (summary for public display)
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          profilePicture: user.profilePicture,
+          agentNumber: user.agentNumber,
+        },
+      })
       .from(property)
+      .innerJoin(user, eq(property.userId, user.id))
       .where(and(...filters))
       .limit(limit)
       .offset(offset)
@@ -72,6 +105,7 @@ const getProperties: RequestHandler = async (request, response) => {
     const [countResult] = await db
       .select({ count: property.id })
       .from(property)
+      .innerJoin(user, eq(property.userId, user.id))
       .where(and(...filters));
 
     const totalProperties = Number(countResult?.count || 0);

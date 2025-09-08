@@ -113,6 +113,39 @@ export const propertySchemas = {
         format: 'date-time',
         example: '2024-01-15T10:30:00Z',
       },
+      user: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'string',
+            format: 'uuid',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          firstName: {
+            type: 'string',
+            example: 'John',
+          },
+          lastName: {
+            type: 'string',
+            example: 'Doe',
+          },
+          email: {
+            type: 'string',
+            format: 'email',
+            example: 'john.doe@example.com',
+          },
+          profilePicture: {
+            type: 'string',
+            nullable: true,
+            example: 'https://example.com/profile.jpg',
+          },
+          agentNumber: {
+            type: 'string',
+            nullable: true,
+            example: 'AGT001',
+          },
+        },
+      },
     },
   },
   CreatePropertyRequest: {

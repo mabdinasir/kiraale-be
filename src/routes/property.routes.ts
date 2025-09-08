@@ -10,7 +10,6 @@ import {
   updateProperty,
 } from '@controllers/api/property';
 import { authMiddleware } from '@middleware/authMiddleware';
-import viewTrackingMiddleware from '@middleware/viewTrackingMiddleware';
 import type { RouteGroup } from '@models/routes';
 
 const propertyRoutes: RouteGroup = {
@@ -38,7 +37,7 @@ const propertyRoutes: RouteGroup = {
     {
       path: '/:id',
       method: 'get',
-      middlewares: [viewTrackingMiddleware()], // Auto-track views on property details
+      middlewares: [], // View tracking handled by separate API endpoint
       handler: getProperty,
     },
 
