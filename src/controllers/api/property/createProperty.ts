@@ -1,5 +1,5 @@
 import db from '@db/index';
-import { agencyAgent, property } from '@db/schemas';
+import { agencyAgent, media, property } from '@db/schemas';
 import {
   handleValidationError,
   logError,
@@ -44,8 +44,18 @@ const createProperty: RequestHandler = async (request, response) => {
       })
       .returning();
 
+    // Get media for the newly created property (initially empty but structure ready)
+    const propertyMedia = await db
+      .select()
+      .from(media)
+      .where(eq(media.propertyId, createdProperty.id))
+      .orderBy(media.displayOrder, media.uploadedAt);
+
     sendSuccessResponse(response, 201, 'Property created successfully', {
-      property: createdProperty,
+      property: {
+        ...createdProperty,
+        media: propertyMedia,
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

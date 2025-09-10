@@ -7,8 +7,8 @@ import {
   updateMedia,
   uploadMedia,
 } from '@controllers/api/media';
-import { requireResourceAccess } from '@lib/permissions/middleware';
 import { authMiddleware } from '@middleware/authMiddleware';
+import { requireMediaOwnership } from '@middleware/mediaOwnershipMiddleware';
 import type { RouteGroup } from '@models/routes';
 
 const mediaRoutes: RouteGroup = {
@@ -35,19 +35,13 @@ const mediaRoutes: RouteGroup = {
     {
       path: '/:id',
       method: 'put',
-      middlewares: [
-        authMiddleware,
-        requireResourceAccess((req) => req.params.propertyOwnerId, 'MEDIA_WRITE'),
-      ], // Property owner or admin
+      middlewares: [authMiddleware, requireMediaOwnership('MEDIA_WRITE')], // Property owner or admin
       handler: updateMedia,
     },
     {
       path: '/:id',
       method: 'delete',
-      middlewares: [
-        authMiddleware,
-        requireResourceAccess((req) => req.params.propertyOwnerId, 'MEDIA_DELETE'),
-      ], // Property owner or admin
+      middlewares: [authMiddleware, requireMediaOwnership('MEDIA_DELETE')], // Property owner or admin
       handler: deleteMedia,
     },
     {

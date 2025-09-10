@@ -1,5 +1,5 @@
 import db from '@db/index';
-import { property, propertyView } from '@db/schemas';
+import { media, property, propertyView } from '@db/schemas';
 import {
   handleValidationError,
   logError,
@@ -7,7 +7,7 @@ import {
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
 import { trendingPropertiesSchema } from '@schemas/property.schema';
-import { count, desc, eq, ne, sql } from 'drizzle-orm';
+import { count, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -133,8 +133,34 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
 
     const totalPages = Math.ceil(totalProperties / limit);
 
+    // Get media for all properties
+    const propertyIds = trendingProperties.map((propertyItem) => propertyItem.id);
+    const allMedia =
+      propertyIds.length > 0
+        ? await db
+            .select()
+            .from(media)
+            .where(inArray(media.propertyId, propertyIds))
+            .orderBy(media.displayOrder, media.uploadedAt)
+        : [];
+
+    // Group media by property ID
+    const mediaByPropertyId = allMedia.reduce<Record<string, typeof allMedia>>((acc, mediaItem) => {
+      if (!acc[mediaItem.propertyId]) {
+        acc[mediaItem.propertyId] = [];
+      }
+      acc[mediaItem.propertyId].push(mediaItem);
+      return acc;
+    }, {});
+
+    // Add media to each property
+    const propertiesWithMedia = trendingProperties.map((propertyItem) => ({
+      ...propertyItem,
+      media: mediaByPropertyId[propertyItem.id] || [],
+    }));
+
     sendSuccessResponse(response, 200, 'Trending properties retrieved successfully', {
-      properties: trendingProperties,
+      properties: propertiesWithMedia,
       pagination: {
         currentPage: page,
         totalPages,

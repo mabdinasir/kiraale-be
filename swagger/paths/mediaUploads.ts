@@ -4,7 +4,7 @@ export const mediaUploadsPaths = {
     post: {
       tags: ['File Uploads'],
       summary: 'Upload property media files',
-      description: 'Upload property media files to AWS S3 (First upload requires 4+ images, Max 15MB each)',
+      description: 'Upload property media files to AWS S3 (First upload requires 4+ images, Max 25MB each)',
       security: [{ bearerAuth: [] }],
       requestBody: {
         required: true,

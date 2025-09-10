@@ -1,5 +1,5 @@
 import db from '@db/index';
-import { favorite, property, user } from '@db/schemas';
+import { favorite, media, property, user } from '@db/schemas';
 import {
   handleValidationError,
   logError,
@@ -7,7 +7,7 @@ import {
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
 import { getMyFavoritesSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { eq, inArray } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -77,8 +77,37 @@ const getMyFavorites: RequestHandler = async (request, response) => {
     const totalFavorites = Number(countResult?.count || 0);
     const totalPages = Math.ceil(totalFavorites / limit);
 
+    // Get media for all properties in favorites
+    const propertyIds = myFavorites.map((favoriteItem) => favoriteItem.property.id);
+    const allMedia =
+      propertyIds.length > 0
+        ? await db
+            .select()
+            .from(media)
+            .where(inArray(media.propertyId, propertyIds))
+            .orderBy(media.displayOrder, media.uploadedAt)
+        : [];
+
+    // Group media by property ID
+    const mediaByPropertyId = allMedia.reduce<Record<string, typeof allMedia>>((acc, mediaItem) => {
+      if (!acc[mediaItem.propertyId]) {
+        acc[mediaItem.propertyId] = [];
+      }
+      acc[mediaItem.propertyId].push(mediaItem);
+      return acc;
+    }, {});
+
+    // Add media to each property in favorites
+    const favoritesWithMedia = myFavorites.map((favoriteItem) => ({
+      ...favoriteItem,
+      property: {
+        ...favoriteItem.property,
+        media: mediaByPropertyId[favoriteItem.property.id] || [],
+      },
+    }));
+
     sendSuccessResponse(response, 200, 'Your favorites retrieved successfully', {
-      favorites: myFavorites,
+      favorites: favoritesWithMedia,
       pagination: {
         currentPage: page,
         totalPages,

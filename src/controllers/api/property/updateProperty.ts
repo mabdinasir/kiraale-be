@@ -1,5 +1,5 @@
 import db from '@db/index';
-import { property } from '@db/schemas';
+import { media, property } from '@db/schemas';
 import {
   handleValidationError,
   logError,
@@ -55,8 +55,18 @@ const updateProperty: RequestHandler = async (request, response) => {
       .where(eq(property.id, id))
       .returning();
 
+    // Get media for the updated property
+    const propertyMedia = await db
+      .select()
+      .from(media)
+      .where(eq(media.propertyId, id))
+      .orderBy(media.displayOrder, media.uploadedAt);
+
     sendSuccessResponse(response, 200, 'Property updated successfully', {
-      property: updatedProperty,
+      property: {
+        ...updatedProperty,
+        media: propertyMedia,
+      },
     });
   } catch (error) {
     if (error instanceof z.ZodError) {

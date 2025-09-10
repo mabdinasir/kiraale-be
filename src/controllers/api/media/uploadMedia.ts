@@ -7,7 +7,7 @@ import { maxPropertyMediaFiles, minFirstUploadFiles } from '@lib/config/fileUplo
 import computeSHA256 from '@lib/utils/crypto/computeSHA256';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
 import { propertyMediaUploadSchema } from '@schemas/media.schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import multer from 'multer';
 import { z } from 'zod';
@@ -47,12 +47,12 @@ const uploadMedia: RequestHandler = async (request, response) => {
     // Permission checks are now handled by middleware
 
     // Check existing media count
-    const existingMediaCount = await db
-      .select({ count: media.id })
+    const [existingMediaCount] = await db
+      .select({ count: sql<number>`count(*)` })
       .from(media)
       .where(eq(media.propertyId, propertyId));
 
-    const currentCount = Number(existingMediaCount[0]?.count || 0);
+    const currentCount = existingMediaCount?.count ?? 0;
     const isFirstUpload = currentCount === 0;
 
     if (isFirstUpload && files.length < minFirstUploadFiles) {
@@ -60,6 +60,17 @@ const uploadMedia: RequestHandler = async (request, response) => {
         response,
         400,
         `First-time uploads must include at least ${minFirstUploadFiles} images`,
+      );
+      return;
+    }
+
+    // Check if upload would exceed maximum media limit
+    const totalAfterUpload = currentCount + files.length;
+    if (totalAfterUpload > maxPropertyMediaFiles) {
+      sendErrorResponse(
+        response,
+        400,
+        `Cannot upload ${files.length} files. Property already has ${currentCount} media items. Maximum allowed is ${maxPropertyMediaFiles} total.`,
       );
       return;
     }
@@ -83,10 +94,29 @@ const uploadMedia: RequestHandler = async (request, response) => {
     });
 
     const uploadedUrls: string[] = [];
+    const skippedFiles: string[] = [];
+
+    // Get all existing URLs for this property to avoid duplicates
+    const existingMedia = await db
+      .select({ fileName: media.fileName, url: media.url })
+      .from(media)
+      .where(eq(media.propertyId, propertyId));
+
+    const existingFileNames = new Set(
+      existingMedia
+        .map((item) => item.fileName)
+        .filter((fileName) => fileName && fileName.length > 0),
+    );
 
     // Process uploads
     const uploadPromises = files.map(async (file, index) => {
       const checksum = await computeSHA256(file);
+
+      // Skip if duplicate file name exists
+      if (file.originalname && existingFileNames.has(file.originalname)) {
+        skippedFiles.push(file.originalname);
+        return null;
+      }
 
       // Validate each file
       const validatedData = propertyMediaUploadSchema.parse({
@@ -134,6 +164,9 @@ const uploadMedia: RequestHandler = async (request, response) => {
       // Determine media type
       const mediaType = file.mimetype.startsWith('video/') ? 'VIDEO' : 'IMAGE';
 
+      // Calculate display order (ensure it's never NaN)
+      const displayOrder = Math.max(0, currentCount) + index + 1;
+
       // Save to database
       const [createdMedia] = await db
         .insert(media)
@@ -143,7 +176,7 @@ const uploadMedia: RequestHandler = async (request, response) => {
           url: mediaUrl,
           fileName: file.originalname || fileName,
           fileSize: file.size,
-          displayOrder: currentCount + index + 1,
+          displayOrder,
           isPrimary: isFirstUpload && index === 0, // First image of first upload is primary
           uploadedAt: new Date(),
         })
@@ -153,15 +186,21 @@ const uploadMedia: RequestHandler = async (request, response) => {
     });
 
     const createdMediaList = await Promise.all(uploadPromises);
+    const successfulUploads = createdMediaList.filter(Boolean);
 
     response.status(201).json({
       success: true,
-      message: 'Media uploaded successfully',
+      message:
+        successfulUploads.length > 0
+          ? `Media uploaded successfully. ${successfulUploads.length} uploaded, ${skippedFiles.length} skipped (duplicates).`
+          : 'No new media uploaded. All files were duplicates.',
       data: {
-        media: createdMediaList,
+        media: successfulUploads,
         uploadedUrls,
+        skippedFiles,
         isFirstUpload,
-        totalMediaCount: currentCount + files.length,
+        totalMediaCount: currentCount + successfulUploads.length,
+        duplicatesSkipped: skippedFiles.length,
       },
     });
   } catch (error) {

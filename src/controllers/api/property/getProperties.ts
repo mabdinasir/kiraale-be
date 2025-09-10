@@ -1,5 +1,5 @@
 import db from '@db/index';
-import { property, user } from '@db/schemas';
+import { media, property, user } from '@db/schemas';
 import {
   handleValidationError,
   logError,
@@ -7,7 +7,7 @@ import {
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
 import { queryPropertiesSchema } from '@schemas/property.schema';
-import { and, eq, gte, lte, ne } from 'drizzle-orm';
+import { and, eq, gte, inArray, lte, ne } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -112,8 +112,34 @@ const getProperties: RequestHandler = async (request, response) => {
     const totalProperties = Number(countResult?.count || 0);
     const totalPages = Math.ceil(totalProperties / limit);
 
+    // Get media for all properties
+    const propertyIds = properties.map((propertyItem) => propertyItem.id);
+    const allMedia =
+      propertyIds.length > 0
+        ? await db
+            .select()
+            .from(media)
+            .where(inArray(media.propertyId, propertyIds))
+            .orderBy(media.displayOrder, media.uploadedAt)
+        : [];
+
+    // Group media by property ID
+    const mediaByPropertyId = allMedia.reduce<Record<string, typeof allMedia>>((acc, mediaItem) => {
+      if (!acc[mediaItem.propertyId]) {
+        acc[mediaItem.propertyId] = [];
+      }
+      acc[mediaItem.propertyId].push(mediaItem);
+      return acc;
+    }, {});
+
+    // Add media to each property
+    const propertiesWithMedia = properties.map((propertyItem) => ({
+      ...propertyItem,
+      media: mediaByPropertyId[propertyItem.id] || [],
+    }));
+
     sendSuccessResponse(response, 200, 'Properties retrieved successfully', {
-      properties,
+      properties: propertiesWithMedia,
       pagination: {
         currentPage: page,
         totalPages,

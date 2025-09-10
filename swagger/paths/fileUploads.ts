@@ -4,7 +4,7 @@ export const fileUploadPaths = {
     post: {
       tags: ['File Uploads'],
       summary: 'Upload profile picture',
-      description: 'Upload user profile picture to AWS S3 (Max 5MB, Images only)',
+      description: 'Upload user profile picture to AWS S3 (Max 25MB, Images only)',
       security: [{ bearerAuth: [] }],
       requestBody: {
         required: true,
@@ -17,7 +17,7 @@ export const fileUploadPaths = {
                 file: {
                   type: 'string',
                   format: 'binary',
-                  description: 'Profile picture file (JPEG, PNG, GIF only, max 5MB)',
+                  description: 'Profile picture file (JPEG, PNG, GIF only, max 25MB)',
                 },
               },
             },

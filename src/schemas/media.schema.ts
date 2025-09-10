@@ -1,6 +1,11 @@
 import { insertMediaSchema, selectMediaSchema } from '@db/schemas';
 import { mediaType } from '@db/schemas/enums';
-import { allowedFileTypes, maxFileSize, maxFileSizeMB } from '@lib/config/fileUpload';
+import {
+  allowedFileTypes,
+  maxFileSize,
+  maxFileSizeMB,
+  maxPropertyMediaFiles,
+} from '@lib/config/fileUpload';
 import { z } from 'zod';
 
 // Create media schema using database schema with enhanced validation
@@ -101,7 +106,10 @@ export const bulkUploadMediaSchema = z
         }),
       )
       .min(1, 'At least one media item is required')
-      .max(20, 'Cannot upload more than 20 media items at once'),
+      .max(
+        maxPropertyMediaFiles,
+        `Cannot upload more than ${maxPropertyMediaFiles} media items at once`,
+      ),
   })
   .refine(
     (data) => {

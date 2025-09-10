@@ -91,7 +91,7 @@ export const handleValidationError = (error: unknown, response: Response): void 
       } else if (err.code === 'too_small') {
         friendlyMessage = `Field '${field}' is too short: ${err.message}`;
       } else if (err.code === 'too_big') {
-        friendlyMessage = `Field '${field}' is too long: ${err.message}`;
+        friendlyMessage = `Field '${field}' is too large: ${err.message}`;
       } else if (err.code === 'invalid_string') {
         friendlyMessage = `Invalid format for '${field}': ${err.message}`;
       }
