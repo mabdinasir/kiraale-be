@@ -1,5 +1,5 @@
 import db from '@db/index';
-import { media, property, propertyView } from '@db/schemas';
+import { media, property, propertyView, user } from '@db/schemas';
 import {
   handleValidationError,
   logError,
@@ -80,8 +80,19 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
         deletedAt: property.deletedAt,
         viewCount: sql<number>`coalesce(${count(propertyView.id)}, 0)`,
         uniqueViewCount: sql<number>`coalesce(count(distinct coalesce(${propertyView.userId}::text, ${propertyView.sessionId})), 0)`,
+        // User fields (summary for public display)
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          mobile: user.mobile,
+          profilePicture: user.profilePicture,
+          agentNumber: user.agentNumber,
+        },
       })
       .from(property)
+      .innerJoin(user, eq(property.userId, user.id))
       .leftJoin(
         propertyView,
         sql`${property.id} = ${propertyView.propertyId} AND ${propertyView.viewedAt} >= ${startDate} AND ${propertyView.viewedAt} <= ${endDate}`,
@@ -116,6 +127,13 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
         property.createdAt,
         property.updatedAt,
         property.deletedAt,
+        user.id,
+        user.firstName,
+        user.lastName,
+        user.email,
+        user.mobile,
+        user.profilePicture,
+        user.agentNumber,
       )
       .orderBy(
         desc(
@@ -129,6 +147,7 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
     const [{ totalProperties }] = await db
       .select({ totalProperties: count() })
       .from(property)
+      .innerJoin(user, eq(property.userId, user.id))
       .where(sql`${sql.join(propertyFilters, sql.raw(' AND '))}`);
 
     const totalPages = Math.ceil(totalProperties / limit);

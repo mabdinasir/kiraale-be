@@ -1,11 +1,13 @@
 import {
   approveProperty,
   createPricing,
+  getAdminStats,
   getPaymentById,
   getPayments,
   getPaymentStats,
   getPendingProperties,
   getPricing,
+  getRejectedProperties,
   rejectProperty,
   updatePricing,
 } from '@controllers/api/admin';
@@ -33,6 +35,18 @@ const adminRoutes: RouteGroup = {
       method: 'put',
       middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
       handler: rejectProperty,
+    },
+    {
+      path: '/properties/rejected',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: getRejectedProperties,
+    },
+    {
+      path: '/stats',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: getAdminStats,
     },
     {
       path: '/payments',

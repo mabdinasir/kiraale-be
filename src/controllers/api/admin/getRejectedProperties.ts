@@ -6,19 +6,19 @@ import {
   sendErrorResponse,
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
-import { getPendingPropertiesSchema } from '@schemas';
+import { getRejectedPropertiesSchema } from '@schemas';
 import { eq, inArray } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
-const getPendingProperties: RequestHandler = async (request, response) => {
+const getRejectedProperties: RequestHandler = async (request, response) => {
   try {
-    const { page, limit } = getPendingPropertiesSchema.parse(request.query);
+    const { page, limit } = getRejectedPropertiesSchema.parse(request.query);
 
     const offset = (page - 1) * limit;
 
-    // Get pending properties with owner details
-    const pendingProperties = await db
+    // Get rejected properties with owner details
+    const rejectedProperties = await db
       .select({
         // Property fields
         id: property.id,
@@ -57,8 +57,8 @@ const getPendingProperties: RequestHandler = async (request, response) => {
       })
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
-      .where(eq(property.status, 'PENDING'))
-      .orderBy(property.createdAt) // Oldest first for FIFO processing
+      .where(eq(property.status, 'REJECTED'))
+      .orderBy(property.updatedAt) // Most recently rejected first
       .limit(limit)
       .offset(offset);
 
@@ -66,13 +66,13 @@ const getPendingProperties: RequestHandler = async (request, response) => {
     const [countResult] = await db
       .select({ count: property.id })
       .from(property)
-      .where(eq(property.status, 'PENDING'));
+      .where(eq(property.status, 'REJECTED'));
 
     const totalProperties = Number(countResult?.count || 0);
     const totalPages = Math.ceil(totalProperties / limit);
 
     // Get media for all properties
-    const propertyIds = pendingProperties.map((propertyItem) => propertyItem.id);
+    const propertyIds = rejectedProperties.map((propertyItem) => propertyItem.id);
     const allMedia =
       propertyIds.length > 0
         ? await db
@@ -92,12 +92,12 @@ const getPendingProperties: RequestHandler = async (request, response) => {
     }, {});
 
     // Add media to each property
-    const propertiesWithMedia = pendingProperties.map((propertyItem) => ({
+    const propertiesWithMedia = rejectedProperties.map((propertyItem) => ({
       ...propertyItem,
       media: mediaByPropertyId[propertyItem.id] || [],
     }));
 
-    sendSuccessResponse(response, 200, 'Pending properties retrieved successfully', {
+    sendSuccessResponse(response, 200, 'Rejected properties retrieved successfully', {
       properties: propertiesWithMedia,
       pagination: {
         currentPage: page,
@@ -112,9 +112,9 @@ const getPendingProperties: RequestHandler = async (request, response) => {
       return;
     }
 
-    logError(error, 'GET_PENDING_PROPERTIES');
-    sendErrorResponse(response, 500, 'Failed to retrieve pending properties.');
+    logError(error, 'GET_REJECTED_PROPERTIES');
+    sendErrorResponse(response, 500, 'Failed to retrieve rejected properties.');
   }
 };
 
-export default getPendingProperties;
+export default getRejectedProperties;

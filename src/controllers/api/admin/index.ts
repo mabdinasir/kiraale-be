@@ -1,9 +1,11 @@
 export { default as approveProperty } from './approveProperty';
 export * from './createPricing';
+export { default as getAdminStats } from './getAdminStats';
 export * from './getPaymentById';
 export * from './getPayments';
 export * from './getPaymentStats';
 export { default as getPendingProperties } from './getPendingProperties';
 export * from './getPricing';
+export { default as getRejectedProperties } from './getRejectedProperties';
 export { default as rejectProperty } from './rejectProperty';
 export * from './updatePricing';
