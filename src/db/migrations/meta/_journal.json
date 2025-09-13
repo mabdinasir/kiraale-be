@@ -15,6 +15,13 @@
       "when": 1756942016614,
       "tag": "0001_conscious_deathstrike",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1757737148902,
+      "tag": "0002_amused_expediter",
+      "breakpoints": true
     }
   ]
 }

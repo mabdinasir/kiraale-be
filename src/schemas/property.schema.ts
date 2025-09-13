@@ -34,8 +34,8 @@ export const createPropertySchema = insertPropertySchema
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),
     parkingSpaces: z.number().int().min(0).max(200, 'Parking spaces cannot exceed 200').optional(),
-    landSize: z.coerce.number().positive('Land size must be positive').optional(),
-    floorArea: z.coerce.number().positive('Floor area must be positive').optional(),
+    landSize: z.coerce.number().min(0, 'Land size must be non-negative').optional(),
+    floorArea: z.coerce.number().min(0, 'Floor area must be non-negative').optional(),
     address: z
       .string()
       .min(1, 'Address is required')
@@ -79,8 +79,8 @@ export const updatePropertySchema = insertPropertySchema
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),
     parkingSpaces: z.number().int().min(0).max(200, 'Parking spaces cannot exceed 200').optional(),
-    landSize: z.coerce.number().positive('Land size must be positive').optional(),
-    floorArea: z.coerce.number().positive('Floor area must be positive').optional(),
+    landSize: z.coerce.number().min(0, 'Land size must be non-negative').optional(),
+    floorArea: z.coerce.number().min(0, 'Floor area must be non-negative').optional(),
     address: z
       .string()
       .min(1, 'Address is required')

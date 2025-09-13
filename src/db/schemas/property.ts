@@ -37,11 +37,11 @@ export const property = pgTable(
     listingType: listingType('listingType').notNull(),
 
     // Core features
-    bedrooms: integer('bedrooms'),
-    bathrooms: integer('bathrooms'),
-    parkingSpaces: integer('parkingSpaces'),
-    landSize: decimal('landSize'), // in sqm
-    floorArea: decimal('floorArea'), // in sqm
+    bedrooms: integer('bedrooms').default(0),
+    bathrooms: integer('bathrooms').default(0),
+    parkingSpaces: integer('parkingSpaces').default(0),
+    landSize: decimal('landSize').default('0'), // in sqm
+    floorArea: decimal('floorArea').default('0'), // in sqm
     hasAirConditioning: boolean('hasAirConditioning').default(false),
 
     // Location
