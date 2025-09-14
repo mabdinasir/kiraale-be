@@ -1,13 +1,14 @@
 import db from '@db/index';
-import { media, property, user } from '@db/schemas';
+import { property, user } from '@db/schemas';
 import {
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
+import { addMediaToProperties, getMediaForProperties } from '@lib/utils/media/mediaUtils';
 import { getMyPropertiesSchema } from '@schemas';
-import { and, eq, inArray, isNull } from 'drizzle-orm';
+import { and, eq, isNull } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -20,7 +21,7 @@ const getMyProperties: RequestHandler = async (request, response) => {
       return;
     }
 
-    const { page = 1, limit = 10, status } = getMyPropertiesSchema.parse(request.query);
+    const { page = 1, limit = 50, status } = getMyPropertiesSchema.parse(request.query);
 
     // Build filters
     const filters = [eq(property.userId, userId), isNull(property.deletedAt)];
@@ -31,28 +32,52 @@ const getMyProperties: RequestHandler = async (request, response) => {
 
     const offset = (page - 1) * limit;
 
-    // Get user's properties with reviewer info when available
-    const myPropertiesRaw = await db
-      .select()
+    // Get user's properties with user and reviewer info
+    const myProperties = await db
+      .select({
+        // Property fields
+        id: property.id,
+        userId: property.userId,
+        agencyId: property.agencyId,
+        title: property.title,
+        description: property.description,
+        propertyType: property.propertyType,
+        listingType: property.listingType,
+        bedrooms: property.bedrooms,
+        bathrooms: property.bathrooms,
+        parkingSpaces: property.parkingSpaces,
+        landSize: property.landSize,
+        floorArea: property.floorArea,
+        hasAirConditioning: property.hasAirConditioning,
+        address: property.address,
+        country: property.country,
+        price: property.price,
+        priceType: property.priceType,
+        rentFrequency: property.rentFrequency,
+        status: property.status,
+        availableFrom: property.availableFrom,
+        rejectionReason: property.rejectionReason,
+        searchVector: property.searchVector,
+        createdAt: property.createdAt,
+        updatedAt: property.updatedAt,
+        deletedAt: property.deletedAt,
+        // User fields (property owner)
+        user: {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          mobile: user.mobile,
+          profilePicture: user.profilePicture,
+          agentNumber: user.agentNumber,
+        },
+      })
       .from(property)
-      .leftJoin(user, eq(property.reviewedBy, user.id))
+      .innerJoin(user, eq(property.userId, user.id))
       .where(and(...filters))
       .orderBy(property.createdAt)
       .limit(limit)
       .offset(offset);
-
-    // Transform the data to include reviewer info
-    const myProperties = myPropertiesRaw.map((row) => ({
-      ...row.property,
-      reviewer: row.user
-        ? {
-            id: row.user.id,
-            firstName: row.user.firstName,
-            lastName: row.user.lastName,
-            email: row.user.email,
-          }
-        : null,
-    }));
 
     // Get total count for pagination
     const [countResult] = await db
@@ -65,37 +90,20 @@ const getMyProperties: RequestHandler = async (request, response) => {
 
     // Get media for all properties
     const propertyIds = myProperties.map((propertyItem) => propertyItem.id);
-    const allMedia =
-      propertyIds.length > 0
-        ? await db
-            .select()
-            .from(media)
-            .where(inArray(media.propertyId, propertyIds))
-            .orderBy(media.displayOrder, media.uploadedAt)
-        : [];
-
-    // Group media by property ID
-    const mediaByPropertyId = allMedia.reduce<Record<string, typeof allMedia>>((acc, mediaItem) => {
-      if (!acc[mediaItem.propertyId]) {
-        acc[mediaItem.propertyId] = [];
-      }
-      acc[mediaItem.propertyId].push(mediaItem);
-      return acc;
-    }, {});
+    const mediaByPropertyId = await getMediaForProperties(propertyIds);
 
     // Add media to each property
-    const propertiesWithMedia = myProperties.map((propertyItem) => ({
-      ...propertyItem,
-      media: mediaByPropertyId[propertyItem.id] || [],
-    }));
+    const propertiesWithMedia = addMediaToProperties(myProperties, mediaByPropertyId);
 
     sendSuccessResponse(response, 200, 'Your properties retrieved successfully', {
       properties: propertiesWithMedia,
       pagination: {
-        currentPage: page,
+        page,
+        limit,
+        total: totalProperties,
         totalPages,
-        totalItems: totalProperties,
-        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

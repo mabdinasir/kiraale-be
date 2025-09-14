@@ -76,7 +76,7 @@ export const removeAgentFromAgencySchema = z
 export const getAgencyAgentsSchema = z
   .object({
     page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(1).max(50).default(20),
+    limit: z.coerce.number().min(1).max(50).default(50),
     isActive: z.coerce.boolean().optional(),
   })
   .strict();
@@ -85,7 +85,7 @@ export const getAgencyAgentsSchema = z
 export const getAgenciesSchema = z
   .object({
     page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(1).max(50).default(20),
+    limit: z.coerce.number().min(1).max(50).default(50),
     country: z.enum(country.enumValues).optional(),
     isActive: z.coerce.boolean().optional(),
     search: z.string().min(1).max(100).optional(),

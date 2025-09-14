@@ -68,7 +68,7 @@ export const paymentCallbackSchema = z.object({
 // Query schemas
 export const getPaymentsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
   status: z.string().optional(),
   paymentMethod: z.enum(paymentMethodValues).optional(),
   userId: z.uuid().optional(),

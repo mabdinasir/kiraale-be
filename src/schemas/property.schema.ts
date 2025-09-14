@@ -34,8 +34,8 @@ export const createPropertySchema = insertPropertySchema
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),
     parkingSpaces: z.number().int().min(0).max(200, 'Parking spaces cannot exceed 200').optional(),
-    landSize: z.coerce.number().min(0, 'Land size must be non-negative').optional(),
-    floorArea: z.coerce.number().min(0, 'Floor area must be non-negative').optional(),
+    landSize: z.coerce.number().nonnegative().optional(),
+    floorArea: z.coerce.number().nonnegative().optional(),
     address: z
       .string()
       .min(1, 'Address is required')
@@ -79,8 +79,8 @@ export const updatePropertySchema = insertPropertySchema
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),
     parkingSpaces: z.number().int().min(0).max(200, 'Parking spaces cannot exceed 200').optional(),
-    landSize: z.coerce.number().min(0, 'Land size must be non-negative').optional(),
-    floorArea: z.coerce.number().min(0, 'Floor area must be non-negative').optional(),
+    landSize: z.coerce.number().nonnegative().optional(),
+    floorArea: z.coerce.number().nonnegative().optional(),
     address: z
       .string()
       .min(1, 'Address is required')
@@ -150,7 +150,7 @@ export const deletePropertySchema = selectPropertySchema
 // Trending properties schema
 export const trendingPropertiesSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().positive().max(50).default(10),
+  limit: z.coerce.number().int().positive().max(50).default(50),
   period: z.enum(['day', 'week', 'month']).default('week'),
   country: z.enum(country.enumValues).optional(),
   propertyType: z.enum(propertyType.enumValues).optional(),

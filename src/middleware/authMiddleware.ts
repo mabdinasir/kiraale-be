@@ -62,6 +62,8 @@ export const optionalAuthMiddleware: RequestHandler = async (request, _response,
         .select({
           isSignedIn: user.isSignedIn,
           isActive: user.isActive,
+          isSuspended: user.isSuspended,
+          suspensionReason: user.suspensionReason,
           isDeleted: user.isDeleted,
         })
         .from(user)
@@ -69,7 +71,13 @@ export const optionalAuthMiddleware: RequestHandler = async (request, _response,
         .limit(1);
 
       // If user is valid and active, set user context
-      if (currentUser && currentUser.isSignedIn && currentUser.isActive && !currentUser.isDeleted) {
+      if (
+        currentUser &&
+        currentUser.isSignedIn &&
+        currentUser.isActive &&
+        !currentUser.isSuspended &&
+        !currentUser.isDeleted
+      ) {
         request.user = decoded;
         request.token = token;
       }
@@ -117,6 +125,8 @@ export const authMiddleware: RequestHandler = async (request, response, next) =>
       .select({
         isSignedIn: user.isSignedIn,
         isActive: user.isActive,
+        isSuspended: user.isSuspended,
+        suspensionReason: user.suspensionReason,
         isDeleted: user.isDeleted,
       })
       .from(user)
@@ -135,6 +145,14 @@ export const authMiddleware: RequestHandler = async (request, response, next) =>
 
     if (!currentUser.isActive) {
       sendErrorResponse(response, 401, 'Account has been deactivated');
+      return;
+    }
+
+    if (currentUser.isSuspended) {
+      const message = currentUser.suspensionReason
+        ? `Account suspended: ${currentUser.suspensionReason}`
+        : 'Account has been suspended. Please contact support.';
+      sendErrorResponse(response, 403, message);
       return;
     }
 

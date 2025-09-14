@@ -62,7 +62,7 @@ export const getPaymentStats: RequestHandler = async (req, res) => {
       })
       .from(payment)
       .orderBy(payment.transactionDate)
-      .limit(5);
+      .limit(50);
 
     sendSuccessResponse(res, 200, 'Payment stats retrieved successfully', {
       data: {

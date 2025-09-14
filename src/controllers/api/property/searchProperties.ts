@@ -1,8 +1,14 @@
 import db from '@db/index';
-import { media, property } from '@db/schemas';
+import { property, user } from '@db/schemas';
 import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import {
+  getActiveUserFilters,
+  getPublicPropertyWithActiveUserFilters,
+} from '@lib/utils/filters/propertyFilters';
+import { addMediaToProperties, getMediaForProperties } from '@lib/utils/media/mediaUtils';
+import { getPublicPropertySelection } from '@lib/utils/selectors/propertySelectors';
 import { propertySearchSchema } from '@schemas';
-import { and, asc, count, desc, eq, gte, ilike, inArray, lte, ne, or, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, gte, ilike, lte, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -46,12 +52,16 @@ const searchProperties: RequestHandler = async (request, response) => {
     // Build filters array
     const filters = [];
 
-    // Status filter - show all properties except PENDING for public access
-    // Admin endpoints can override this by passing status parameter
-    if (status) {
+    // Add public property status and active user filters
+    filters.push(...getPublicPropertyWithActiveUserFilters());
+
+    // Admin can override status filter by passing status parameter
+    if (status && request.user?.role === 'ADMIN') {
+      // Clear current filters and add only admin status filter
+      filters.length = 0;
       filters.push(eq(property.status, status));
-    } else {
-      filters.push(ne(property.status, 'PENDING'));
+      // Add active user filters for admin too
+      filters.push(...getActiveUserFilters());
     }
 
     // Text search - search in title, description, and address
@@ -192,8 +202,9 @@ const searchProperties: RequestHandler = async (request, response) => {
 
     // Execute search query
     const properties = await db
-      .select()
+      .select(getPublicPropertySelection())
       .from(property)
+      .innerJoin(user, eq(property.userId, user.id))
       .where(validFilters.length > 0 ? and(...validFilters) : undefined)
       .orderBy(orderBy)
       .limit(limit)
@@ -203,45 +214,27 @@ const searchProperties: RequestHandler = async (request, response) => {
     const [{ totalCount }] = await db
       .select({ totalCount: count() })
       .from(property)
+      .innerJoin(user, eq(property.userId, user.id))
       .where(validFilters.length > 0 ? and(...validFilters) : undefined);
 
     const totalPages = Math.ceil(totalCount / limit);
 
     // Get media for all properties
     const propertyIds = properties.map((propertyItem) => propertyItem.id);
-    const allMedia =
-      propertyIds.length > 0
-        ? await db
-            .select()
-            .from(media)
-            .where(inArray(media.propertyId, propertyIds))
-            .orderBy(media.displayOrder, media.uploadedAt)
-        : [];
-
-    // Group media by property ID
-    const mediaByPropertyId = allMedia.reduce<Record<string, typeof allMedia>>((acc, mediaItem) => {
-      if (!acc[mediaItem.propertyId]) {
-        acc[mediaItem.propertyId] = [];
-      }
-      acc[mediaItem.propertyId].push(mediaItem);
-      return acc;
-    }, {});
+    const mediaByPropertyId = await getMediaForProperties(propertyIds);
 
     // Add media to each property
-    const propertiesWithMedia = properties.map((propertyItem) => ({
-      ...propertyItem,
-      media: mediaByPropertyId[propertyItem.id] || [],
-    }));
+    const propertiesWithMedia = addMediaToProperties(properties, mediaByPropertyId);
 
     response.status(200).json({
       success: true,
       data: {
         properties: propertiesWithMedia,
         pagination: {
-          currentPage: page,
+          page,
+          limit,
+          total: totalCount,
           totalPages,
-          totalItems: totalCount,
-          itemsPerPage: limit,
           hasNextPage: page < totalPages,
           hasPreviousPage: page > 1,
         },

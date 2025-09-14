@@ -1,13 +1,15 @@
 import db from '@db/index';
-import { media, property, user } from '@db/schemas';
+import { property, user } from '@db/schemas';
 import {
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
+import { addMediaToProperties, getMediaForProperties } from '@lib/utils/media/mediaUtils';
+import { getPropertyWithUserSelection } from '@lib/utils/selectors/propertySelectors';
 import { getPendingPropertiesSchema } from '@schemas';
-import { eq, inArray } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -19,42 +21,7 @@ const getPendingProperties: RequestHandler = async (request, response) => {
 
     // Get pending properties with owner details
     const pendingProperties = await db
-      .select({
-        // Property fields
-        id: property.id,
-        userId: property.userId,
-        title: property.title,
-        description: property.description,
-        propertyType: property.propertyType,
-        listingType: property.listingType,
-        bedrooms: property.bedrooms,
-        bathrooms: property.bathrooms,
-        parkingSpaces: property.parkingSpaces,
-        landSize: property.landSize,
-        floorArea: property.floorArea,
-        hasAirConditioning: property.hasAirConditioning,
-        address: property.address,
-        country: property.country,
-        price: property.price,
-        priceType: property.priceType,
-        rentFrequency: property.rentFrequency,
-        status: property.status,
-        availableFrom: property.availableFrom,
-        createdAt: property.createdAt,
-        updatedAt: property.updatedAt,
-        reviewedBy: property.reviewedBy,
-        rejectionReason: property.rejectionReason,
-        // User fields (summary for admin display)
-        user: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          mobile: user.mobile,
-          profilePicture: user.profilePicture,
-          agentNumber: user.agentNumber,
-        },
-      })
+      .select(getPropertyWithUserSelection())
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
       .where(eq(property.status, 'PENDING'))
@@ -73,37 +40,20 @@ const getPendingProperties: RequestHandler = async (request, response) => {
 
     // Get media for all properties
     const propertyIds = pendingProperties.map((propertyItem) => propertyItem.id);
-    const allMedia =
-      propertyIds.length > 0
-        ? await db
-            .select()
-            .from(media)
-            .where(inArray(media.propertyId, propertyIds))
-            .orderBy(media.displayOrder, media.uploadedAt)
-        : [];
-
-    // Group media by property ID
-    const mediaByPropertyId = allMedia.reduce<Record<string, typeof allMedia>>((acc, mediaItem) => {
-      if (!acc[mediaItem.propertyId]) {
-        acc[mediaItem.propertyId] = [];
-      }
-      acc[mediaItem.propertyId].push(mediaItem);
-      return acc;
-    }, {});
+    const mediaByPropertyId = await getMediaForProperties(propertyIds);
 
     // Add media to each property
-    const propertiesWithMedia = pendingProperties.map((propertyItem) => ({
-      ...propertyItem,
-      media: mediaByPropertyId[propertyItem.id] || [],
-    }));
+    const propertiesWithMedia = addMediaToProperties(pendingProperties, mediaByPropertyId);
 
     sendSuccessResponse(response, 200, 'Pending properties retrieved successfully', {
       properties: propertiesWithMedia,
       pagination: {
-        currentPage: page,
+        page,
+        limit,
+        total: totalProperties,
         totalPages,
-        totalItems: totalProperties,
-        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

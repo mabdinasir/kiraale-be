@@ -1,4 +1,5 @@
 import {
+  adminUpdateUser,
   approveProperty,
   createPricing,
   getAdminStats,
@@ -7,8 +8,14 @@ import {
   getPaymentStats,
   getPendingProperties,
   getPricing,
+  getProperty,
+  getPropertyAnalytics,
   getRejectedProperties,
+  getTrendingProperties,
+  getUsers,
   rejectProperty,
+  searchUsers,
+  suspendUser,
   updatePricing,
 } from '@controllers/api/admin';
 import { adminMiddleware } from '@lib/permissions/middleware';
@@ -83,6 +90,48 @@ const adminRoutes: RouteGroup = {
       method: 'put',
       middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
       handler: updatePricing,
+    },
+    {
+      path: '/users/search',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: searchUsers,
+    },
+    {
+      path: '/users/:userId/suspend',
+      method: 'put',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: suspendUser,
+    },
+    {
+      path: '/users/:id',
+      method: 'put',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: adminUpdateUser,
+    },
+    {
+      path: '/users',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: getUsers,
+    },
+    {
+      path: '/properties/trending',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: getTrendingProperties,
+    },
+    {
+      path: '/properties/:id',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: getProperty,
+    },
+    {
+      path: '/properties/:id/analytics',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: getPropertyAnalytics,
     },
   ],
 };

@@ -18,7 +18,7 @@ const getMediaList: RequestHandler = async (request, response) => {
       type,
       isPrimary,
       page = 1,
-      limit = 20,
+      limit = 50,
     } = queryMediaSchema.parse(request.query);
 
     // Build filters
@@ -56,10 +56,12 @@ const getMediaList: RequestHandler = async (request, response) => {
     sendSuccessResponse(response, 200, 'Media list retrieved successfully', {
       media: mediaList,
       pagination: {
-        currentPage: page,
+        page,
+        limit,
+        total: totalMedia,
         totalPages,
-        totalItems: totalMedia,
-        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

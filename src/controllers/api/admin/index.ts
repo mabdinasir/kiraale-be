@@ -1,3 +1,4 @@
+export { default as adminUpdateUser } from './adminUpdateUser';
 export { default as approveProperty } from './approveProperty';
 export * from './createPricing';
 export { default as getAdminStats } from './getAdminStats';
@@ -6,6 +7,12 @@ export * from './getPayments';
 export * from './getPaymentStats';
 export { default as getPendingProperties } from './getPendingProperties';
 export * from './getPricing';
+export { default as getProperty } from './getProperty';
+export { default as getPropertyAnalytics } from './getPropertyAnalytics';
 export { default as getRejectedProperties } from './getRejectedProperties';
+export { default as getTrendingProperties } from './getTrendingProperties';
+export { default as getUsers } from './getUsers';
 export { default as rejectProperty } from './rejectProperty';
+export { default as searchUsers } from './searchUsers';
+export { default as suspendUser } from './suspendUser';
 export * from './updatePricing';

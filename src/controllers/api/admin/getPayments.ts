@@ -101,8 +101,8 @@ export const getPayments: RequestHandler = async (req, res) => {
         limit,
         total,
         totalPages: Math.ceil(total / limit),
-        hasNext: page < Math.ceil(total / limit),
-        hasPrev: page > 1,
+        hasNextPage: page < Math.ceil(total / limit),
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

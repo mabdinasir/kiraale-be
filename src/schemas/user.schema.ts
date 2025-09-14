@@ -64,7 +64,7 @@ export const profilePicUploadSchema = z.object({
 export const getUsersQuerySchema = z
   .object({
     page: z.coerce.number().int().min(1).default(1).optional(),
-    limit: z.coerce.number().int().min(1).max(100).default(10).optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(50).optional(),
     role: z.enum(['USER', 'ADMIN', 'AGENT']).optional(),
   })
   .optional();
@@ -91,9 +91,43 @@ export const changePasswordSchema = z
   })
   .strict();
 
+// Admin user update schema - for critical fields only
+export const adminUpdateUserSchema = insertUserSchema
+  .pick({
+    firstName: true,
+    lastName: true,
+    role: true,
+    nationalId: true,
+    passportNumber: true,
+    isActive: true,
+    agentNumber: true,
+    email: true,
+    mobile: true,
+    address: true,
+  })
+  .partial()
+  .extend({
+    mobile: z
+      .string()
+      .min(10, 'Mobile number must be at least 10 digits')
+      .max(15, 'Mobile number cannot exceed 15 digits')
+      .optional(),
+    email: z.email('Invalid email format').optional(),
+    address: z.string().max(200, 'Address cannot exceed 200 characters').optional(),
+  })
+  .strict();
+
+export const adminUpdateUserParamsSchema = selectUserSchema
+  .pick({
+    id: true,
+  })
+  .strict();
+
 export type GetUserByIdParams = z.infer<typeof getUserByIdSchema>;
 export type GetUsersQueryParams = z.infer<typeof getUsersQuerySchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;
 export type DeleteParams = z.infer<typeof deleteParamsSchema>;
 export type DeactivateParams = z.infer<typeof deactivateParamsSchema>;
 export type ProfilePicUploadData = z.infer<typeof profilePicUploadSchema>;
+export type AdminUpdateUserData = z.infer<typeof adminUpdateUserSchema>;
+export type AdminUpdateUserParams = z.infer<typeof adminUpdateUserParamsSchema>;

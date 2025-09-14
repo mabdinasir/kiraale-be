@@ -25,6 +25,15 @@ const login: RequestHandler = async (request, response) => {
       return;
     }
 
+    // Check if user is suspended
+    if (existingUser.isSuspended) {
+      const message = existingUser.suspensionReason
+        ? `Account suspended: ${existingUser.suspensionReason}`
+        : 'Account suspended. Please contact support.';
+      sendErrorResponse(response, 403, message);
+      return;
+    }
+
     // Verify password
     const isValidPassword = await verifyPassword(userData.password, existingUser?.password ?? '');
     if (!isValidPassword) {

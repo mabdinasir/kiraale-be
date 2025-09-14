@@ -70,10 +70,6 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
         rentFrequency: property.rentFrequency,
         status: property.status,
         availableFrom: property.availableFrom,
-        reviewedAt: property.reviewedAt,
-        reviewedBy: property.reviewedBy,
-        rejectionReason: property.rejectionReason,
-        adminNotes: property.adminNotes,
         searchVector: property.searchVector,
         createdAt: property.createdAt,
         updatedAt: property.updatedAt,
@@ -119,10 +115,6 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
         property.rentFrequency,
         property.status,
         property.availableFrom,
-        property.reviewedAt,
-        property.reviewedBy,
-        property.rejectionReason,
-        property.adminNotes,
         property.searchVector,
         property.createdAt,
         property.updatedAt,
@@ -181,10 +173,12 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
     sendSuccessResponse(response, 200, 'Trending properties retrieved successfully', {
       properties: propertiesWithMedia,
       pagination: {
-        currentPage: page,
+        page,
+        limit,
+        total: totalProperties,
         totalPages,
-        totalItems: totalProperties,
-        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
       period: {
         type: period,
@@ -203,7 +197,7 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
       return;
     }
 
-    logError(error, 'GET_TRENDING_PROPERTIES');
+    logError(error, 'ADMIN_GET_TRENDING_PROPERTIES');
     sendErrorResponse(response, 500, 'Failed to retrieve trending properties.');
   }
 };

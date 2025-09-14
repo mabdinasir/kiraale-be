@@ -110,7 +110,7 @@ const getPropertyAnalytics: RequestHandler = async (request, response) => {
       .where(and(...baseConditions, sql`${propertyView.referrer} IS NOT NULL`))
       .groupBy(propertyView.referrer)
       .orderBy(sql`count(*) desc`)
-      .limit(10);
+      .limit(50);
 
     // Get hourly distribution for day/week periods
     let hourlyDistribution: { hour: number; views: number }[] = [];
@@ -179,7 +179,7 @@ const getPropertyAnalytics: RequestHandler = async (request, response) => {
       return;
     }
 
-    logError(error, 'GET_PROPERTY_ANALYTICS');
+    logError(error, 'ADMIN_GET_PROPERTY_ANALYTICS');
     sendErrorResponse(response, 500, 'Failed to retrieve property analytics.');
   }
 };

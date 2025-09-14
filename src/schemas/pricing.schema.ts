@@ -4,7 +4,7 @@ import { z } from 'zod';
 // Pricing query schemas
 export const getPricingQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
   serviceType: z.enum(serviceTypeValues).optional(),
   active: z.coerce.boolean().optional(),
 });

@@ -20,7 +20,7 @@ const getMyFavorites: RequestHandler = async (request, response) => {
       return;
     }
 
-    const { page = 1, limit = 10 } = getMyFavoritesSchema.parse(request.query);
+    const { page = 1, limit = 50 } = getMyFavoritesSchema.parse(request.query);
 
     const offset = (page - 1) * limit;
 
@@ -109,10 +109,12 @@ const getMyFavorites: RequestHandler = async (request, response) => {
     sendSuccessResponse(response, 200, 'Your favorites retrieved successfully', {
       favorites: favoritesWithMedia,
       pagination: {
-        currentPage: page,
+        page,
+        limit,
+        total: totalFavorites,
         totalPages,
-        totalItems: totalFavorites,
-        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

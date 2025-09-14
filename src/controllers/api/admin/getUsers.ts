@@ -22,12 +22,8 @@ const getUsers: RequestHandler = async (request, response) => {
 
     const { page = 1, limit = 50, role } = queryValidation.data ?? {};
 
-    // Build query conditions - only show active, non-suspended, non-deleted users for public access
-    const conditions = [
-      eq(user.isDeleted, false),
-      eq(user.isActive, true),
-      eq(user.isSuspended, false),
-    ];
+    // Build query conditions
+    const conditions = [eq(user.isDeleted, false)];
     if (role) {
       conditions.push(eq(user.role, role));
     }
@@ -63,7 +59,7 @@ const getUsers: RequestHandler = async (request, response) => {
       },
     });
   } catch (error) {
-    logError(error, 'GET_USERS');
+    logError(error, 'ADMIN_GET_USERS');
     sendErrorResponse(response, 500, 'Failed to retrieve users.');
   }
 };

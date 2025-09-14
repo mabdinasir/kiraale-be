@@ -61,10 +61,12 @@ const getAgencies: RequestHandler = async (request, response) => {
     sendSuccessResponse(response, 200, 'Agencies retrieved successfully', {
       agencies,
       pagination: {
-        currentPage: page,
+        page,
+        limit,
+        total: totalCount,
         totalPages,
-        totalItems: totalCount,
-        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

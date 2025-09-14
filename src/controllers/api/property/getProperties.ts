@@ -1,13 +1,16 @@
 import db from '@db/index';
-import { media, property, user } from '@db/schemas';
+import { property, user } from '@db/schemas';
 import {
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
+import { getPublicPropertyWithActiveUserFilters } from '@lib/utils/filters/propertyFilters';
+import { addMediaToProperties, getMediaForProperties } from '@lib/utils/media/mediaUtils';
+import { getPublicPropertySelection } from '@lib/utils/selectors/propertySelectors';
 import { queryPropertiesSchema } from '@schemas/property.schema';
-import { and, eq, gte, inArray, lte, ne } from 'drizzle-orm';
+import { and, eq, gte, lte } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -27,11 +30,7 @@ const getProperties: RequestHandler = async (request, response) => {
     } = queryPropertiesSchema.parse(request.query);
 
     // Build filters
-    const filters = [];
-
-    // For public listings, show all properties except PENDING ones
-    // Only hide PENDING properties from regular users
-    filters.push(ne(property.status, 'PENDING'));
+    const filters = getPublicPropertyWithActiveUserFilters();
 
     if (propertyType) {
       filters.push(eq(property.propertyType, propertyType));
@@ -61,40 +60,7 @@ const getProperties: RequestHandler = async (request, response) => {
     const offset = (page - 1) * limit; // offset is the number of records to skip
 
     const properties = await db
-      .select({
-        // Property fields
-        id: property.id,
-        userId: property.userId,
-        title: property.title,
-        description: property.description,
-        propertyType: property.propertyType,
-        listingType: property.listingType,
-        bedrooms: property.bedrooms,
-        bathrooms: property.bathrooms,
-        parkingSpaces: property.parkingSpaces,
-        landSize: property.landSize,
-        floorArea: property.floorArea,
-        hasAirConditioning: property.hasAirConditioning,
-        address: property.address,
-        country: property.country,
-        price: property.price,
-        priceType: property.priceType,
-        rentFrequency: property.rentFrequency,
-        status: property.status,
-        availableFrom: property.availableFrom,
-        createdAt: property.createdAt,
-        updatedAt: property.updatedAt,
-        // User fields (summary for public display)
-        user: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          mobile: user.mobile,
-          profilePicture: user.profilePicture,
-          agentNumber: user.agentNumber,
-        },
-      })
+      .select(getPublicPropertySelection())
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
       .where(and(...filters))
@@ -114,37 +80,20 @@ const getProperties: RequestHandler = async (request, response) => {
 
     // Get media for all properties
     const propertyIds = properties.map((propertyItem) => propertyItem.id);
-    const allMedia =
-      propertyIds.length > 0
-        ? await db
-            .select()
-            .from(media)
-            .where(inArray(media.propertyId, propertyIds))
-            .orderBy(media.displayOrder, media.uploadedAt)
-        : [];
-
-    // Group media by property ID
-    const mediaByPropertyId = allMedia.reduce<Record<string, typeof allMedia>>((acc, mediaItem) => {
-      if (!acc[mediaItem.propertyId]) {
-        acc[mediaItem.propertyId] = [];
-      }
-      acc[mediaItem.propertyId].push(mediaItem);
-      return acc;
-    }, {});
+    const mediaByPropertyId = await getMediaForProperties(propertyIds);
 
     // Add media to each property
-    const propertiesWithMedia = properties.map((propertyItem) => ({
-      ...propertyItem,
-      media: mediaByPropertyId[propertyItem.id] || [],
-    }));
+    const propertiesWithMedia = addMediaToProperties(properties, mediaByPropertyId);
 
     sendSuccessResponse(response, 200, 'Properties retrieved successfully', {
       properties: propertiesWithMedia,
       pagination: {
-        currentPage: page,
+        page,
+        limit,
+        total: totalProperties,
         totalPages,
-        totalItems: totalProperties,
-        itemsPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

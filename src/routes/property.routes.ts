@@ -3,8 +3,6 @@ import {
   deleteProperty,
   getProperties,
   getProperty,
-  getPropertyAnalytics,
-  getTrendingProperties,
   recordPropertyView,
   searchProperties,
   updateProperty,
@@ -29,12 +27,6 @@ const propertyRoutes: RouteGroup = {
       handler: searchProperties,
     },
     {
-      path: '/trending',
-      method: 'get',
-      middlewares: [], // Trending properties - public
-      handler: getTrendingProperties,
-    },
-    {
       path: '/:id',
       method: 'get',
       middlewares: [optionalAuthMiddleware], // Optional auth to allow owners to see pending properties
@@ -47,12 +39,6 @@ const propertyRoutes: RouteGroup = {
       method: 'post',
       middlewares: [optionalAuthMiddleware], // Optional auth to allow owners to record views on pending properties
       handler: recordPropertyView,
-    },
-    {
-      path: '/:id/analytics',
-      method: 'get',
-      middlewares: [authMiddleware], // Property analytics - requires auth
-      handler: getPropertyAnalytics,
     },
 
     // Property management endpoints

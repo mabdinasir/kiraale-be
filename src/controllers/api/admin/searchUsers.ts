@@ -7,29 +7,46 @@ import {
   sendSuccessResponse,
 } from '@lib/utils/error/errorHandler';
 import { omitPassword } from '@lib/utils/security/omitPassword';
-import { getUsersQuerySchema } from '@schemas/user.schema';
-import { and, eq } from 'drizzle-orm';
+import { adminSearchUsersSchema } from '@schemas/admin.schema';
+import { and, eq, ilike, or } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
-const getUsers: RequestHandler = async (request, response) => {
+const searchUsers: RequestHandler = async (request, response) => {
   try {
-    // Validate query parameters
-    const queryValidation = getUsersQuerySchema.safeParse(request.query);
+    const queryValidation = adminSearchUsersSchema.safeParse(request.query);
     if (!queryValidation.success) {
       handleValidationError(queryValidation.error, response);
       return;
     }
 
-    const { page = 1, limit = 50, role } = queryValidation.data ?? {};
+    const { page = 1, limit = 50, search, role, isActive, isSuspended } = queryValidation.data;
 
-    // Build query conditions - only show active, non-suspended, non-deleted users for public access
-    const conditions = [
-      eq(user.isDeleted, false),
-      eq(user.isActive, true),
-      eq(user.isSuspended, false),
-    ];
+    // Build query conditions
+    const conditions = [eq(user.isDeleted, false)];
+
     if (role) {
       conditions.push(eq(user.role, role));
+    }
+
+    if (isActive !== undefined) {
+      conditions.push(eq(user.isActive, isActive));
+    }
+
+    if (isSuspended !== undefined) {
+      conditions.push(eq(user.isSuspended, isSuspended));
+    }
+
+    if (search) {
+      const searchCondition = or(
+        ilike(user.firstName, `%${search}%`),
+        ilike(user.lastName, `%${search}%`),
+        ilike(user.email, `%${search}%`),
+        ilike(user.mobile, `%${search}%`),
+        ilike(user.agentNumber, `%${search}%`),
+      );
+      if (searchCondition) {
+        conditions.push(searchCondition);
+      }
     }
 
     // Get users with pagination
@@ -38,7 +55,8 @@ const getUsers: RequestHandler = async (request, response) => {
       .from(user)
       .where(and(...conditions))
       .limit(limit)
-      .offset((page - 1) * limit);
+      .offset((page - 1) * limit)
+      .orderBy(user.createdAt);
 
     // Get total count for pagination
     const [countResult] = await db
@@ -61,11 +79,17 @@ const getUsers: RequestHandler = async (request, response) => {
         hasNextPage: page < totalPages,
         hasPreviousPage: page > 1,
       },
+      filters: {
+        search,
+        role,
+        isActive,
+        isSuspended,
+      },
     });
   } catch (error) {
-    logError(error, 'GET_USERS');
-    sendErrorResponse(response, 500, 'Failed to retrieve users.');
+    logError(error, 'ADMIN_SEARCH_USERS');
+    sendErrorResponse(response, 500, 'Failed to search users.');
   }
 };
 
-export default getUsers;
+export default searchUsers;

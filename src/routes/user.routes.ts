@@ -6,24 +6,17 @@ import {
   getMyFavorites,
   getMyProperties,
   getUser,
-  getUsers,
   removeFromFavorites,
   updateUser,
   uploadProfilePic,
 } from '@controllers/api/user';
-import { adminMiddleware, requireResourceAccess } from '@lib/permissions/middleware';
+import { requireResourceAccess } from '@lib/permissions/middleware';
 import { authMiddleware } from '@middleware/authMiddleware';
 import type { RouteGroup } from '@models/routes';
 
 const userRoutes: RouteGroup = {
   basePath: '/users',
   routes: [
-    {
-      path: '/',
-      method: 'get',
-      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Only admins can list all users
-      handler: getUsers,
-    },
     // Specific routes must come before parameterized routes to avoid conflicts
     {
       path: '/change-password',

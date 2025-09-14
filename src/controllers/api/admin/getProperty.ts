@@ -1,18 +1,13 @@
 import db from '@db/index';
-import { property, user } from '@db/schemas';
+import { media, property, user } from '@db/schemas';
 import {
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
 } from '@lib/utils';
-import {
-  getOwnerPropertyWithActiveUserFilters,
-  getPublicPropertyWithActiveUserFilters,
-} from '@lib/utils/filters/propertyFilters';
-import { getMediaForProperties } from '@lib/utils/media/mediaUtils';
 import { getPropertyByIdSchema } from '@schemas/property.schema';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -20,12 +15,9 @@ const getProperty: RequestHandler = async (request, response) => {
   try {
     const { id } = getPropertyByIdSchema.parse(request.params);
 
-    // Get user ID from request (if authenticated)
-    const userId = request.user?.id;
-
     const [existingProperty] = await db
       .select({
-        // Property fields
+        // Property fields - including all sensitive admin fields
         id: property.id,
         userId: property.userId,
         agencyId: property.agencyId,
@@ -46,6 +38,10 @@ const getProperty: RequestHandler = async (request, response) => {
         rentFrequency: property.rentFrequency,
         status: property.status,
         availableFrom: property.availableFrom,
+        reviewedAt: property.reviewedAt,
+        reviewedBy: property.reviewedBy,
+        rejectionReason: property.rejectionReason,
+        adminNotes: property.adminNotes,
         searchVector: property.searchVector,
         createdAt: property.createdAt,
         updatedAt: property.updatedAt,
@@ -63,14 +59,7 @@ const getProperty: RequestHandler = async (request, response) => {
       })
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
-      .where(
-        and(
-          eq(property.id, id),
-          ...(userId
-            ? getOwnerPropertyWithActiveUserFilters(userId)
-            : getPublicPropertyWithActiveUserFilters()),
-        ),
-      )
+      .where(eq(property.id, id))
       .limit(1);
 
     if (!existingProperty) {
@@ -78,13 +67,34 @@ const getProperty: RequestHandler = async (request, response) => {
       return;
     }
 
+    // Get reviewer details if property has been reviewed
+    let reviewer = null;
+    if (existingProperty.reviewedBy) {
+      const [reviewerData] = await db
+        .select({
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        })
+        .from(user)
+        .where(eq(user.id, existingProperty.reviewedBy))
+        .limit(1);
+
+      reviewer = reviewerData || null;
+    }
+
     // Get media for the property
-    const mediaByPropertyId = await getMediaForProperties([id]);
-    const propertyMedia = mediaByPropertyId[id] || [];
+    const propertyMedia = await db
+      .select()
+      .from(media)
+      .where(eq(media.propertyId, id))
+      .orderBy(media.displayOrder, media.uploadedAt);
 
     sendSuccessResponse(response, 200, 'Property retrieved successfully', {
       property: {
         ...existingProperty,
+        reviewer,
         media: propertyMedia,
       },
     });
@@ -94,7 +104,7 @@ const getProperty: RequestHandler = async (request, response) => {
       return;
     }
 
-    logError(error, 'GET_PROPERTY');
+    logError(error, 'ADMIN_GET_PROPERTY');
     sendErrorResponse(response, 500, 'Failed to retrieve property information.');
   }
 };
