@@ -34,8 +34,18 @@ export const createPropertySchema = insertPropertySchema
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),
     parkingSpaces: z.number().int().min(0).max(200, 'Parking spaces cannot exceed 200').optional(),
-    landSize: z.coerce.number().nonnegative().optional(),
-    floorArea: z.coerce.number().nonnegative().optional(),
+    landSize: z
+      .number()
+      .int()
+      .min(0)
+      .max(1000000, 'Land size cannot exceed 1,000,000 sqm')
+      .optional(),
+    floorArea: z
+      .number()
+      .int()
+      .min(0)
+      .max(100000, 'Floor area cannot exceed 100,000 sqm')
+      .optional(),
     address: z
       .string()
       .min(1, 'Address is required')
@@ -79,8 +89,18 @@ export const updatePropertySchema = insertPropertySchema
     bedrooms: z.number().int().min(0).max(50, 'Bedrooms cannot exceed 50').optional(),
     bathrooms: z.number().int().min(0).max(50, 'Bathrooms cannot exceed 50').optional(),
     parkingSpaces: z.number().int().min(0).max(200, 'Parking spaces cannot exceed 200').optional(),
-    landSize: z.coerce.number().nonnegative().optional(),
-    floorArea: z.coerce.number().nonnegative().optional(),
+    landSize: z
+      .number()
+      .int()
+      .min(0)
+      .max(1000000, 'Land size cannot exceed 1,000,000 sqm')
+      .optional(),
+    floorArea: z
+      .number()
+      .int()
+      .min(0)
+      .max(100000, 'Floor area cannot exceed 100,000 sqm')
+      .optional(),
     address: z
       .string()
       .min(1, 'Address is required')

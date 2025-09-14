@@ -48,8 +48,8 @@ const updateProperty: RequestHandler = async (request, response) => {
         ...updateData,
         ...statusUpdate,
         price: updateData.price ? updateData.price.toString() : undefined,
-        landSize: updateData.landSize ? updateData.landSize.toString() : undefined,
-        floorArea: updateData.floorArea ? updateData.floorArea.toString() : undefined,
+        landSize: updateData.landSize,
+        floorArea: updateData.floorArea,
         updatedAt: new Date(),
       })
       .where(eq(property.id, id))

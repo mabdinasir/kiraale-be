@@ -127,16 +127,16 @@ const searchProperties: RequestHandler = async (request, response) => {
 
     // Size filters
     if (minLandSize) {
-      filters.push(gte(property.landSize, minLandSize.toString()));
+      filters.push(gte(property.landSize, minLandSize));
     }
     if (maxLandSize) {
-      filters.push(lte(property.landSize, maxLandSize.toString()));
+      filters.push(lte(property.landSize, maxLandSize));
     }
     if (minFloorArea) {
-      filters.push(gte(property.floorArea, minFloorArea.toString()));
+      filters.push(gte(property.floorArea, minFloorArea));
     }
     if (maxFloorArea) {
-      filters.push(lte(property.floorArea, maxFloorArea.toString()));
+      filters.push(lte(property.floorArea, maxFloorArea));
     }
 
     // Feature filters

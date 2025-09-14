@@ -40,8 +40,8 @@ export const property = pgTable(
     bedrooms: integer('bedrooms').default(0),
     bathrooms: integer('bathrooms').default(0),
     parkingSpaces: integer('parkingSpaces').default(0),
-    landSize: decimal('landSize').default('0'), // in sqm
-    floorArea: decimal('floorArea').default('0'), // in sqm
+    landSize: integer('landSize').default(0), // in sqm
+    floorArea: integer('floorArea').default(0), // in sqm
     hasAirConditioning: boolean('hasAirConditioning').default(false),
 
     // Location

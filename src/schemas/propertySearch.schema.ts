@@ -36,10 +36,10 @@ export const propertySearchSchema = z
     maxBathrooms: z.coerce.number().int().nonnegative().optional(),
     minParkingSpaces: z.coerce.number().int().nonnegative().optional(),
     maxParkingSpaces: z.coerce.number().int().nonnegative().optional(),
-    minLandSize: z.coerce.number().nonnegative().optional(),
-    maxLandSize: z.coerce.number().nonnegative().optional(),
-    minFloorArea: z.coerce.number().nonnegative().optional(),
-    maxFloorArea: z.coerce.number().nonnegative().optional(),
+    minLandSize: z.coerce.number().int().nonnegative().optional(),
+    maxLandSize: z.coerce.number().int().nonnegative().optional(),
+    minFloorArea: z.coerce.number().int().nonnegative().optional(),
+    maxFloorArea: z.coerce.number().int().nonnegative().optional(),
 
     // Property features
     hasAirConditioning: z.coerce.boolean().optional(),

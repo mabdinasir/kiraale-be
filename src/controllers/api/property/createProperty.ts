@@ -37,8 +37,8 @@ const createProperty: RequestHandler = async (request, response) => {
         ...propertyData,
         agencyId, // Auto-assign to user's agency if they're an agent
         price: propertyData.price.toString(),
-        landSize: propertyData.landSize ? propertyData.landSize.toString() : undefined,
-        floorArea: propertyData.floorArea ? propertyData.floorArea.toString() : undefined,
+        landSize: propertyData.landSize,
+        floorArea: propertyData.floorArea,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
