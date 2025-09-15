@@ -1,4 +1,4 @@
-import type { User, UserWithoutPassword } from '@db/schemas';
+import type { User, UserWithoutPassword } from '@db';
 
 export const omitPassword = (user: User): UserWithoutPassword => {
   const { password: _password, ...userWithoutPassword } = user;

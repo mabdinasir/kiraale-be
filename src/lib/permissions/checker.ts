@@ -1,4 +1,4 @@
-import type { Permission, Role } from '@models/permisions';
+import type { Permission, Role } from '@models';
 import { isHigherRole, roleHasPermission } from './roles';
 
 // Main permission checker function

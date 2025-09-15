@@ -1,12 +1,11 @@
-import db from '@db/index';
-import { user } from '@db/schemas';
+import db, { user } from '@db';
 import {
   handleValidationError,
   logError,
+  omitPassword,
   sendErrorResponse,
   sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { omitPassword } from '@lib/utils/security/omitPassword';
+} from '@lib';
 import { getUserByIdSchema, updateUserSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

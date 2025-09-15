@@ -1,5 +1,4 @@
-import db from '@db/index';
-import { tokenBlacklist } from '@db/schemas';
+import db, { tokenBlacklist } from '@db';
 import { lt } from 'drizzle-orm';
 
 export const cleanupExpiredTokens = async () => {

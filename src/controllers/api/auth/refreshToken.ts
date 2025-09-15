@@ -1,14 +1,14 @@
-import db from '@db/index';
-import { tokenBlacklist, user } from '@db/schemas';
-import { generateJwtToken, verifyRefreshToken } from '@lib/utils/auth/generateJwtToken';
+import db, { tokenBlacklist, user } from '@db';
 import {
+  generateJwtToken,
   handleValidationError,
   logError,
+  omitPassword,
   sendErrorResponse,
   sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { omitPassword } from '@lib/utils/security/omitPassword';
-import { refreshTokenSchema } from '@schemas/auth.schema';
+  verifyRefreshToken,
+} from '@lib';
+import { refreshTokenSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';

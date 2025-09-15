@@ -1,12 +1,6 @@
-import db from '@db/index';
-import { media, property, propertyView, user } from '@db/schemas';
-import {
-  handleValidationError,
-  logError,
-  sendErrorResponse,
-  sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { trendingPropertiesSchema } from '@schemas/property.schema';
+import db, { media, property, propertyView, user } from '@db';
+import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
+import { trendingPropertiesSchema } from '@schemas';
 import { count, desc, eq, inArray, ne, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

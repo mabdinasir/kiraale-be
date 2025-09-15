@@ -1,7 +1,6 @@
-import db from '@db/index';
-import { agencyAgent } from '@db/schemas';
-import { sendErrorResponse } from '@lib/utils';
-import type { Permission } from '@models/permisions';
+import db, { agencyAgent } from '@db';
+import { sendErrorResponse } from '@lib';
+import type { Permission } from '@models';
 import { and, eq } from 'drizzle-orm';
 import type { Request, RequestHandler } from 'express';
 import { hasAllPermissions, hasAnyPermission, hasPermission } from './checker';

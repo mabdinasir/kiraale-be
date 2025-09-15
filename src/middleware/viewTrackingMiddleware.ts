@@ -1,7 +1,6 @@
-import db from '@db/index';
-import { property, propertyView } from '@db/schemas';
-import { logError } from '@lib/utils/error/errorHandler';
-import type { ViewTrackingRequest } from '@models/index';
+import db, { property, propertyView } from '@db';
+import { logError } from '@lib';
+import type { ViewTrackingRequest } from '@models';
 import { and, eq, gte } from 'drizzle-orm';
 import type { NextFunction, Response } from 'express';
 

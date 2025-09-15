@@ -1,6 +1,6 @@
-import type { User } from '@db/schemas';
-import type { JwtPayload } from '@models/jwtPayload';
-import { omitPassword } from '@security/omitPassword';
+import type { User } from '@db';
+import { omitPassword } from '@lib';
+import type { JwtPayload } from '@models';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 

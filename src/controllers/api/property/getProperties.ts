@@ -1,15 +1,15 @@
-import db from '@db/index';
-import { property, user } from '@db/schemas';
+import db, { property, user } from '@db';
 import {
+  addMediaToProperties,
+  getMediaForProperties,
+  getPublicPropertySelection,
+  getPublicPropertyWithActiveUserFilters,
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { getPublicPropertyWithActiveUserFilters } from '@lib/utils/filters/propertyFilters';
-import { addMediaToProperties, getMediaForProperties } from '@lib/utils/media/mediaUtils';
-import { getPublicPropertySelection } from '@lib/utils/selectors/propertySelectors';
-import { queryPropertiesSchema } from '@schemas/property.schema';
+} from '@lib';
+import { queryPropertiesSchema } from '@schemas';
 import { and, eq, gte, lte } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

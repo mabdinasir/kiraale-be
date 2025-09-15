@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { logError } from '@lib/utils';
-import type { WaafiPayload } from '@models/index';
+import { logError } from '@lib';
+import type { WaafiPayload } from '@models';
 import axios from 'axios';
 
 export const initiateEvcPayment = async (payload: WaafiPayload): Promise<unknown> => {

@@ -1,6 +1,5 @@
-import db from '@db/index';
-import { property, user } from '@db/schemas';
-import { logError, sendErrorResponse, sendSuccessResponse } from '@lib/utils/error/errorHandler';
+import db, { property, user } from '@db';
+import { logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { and, count, gte, isNull } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 

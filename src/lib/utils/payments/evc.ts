@@ -1,10 +1,7 @@
-import db from '@db/index';
-import { payment } from '@db/schemas';
-import { formatSomaliNumber } from '@lib/utils/formatters/phoneNumbers/formatSomaliNumber';
-import { generateReceiptNumber } from '@lib/utils/generators/generateReceiptNumber';
-import { initiateEvcPayment } from '@services/waafi.service';
+import db, { payment } from '@db';
+import { formatSomaliNumber, generateReceiptNumber, logError } from '@lib';
+import { initiateEvcPayment } from '@services';
 import { eq } from 'drizzle-orm';
-import { logError } from '../error/errorHandler';
 
 export const validateEvcConfig = () => {
   const merchantUid = process.env.WAAFI_MERCHANT_UID;

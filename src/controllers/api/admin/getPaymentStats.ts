@@ -1,6 +1,5 @@
-import db from '@db/index';
-import { payment } from '@db/schemas';
-import { sendErrorResponse, sendSuccessResponse } from '@lib/utils';
+import db, { payment } from '@db';
+import { sendErrorResponse, sendSuccessResponse } from '@lib';
 import { and, count, eq, gte, sum } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 

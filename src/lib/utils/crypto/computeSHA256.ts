@@ -1,4 +1,4 @@
-import { logError } from '@lib/utils/error/errorHandler';
+import { logError } from '@lib';
 
 const computeSHA256 = async (file: Express.Multer.File) => {
   if (!file) {

@@ -1,11 +1,6 @@
-import { insertMediaSchema, selectMediaSchema } from '@db/schemas';
+import { insertMediaSchema, selectMediaSchema } from '@db';
 import { mediaType } from '@db/schemas/enums';
-import {
-  allowedFileTypes,
-  maxFileSize,
-  maxFileSizeMB,
-  maxPropertyMediaFiles,
-} from '@lib/config/fileUpload';
+import { allowedFileTypes, maxFileSize, maxFileSizeMB, maxPropertyMediaFiles } from '@lib';
 import { z } from 'zod';
 
 // Create media schema using database schema with enhanced validation

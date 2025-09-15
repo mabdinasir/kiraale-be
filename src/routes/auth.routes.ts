@@ -1,7 +1,13 @@
-import { login, logout, requestPasswordReset, resetPassword, signup } from '@controllers/api/auth';
-import refreshToken from '@controllers/api/auth/refreshToken';
-import { authMiddleware } from '@middleware/authMiddleware';
-import type { RouteGroup } from '@models/routes';
+import {
+  login,
+  logout,
+  refreshToken,
+  requestPasswordReset,
+  resetPassword,
+  signup,
+} from '@controllers';
+import { authMiddleware } from '@middleware';
+import type { RouteGroup } from '@models';
 
 const authRoutes: RouteGroup = {
   basePath: '/auth',

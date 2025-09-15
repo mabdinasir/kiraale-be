@@ -1,4 +1,4 @@
-import db from '@db/index';
+import db from '@db';
 import { sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 

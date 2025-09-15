@@ -1,7 +1,6 @@
-import db from '@db/index';
-import { payment, property, user } from '@db/schemas';
-import { handleValidationError, sendErrorResponse, sendSuccessResponse } from '@lib/utils';
-import { getPaymentByIdSchema } from '@schemas/index';
+import db, { payment, property, user } from '@db';
+import { handleValidationError, sendErrorResponse, sendSuccessResponse } from '@lib';
+import { getPaymentByIdSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 

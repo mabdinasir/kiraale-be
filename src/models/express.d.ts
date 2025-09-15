@@ -1,4 +1,4 @@
-import type { JwtPayload } from '@models/jwtPayload';
+import type { JwtPayload } from '@models';
 
 declare global {
   namespace Express {

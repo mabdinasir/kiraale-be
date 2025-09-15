@@ -1,4 +1,4 @@
-import { logError } from '@utils/error/errorHandler';
+import { logError } from '@lib';
 import nodemailer from 'nodemailer';
 
 // A transporter object using SMTP settings

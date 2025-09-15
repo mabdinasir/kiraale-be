@@ -1,4 +1,4 @@
-import { insertPropertySchema, selectPropertySchema } from '@db/schemas';
+import { insertPropertySchema, selectPropertySchema } from '@db';
 import { z } from 'zod';
 
 // Import enum schemas from database

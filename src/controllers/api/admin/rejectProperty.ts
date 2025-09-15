@@ -1,8 +1,11 @@
-import db from '@db/index';
-import { property, user } from '@db/schemas';
-import { propertyRejectedTemplate } from '@lib/emailTemplates';
-import { sendEmail } from '@lib/utils/email/nodeMailer';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import db, { property, user } from '@db';
+import {
+  handleValidationError,
+  logError,
+  propertyRejectedTemplate,
+  sendEmail,
+  sendErrorResponse,
+} from '@lib';
 import { rejectPropertyBodySchema, rejectPropertyParamsSchema } from '@schemas';
 import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

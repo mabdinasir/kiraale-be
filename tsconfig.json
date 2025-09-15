@@ -16,20 +16,7 @@
     // Base URL and path mappings
     "baseUrl": "./src",
     "paths": {
-      "@auth/*": ["auth/*"],
-      "@routes/*": ["routes/*"],
-      "@controllers/*": ["controllers/*"],
-      "@api/*": ["controllers/api/*"],
-      "@models/*": ["models/*"],
-      "@lib/*": ["lib/*"],
-      "@utils/*": ["lib/utils/*"],
-      "@middleware/*": ["middleware/*"],
-      "@db/*": ["db/*"],
-      "@config/*": ["lib/config/*"],
-      "@schemas": ["schemas/index"],
-      "@schemas/*": ["schemas/*"],
-      "@security/*": ["lib/utils/security/*"],
-      "@services/*": ["services/*"]
+      "@*": ["./*"]
     }
   },
   "exclude": ["node_modules", "dist", "eslint.config.js"]

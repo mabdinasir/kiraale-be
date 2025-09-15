@@ -1,6 +1,5 @@
-import db from '@db/index';
-import { property, propertyView } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import db, { property, propertyView } from '@db';
+import { handleValidationError, logError, sendErrorResponse } from '@lib';
 import { recordPropertyViewSchema } from '@schemas';
 import { and, eq, gte } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

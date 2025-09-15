@@ -1,5 +1,6 @@
 import pluginJs from '@eslint/js';
 import eslintConfigPrettier from 'eslint-config-prettier';
+import importPlugin from 'eslint-plugin-import';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -26,6 +27,9 @@ export default [
     },
   },
   {
+    plugins: {
+      import: importPlugin,
+    },
     rules: {
       // Core ESLint rules - strictest settings
       'array-callback-return': ['error', { allowImplicit: false, checkForEach: true }],
@@ -48,7 +52,6 @@ export default [
       'no-dupe-else-if': 'error',
       'no-dupe-keys': 'error',
       'no-duplicate-case': 'error',
-      'no-duplicate-imports': 'error',
       'no-empty-character-class': 'error',
       'no-empty-pattern': 'error',
       'no-ex-assign': 'error',
@@ -228,6 +231,9 @@ export default [
       'no-process-exit': 'error',
       'no-restricted-modules': 'error',
       'no-sync': 'error',
+
+      // Import consolidation rules
+      'import/no-duplicates': 'error', // Consolidate imports from same module
 
       // TypeScript specific overrides
       '@typescript-eslint/no-unused-vars': [

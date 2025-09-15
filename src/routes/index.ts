@@ -1,4 +1,4 @@
-import type { RouteGroup } from '@models/routes';
+import type { RouteGroup } from '@models';
 import type { Router } from 'express';
 import adminRoutes from './admin.routes';
 import agencyRoutes from './agency.routes';

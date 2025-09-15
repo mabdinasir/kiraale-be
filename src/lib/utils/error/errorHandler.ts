@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import type { ErrorResponse, SuccessResponse } from '@models/apiResponse';
+import type { ErrorResponse, SuccessResponse } from '@models';
 import type { Response } from 'express';
 
 export const sanitizeError = (error: unknown): string => {

@@ -1,6 +1,6 @@
-import { setupCrons } from '@lib/cron';
-import { apiRateLimiter } from '@middleware/rateLimit';
-import configureRoutes from '@routes/index';
+import { setupCrons } from '@lib';
+import { apiRateLimiter } from '@middleware';
+import configureRoutes from '@routes';
 import bodyParser from 'body-parser';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';

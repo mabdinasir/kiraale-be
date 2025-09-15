@@ -1,4 +1,4 @@
-import type { Permission, Role, RoleDefinition } from '@models/permisions';
+import type { Permission, Role, RoleDefinition } from '@models';
 import { permissions } from './constants';
 
 // Define role capabilities for the property platform

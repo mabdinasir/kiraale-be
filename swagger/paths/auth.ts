@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 
 export const authPaths = {
-  '/api/auth/signup': {
+  '/auth/signup': {
     post: {
       tags: ['Authentication'],
       summary: 'Register a new user account',
@@ -101,7 +101,7 @@ export const authPaths = {
     },
   },
 
-  '/api/auth/login': {
+  '/auth/login': {
     post: {
       tags: ['Authentication'],
       summary: 'Authenticate user and get token',
@@ -170,7 +170,7 @@ export const authPaths = {
     },
   },
 
-  '/api/auth/logout': {
+  '/auth/logout': {
     post: {
       tags: ['Authentication'],
       summary: 'Log out user',
@@ -213,7 +213,7 @@ export const authPaths = {
     },
   },
 
-  '/api/auth/request-password-reset': {
+  '/auth/request-password-reset': {
     post: {
       tags: ['Authentication'],
       summary: 'Request password reset',
@@ -271,7 +271,7 @@ export const authPaths = {
     },
   },
 
-  '/api/auth/reset-password': {
+  '/auth/reset-password': {
     post: {
       tags: ['Authentication'],
       summary: 'Reset password',
@@ -315,6 +315,69 @@ export const authPaths = {
         },
         '400': {
           description: 'Invalid or expired token',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+        '500': {
+          description: 'Internal server error',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/Error' },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  '/auth/refresh-token': {
+    post: {
+      tags: ['Authentication'],
+      summary: 'Refresh JWT token',
+      description: 'Get a new JWT token using refresh token',
+      requestBody: {
+        required: true,
+        content: {
+          'application/json': {
+            schema: {
+              type: 'object',
+              required: ['refreshToken'],
+              properties: {
+                refreshToken: {
+                  type: 'string',
+                  example: 'refresh_token_here',
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        '200': {
+          description: 'Token refreshed successfully',
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                properties: {
+                  success: { type: 'boolean', example: true },
+                  message: { type: 'string', example: 'Token refreshed successfully' },
+                  data: {
+                    type: 'object',
+                    properties: {
+                      jwt: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        '401': {
+          description: 'Invalid refresh token',
           content: {
             'application/json': {
               schema: { $ref: '#/components/schemas/Error' },

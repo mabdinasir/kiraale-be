@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import { logError } from '@lib/utils';
-import type { MpesaTokenResponse, StkPushPayload } from '@models/mpesa';
+import { logError } from '@lib';
+import type { MpesaTokenResponse, StkPushPayload } from '@models';
 import axios from 'axios';
 
 export const getMpesaAccessToken = async (): Promise<string> => {

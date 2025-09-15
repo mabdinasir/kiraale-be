@@ -1,12 +1,12 @@
-import db from '@db/index';
-import { property, user } from '@db/schemas';
+import db, { property, user } from '@db';
 import {
+  addMediaToProperties,
+  getMediaForProperties,
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { addMediaToProperties, getMediaForProperties } from '@lib/utils/media/mediaUtils';
+} from '@lib';
 import { getMyPropertiesSchema } from '@schemas';
 import { and, eq, isNull } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

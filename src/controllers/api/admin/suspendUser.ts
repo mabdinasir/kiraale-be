@@ -1,12 +1,6 @@
-import db from '@db/index';
-import { user } from '@db/schemas';
-import {
-  handleValidationError,
-  logError,
-  sendErrorResponse,
-  sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { adminSuspendUserBodySchema, adminSuspendUserSchema } from '@schemas/admin.schema';
+import db, { user } from '@db';
+import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
+import { adminSuspendUserBodySchema, adminSuspendUserSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 

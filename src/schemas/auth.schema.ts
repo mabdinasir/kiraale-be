@@ -1,4 +1,4 @@
-import { insertUserSchema, selectResetTokenSchema } from '@db/schemas';
+import { insertUserSchema, selectResetTokenSchema } from '@db';
 import { z } from 'zod';
 
 // Enhanced password schema with stronger validation

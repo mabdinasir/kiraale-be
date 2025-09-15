@@ -1,11 +1,5 @@
-import db from '@db/index';
-import { favorite, media, property, user } from '@db/schemas';
-import {
-  handleValidationError,
-  logError,
-  sendErrorResponse,
-  sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
+import db, { favorite, media, property, user } from '@db';
+import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getMyFavoritesSchema } from '@schemas';
 import { eq, inArray } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

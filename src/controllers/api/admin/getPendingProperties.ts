@@ -1,13 +1,13 @@
-import db from '@db/index';
-import { property, user } from '@db/schemas';
+import db, { property, user } from '@db';
 import {
+  addMediaToProperties,
+  getMediaForProperties,
+  getPropertyWithUserSelection,
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { addMediaToProperties, getMediaForProperties } from '@lib/utils/media/mediaUtils';
-import { getPropertyWithUserSelection } from '@lib/utils/selectors/propertySelectors';
+} from '@lib';
 import { getPendingPropertiesSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

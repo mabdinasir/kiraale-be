@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { DeleteObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import db from '@db/index';
-import { media, property } from '@db/schemas';
-import { minPropertyMediaFiles } from '@lib/config/fileUpload';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
-import { deleteMediaUploadSchema } from '@schemas/media.schema';
+import db, { media, property } from '@db';
+import { handleValidationError, logError, minPropertyMediaFiles, sendErrorResponse } from '@lib';
+import { deleteMediaUploadSchema } from '@schemas';
 import { and, eq, inArray, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

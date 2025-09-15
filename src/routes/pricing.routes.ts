@@ -1,5 +1,5 @@
-import { getPublicPricing } from '@controllers/api/pricing';
-import type { RouteGroup } from '@models/routes';
+import { getPublicPricing } from '@controllers';
+import type { RouteGroup } from '@models';
 
 const pricingRoutes: RouteGroup = {
   basePath: '/pricing',

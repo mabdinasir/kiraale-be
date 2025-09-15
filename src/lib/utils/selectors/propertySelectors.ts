@@ -1,4 +1,4 @@
-import { property, user } from '@db/schemas';
+import { property, user } from '@db';
 
 /**
  * Standard property field selection with user info

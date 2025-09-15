@@ -1,7 +1,6 @@
-import { evcCallback, evcPayment, mpesaCallback, stkPush } from '@controllers/api/payment';
-import { authMiddleware } from '@middleware/authMiddleware';
-import { mpesaAccessToken } from '@middleware/mpesaAccessToken';
-import type { RouteGroup } from '@models/routes';
+import { evcCallback, evcPayment, mpesaCallback, stkPush } from '@controllers';
+import { authMiddleware, mpesaAccessToken } from '@middleware';
+import type { RouteGroup } from '@models';
 
 const paymentRoutes: RouteGroup = {
   basePath: '/payments',

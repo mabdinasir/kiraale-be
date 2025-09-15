@@ -1,7 +1,6 @@
-import db from '@db/index';
-import { user } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
-import { deleteParamsSchema } from '@schemas/user.schema';
+import db, { user } from '@db';
+import { handleValidationError, logError, sendErrorResponse } from '@lib';
+import { deleteParamsSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

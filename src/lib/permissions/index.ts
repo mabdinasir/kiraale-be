@@ -1,5 +1,5 @@
 // Main exports for the permissions system
-export type * from '@models/permisions';
+export type * from '@models';
 export * from './checker';
 export * from './constants';
 export * from './middleware';

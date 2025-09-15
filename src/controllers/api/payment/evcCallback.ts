@@ -1,6 +1,5 @@
-import { sendErrorResponse, sendSuccessResponse } from '@lib/utils';
-import { updateEvcPaymentStatus } from '@lib/utils/payments';
-import type { EvcCallback } from '@schemas/payment.schema';
+import { sendErrorResponse, sendSuccessResponse, updateEvcPaymentStatus } from '@lib';
+import type { EvcCallback } from '@schemas';
 import type { RequestHandler } from 'express';
 
 export const evcCallback: RequestHandler = async (req, res) => {

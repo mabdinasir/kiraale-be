@@ -1,5 +1,4 @@
-import { logError } from '@lib/utils';
-import { cleanupExpiredTokens } from '@lib/utils/security/tokenCleanup';
+import { cleanupExpiredTokens, logError } from '@lib';
 import cron from 'node-cron';
 
 // Run daily at 2 AM

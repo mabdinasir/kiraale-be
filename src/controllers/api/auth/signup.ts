@@ -1,14 +1,14 @@
-import db from '@db/index';
-import { user } from '@db/schemas';
-import { generateJwtToken, generateRefreshToken } from '@lib/utils/auth/generateJwtToken';
+import db, { user } from '@db';
 import {
+  generateJwtToken,
+  generateRefreshToken,
   handleValidationError,
+  hashPassword,
   logError,
+  omitPassword,
   sendErrorResponse,
   sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { hashPassword } from '@lib/utils/security/hashPassword';
-import { omitPassword } from '@lib/utils/security/omitPassword';
+} from '@lib';
 import { signUpSchema } from '@schemas';
 import { eq, or } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

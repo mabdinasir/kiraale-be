@@ -1,4 +1,6 @@
 import {
+  adminGetProperty,
+  adminGetUsers,
   adminUpdateUser,
   approveProperty,
   createPricing,
@@ -8,19 +10,17 @@ import {
   getPaymentStats,
   getPendingProperties,
   getPricing,
-  getProperty,
   getPropertyAnalytics,
   getRejectedProperties,
   getTrendingProperties,
-  getUsers,
   rejectProperty,
   searchUsers,
   suspendUser,
   updatePricing,
-} from '@controllers/api/admin';
-import { adminMiddleware } from '@lib/permissions/middleware';
-import { authMiddleware } from '@middleware/authMiddleware';
-import type { RouteGroup } from '@models/routes';
+} from '@controllers';
+import { adminMiddleware } from '@lib';
+import { authMiddleware } from '@middleware';
+import type { RouteGroup } from '@models';
 
 const adminRoutes: RouteGroup = {
   basePath: '/admin',
@@ -113,7 +113,7 @@ const adminRoutes: RouteGroup = {
       path: '/users',
       method: 'get',
       middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
-      handler: getUsers,
+      handler: adminGetUsers,
     },
     {
       path: '/properties/trending',
@@ -125,7 +125,7 @@ const adminRoutes: RouteGroup = {
       path: '/properties/:id',
       method: 'get',
       middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
-      handler: getProperty,
+      handler: adminGetProperty,
     },
     {
       path: '/properties/:id/analytics',

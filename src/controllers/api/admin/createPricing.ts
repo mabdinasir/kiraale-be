@@ -1,6 +1,10 @@
-import { handleValidationError, sendErrorResponse, sendSuccessResponse } from '@lib/utils';
-import { createServicePricing } from '@lib/utils/pricing';
-import { createPricingSchema } from '@schemas/pricing.schema';
+import {
+  createServicePricing,
+  handleValidationError,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib';
+import { createPricingSchema } from '@schemas';
 import type { RequestHandler } from 'express';
 
 export const createPricing: RequestHandler = async (req, res) => {

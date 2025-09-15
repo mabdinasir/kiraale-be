@@ -1,8 +1,6 @@
-import db from '@db/index';
-import { media, property } from '@db/schemas';
-import { hasPermission } from '@lib/permissions/checker';
-import { sendErrorResponse } from '@lib/utils';
-import type { Permission } from '@models/permisions';
+import db, { media, property } from '@db';
+import { hasPermission, sendErrorResponse } from '@lib';
+import type { Permission } from '@models';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 

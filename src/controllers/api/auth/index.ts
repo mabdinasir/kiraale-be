@@ -1,6 +1,7 @@
 export { default as changePassword } from './changePassword';
 export { default as login } from './login';
 export { default as logout } from './logout';
+export { default as refreshToken } from './refreshToken';
 export { default as requestPasswordReset } from './requestPasswordReset';
 export { default as resetPassword } from './resetPassword';
 export { default as signup } from './signup';

@@ -1,4 +1,4 @@
-import { property, user } from '@db/schemas';
+import { property, user } from '@db';
 import { and, eq, ne, or, type SQL } from 'drizzle-orm';
 
 /**

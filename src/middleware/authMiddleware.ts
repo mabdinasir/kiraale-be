@@ -1,7 +1,5 @@
-import db from '@db/index';
-import { tokenBlacklist, user } from '@db/schemas';
-import { verifyJwtToken } from '@lib/utils/auth/generateJwtToken';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
+import db, { tokenBlacklist, user } from '@db';
+import { handleValidationError, logError, sendErrorResponse, verifyJwtToken } from '@lib';
 import dotenv from 'dotenv';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

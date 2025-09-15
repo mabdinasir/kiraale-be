@@ -1,4 +1,4 @@
-import type { permission, role } from '@db/schemas';
+import type { permission, role } from '@db';
 
 export type Role = (typeof role.enumValues)[number];
 export type Permission = (typeof permission.enumValues)[number];

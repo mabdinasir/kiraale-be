@@ -1,7 +1,6 @@
-import db from '@db/index';
-import { agency, agencyAgent, user } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
-import { getAgencyByIdSchema } from '@schemas/agency.schema';
+import db, { agency, agencyAgent, user } from '@db';
+import { handleValidationError, logError, sendErrorResponse } from '@lib';
+import { getAgencyByIdSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

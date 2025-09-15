@@ -1,6 +1,6 @@
-import { changePassword } from '@controllers/api/auth';
 import {
   addToFavorites,
+  changePassword,
   deactivateUser,
   deleteUser,
   getMyFavorites,
@@ -9,10 +9,10 @@ import {
   removeFromFavorites,
   updateUser,
   uploadProfilePic,
-} from '@controllers/api/user';
-import { requireResourceAccess } from '@lib/permissions/middleware';
-import { authMiddleware } from '@middleware/authMiddleware';
-import type { RouteGroup } from '@models/routes';
+} from '@controllers';
+import { requireResourceAccess } from '@lib';
+import { authMiddleware } from '@middleware';
+import type { RouteGroup } from '@models';
 
 const userRoutes: RouteGroup = {
   basePath: '/users',

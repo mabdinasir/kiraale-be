@@ -6,9 +6,9 @@ import {
   recordPropertyView,
   searchProperties,
   updateProperty,
-} from '@controllers/api/property';
-import { authMiddleware, optionalAuthMiddleware } from '@middleware/authMiddleware';
-import type { RouteGroup } from '@models/routes';
+} from '@controllers';
+import { authMiddleware, optionalAuthMiddleware } from '@middleware';
+import type { RouteGroup } from '@models';
 
 const propertyRoutes: RouteGroup = {
   basePath: '/properties',

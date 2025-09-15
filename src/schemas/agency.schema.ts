@@ -1,4 +1,4 @@
-import { agencyRole, country, insertAgencySchema, selectAgencySchema } from '@db/schemas';
+import { agencyRole, country, insertAgencySchema, selectAgencySchema } from '@db';
 import { z } from 'zod';
 
 // Create agency request

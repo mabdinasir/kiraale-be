@@ -1,17 +1,14 @@
-import db from '@db/index';
-import { property, user } from '@db/schemas';
+import db, { property, user } from '@db';
 import {
+  getMediaForProperties,
+  getOwnerPropertyWithActiveUserFilters,
+  getPublicPropertyWithActiveUserFilters,
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
-} from '@lib/utils';
-import {
-  getOwnerPropertyWithActiveUserFilters,
-  getPublicPropertyWithActiveUserFilters,
-} from '@lib/utils/filters/propertyFilters';
-import { getMediaForProperties } from '@lib/utils/media/mediaUtils';
-import { getPropertyByIdSchema } from '@schemas/property.schema';
+} from '@lib';
+import { getPropertyByIdSchema } from '@schemas';
 import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

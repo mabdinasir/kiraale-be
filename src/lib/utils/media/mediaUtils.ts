@@ -1,5 +1,4 @@
-import db from '@db/index';
-import { media } from '@db/schemas';
+import db, { media } from '@db';
 import { inArray } from 'drizzle-orm';
 
 /**

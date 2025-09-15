@@ -1,7 +1,6 @@
-import db from '@db/index';
-import { property, user } from '@db/schemas';
+import db, { property, user } from '@db';
+import { logError } from '@lib';
 import { eq } from 'drizzle-orm';
-import { logError } from '../error/errorHandler';
 
 export const verifyPropertyExists = async (propertyId: string) => {
   const [propertyExists] = await db

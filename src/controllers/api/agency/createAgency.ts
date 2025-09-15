@@ -1,13 +1,12 @@
-import db from '@db/index';
-import { agency, agencyAgent, user } from '@db/schemas';
-import { generateJwtToken } from '@lib/utils/auth/generateJwtToken';
+import db, { agency, agencyAgent, user } from '@db';
 import {
+  generateJwtToken,
   handleValidationError,
   logError,
   sendErrorResponse,
   sendSuccessResponse,
-} from '@lib/utils/error/errorHandler';
-import { createAgencySchema } from '@schemas/agency.schema';
+} from '@lib';
+import { createAgencySchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

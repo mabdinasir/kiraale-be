@@ -1,11 +1,9 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { DeleteObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import db from '@db/index';
-import { user } from '@db/schemas';
-import computeSHA256 from '@lib/utils/crypto/computeSHA256';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
-import { profilePicUploadSchema } from '@schemas/user.schema';
+import db, { user } from '@db';
+import { computeSHA256, handleValidationError, logError, sendErrorResponse } from '@lib';
+import { profilePicUploadSchema } from '@schemas';
 import dotenv from 'dotenv';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

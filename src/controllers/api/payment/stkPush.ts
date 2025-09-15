@@ -1,15 +1,17 @@
-import { handleValidationError, sendErrorResponse, sendSuccessResponse } from '@lib/utils';
-import { formatKenyanNumber } from '@lib/utils/formatters/phoneNumbers/formatKenyanNumber';
-import { generateReceiptNumber } from '@lib/utils/generators/generateReceiptNumber';
 import {
   createMpesaPayload,
+  formatKenyanNumber,
+  generateReceiptNumber,
+  getServicePrice,
+  handleValidationError,
+  sendErrorResponse,
+  sendSuccessResponse,
   storeMpesaPayment,
   validateMpesaConfig,
   verifyPropertyAndUser,
-} from '@lib/utils/payments';
-import { getServicePrice } from '@lib/utils/pricing';
-import { stkPushSchema } from '@schemas/payment.schema';
-import { initiateStkPush } from '@services/mpesa.service';
+} from '@lib';
+import { stkPushSchema } from '@schemas';
+import { initiateStkPush } from '@services';
 import type { Request, RequestHandler } from 'express';
 
 export type RequestExtended = Request & { mpesaToken?: string };

@@ -6,10 +6,10 @@ import {
   getAgency,
   removeAgent,
   updateAgency,
-} from '@controllers/api/agency';
-import { requireAgencyAccess } from '@lib/permissions/middleware';
-import { authMiddleware } from '@middleware/authMiddleware';
-import type { RouteGroup } from '@models/routes';
+} from '@controllers';
+import { requireAgencyAccess } from '@lib';
+import { authMiddleware } from '@middleware';
+import type { RouteGroup } from '@models';
 
 const agencyRoutes: RouteGroup = {
   basePath: '/agencies',

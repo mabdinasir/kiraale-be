@@ -1,4 +1,4 @@
-import { logError } from '@utils/error/errorHandler';
+import { logError } from '@lib';
 import bcrypt from 'bcryptjs';
 
 const saltRounds = 12;

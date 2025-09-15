@@ -1,5 +1,5 @@
-import { health } from '@controllers/api/health';
-import type { RouteGroup } from '@models/routes';
+import { health } from '@controllers';
+import type { RouteGroup } from '@models';
 
 const healthRoutes: RouteGroup = {
   basePath: '/health',

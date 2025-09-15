@@ -1,8 +1,11 @@
-import db from '@db/index';
-import { resetToken as resetTokenTable, user as userTable } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
-import { hashPassword } from '@lib/utils/security/hashPassword';
-import { isTokenExpired } from '@lib/utils/security/secureTokens';
+import db, { resetToken as resetTokenTable, user as userTable } from '@db';
+import {
+  handleValidationError,
+  hashPassword,
+  isTokenExpired,
+  logError,
+  sendErrorResponse,
+} from '@lib';
 import { resetPasswordSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';

@@ -1,7 +1,12 @@
-import { handleValidationError, sendErrorResponse, sendSuccessResponse } from '@lib/utils';
-import { initiateEvcPaymentFlow, verifyPropertyAndUser } from '@lib/utils/payments';
-import { getServicePrice } from '@lib/utils/pricing';
-import { evcPurchaseSchema } from '@schemas/payment.schema';
+import {
+  getServicePrice,
+  handleValidationError,
+  initiateEvcPaymentFlow,
+  sendErrorResponse,
+  sendSuccessResponse,
+  verifyPropertyAndUser,
+} from '@lib';
+import { evcPurchaseSchema } from '@schemas';
 import type { RequestHandler } from 'express';
 
 export const evcPayment: RequestHandler = async (req, res) => {

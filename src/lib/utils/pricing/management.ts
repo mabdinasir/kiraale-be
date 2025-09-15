@@ -1,7 +1,6 @@
-import db from '@db/index';
-import { servicePricing, type Currency, type ServiceType } from '@db/schemas';
+import db, { servicePricing, type Currency, type ServiceType } from '@db';
+import { logError } from '@lib';
 import { and, eq } from 'drizzle-orm';
-import { logError } from '../error/errorHandler';
 
 // Get active pricing for a service
 export const getServicePrice = async (serviceType: ServiceType) => {

@@ -1,7 +1,6 @@
-import db from '@db/index';
-import { media } from '@db/schemas';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
-import { getMediaByIdSchema, updateMediaSchema } from '@schemas/media.schema';
+import db, { media } from '@db';
+import { handleValidationError, logError, sendErrorResponse } from '@lib';
+import { getMediaByIdSchema, updateMediaSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { paymentMethodValues, serviceTypeValues } from '@db/schemas/enums';
-import { validateKenyanNumber, validateSomaliNumber } from '@lib/utils';
+import { validateKenyanNumber, validateSomaliNumber } from '@lib';
 import { z } from 'zod';
 
 // Payment initiation schemas

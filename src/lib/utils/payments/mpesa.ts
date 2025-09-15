@@ -1,12 +1,8 @@
 /* eslint-disable @typescript-eslint/naming-convention */
-import db from '@db/index';
-import { payment } from '@db/schemas';
-import { getMpesaTimestamp } from '@lib/utils/formatters/date/dateHelpers';
-import { formatKenyanNumber } from '@lib/utils/formatters/phoneNumbers/formatKenyanNumber';
-import { generateReceiptNumber } from '@lib/utils/generators/generateReceiptNumber';
-import { getMpesaAccessToken, initiateStkPush } from '@services/mpesa.service';
+import db, { payment } from '@db';
+import { formatKenyanNumber, generateReceiptNumber, getMpesaTimestamp, logError } from '@lib';
+import { getMpesaAccessToken, initiateStkPush } from '@services';
 import { eq } from 'drizzle-orm';
-import { logError } from '../error/errorHandler';
 
 export const validateMpesaConfig = () => {
   const businessShortCode = process.env.MPESA_BUSINESS_SHORT_CODE;

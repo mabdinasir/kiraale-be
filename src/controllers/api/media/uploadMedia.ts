@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import db from '@db/index';
-import { media, property } from '@db/schemas';
-import { maxPropertyMediaFiles, minFirstUploadFiles } from '@lib/config/fileUpload';
-import computeSHA256 from '@lib/utils/crypto/computeSHA256';
-import { handleValidationError, logError, sendErrorResponse } from '@lib/utils/error/errorHandler';
-import { propertyMediaUploadSchema } from '@schemas/media.schema';
+import db, { media, property } from '@db';
+import {
+  computeSHA256,
+  handleValidationError,
+  logError,
+  maxPropertyMediaFiles,
+  minFirstUploadFiles,
+  sendErrorResponse,
+} from '@lib';
+import { propertyMediaUploadSchema } from '@schemas';
 import { eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import multer from 'multer';

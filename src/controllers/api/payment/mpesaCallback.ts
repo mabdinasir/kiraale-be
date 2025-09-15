@@ -1,6 +1,5 @@
-import { sendErrorResponse, sendSuccessResponse } from '@lib/utils';
-import { updateMpesaPaymentStatus } from '@lib/utils/payments';
-import type { StkPushCallback } from '@schemas/payment.schema';
+import { sendErrorResponse, sendSuccessResponse, updateMpesaPaymentStatus } from '@lib';
+import type { StkPushCallback } from '@schemas';
 import type { RequestHandler } from 'express';
 
 export const mpesaCallback: RequestHandler = async (req, res) => {

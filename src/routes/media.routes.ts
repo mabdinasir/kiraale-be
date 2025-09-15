@@ -6,10 +6,9 @@ import {
   getMediaList,
   updateMedia,
   uploadMedia,
-} from '@controllers/api/media';
-import { authMiddleware } from '@middleware/authMiddleware';
-import { requireMediaOwnership } from '@middleware/mediaOwnershipMiddleware';
-import type { RouteGroup } from '@models/routes';
+} from '@controllers';
+import { authMiddleware, requireMediaOwnership } from '@middleware';
+import type { RouteGroup } from '@models';
 
 const mediaRoutes: RouteGroup = {
   basePath: '/media',

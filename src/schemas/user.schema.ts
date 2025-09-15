@@ -1,5 +1,5 @@
-import { insertUserSchema, selectUserSchema } from '@db/schemas';
-import { allowedImageTypes, maxFileSize, maxFileSizeMB } from '@lib/config/fileUpload';
+import { insertUserSchema, selectUserSchema } from '@db';
+import { allowedImageTypes, maxFileSize, maxFileSizeMB } from '@lib';
 import { z } from 'zod';
 
 export const getUserByIdSchema = selectUserSchema

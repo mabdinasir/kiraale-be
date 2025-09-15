@@ -1,5 +1,5 @@
-import { sendErrorResponse } from '@lib/utils';
-import { getMpesaAccessToken } from '@services/mpesa.service';
+import { sendErrorResponse } from '@lib';
+import { getMpesaAccessToken } from '@services';
 import type { NextFunction, Request, Response } from 'express';
 
 export type RequestExtended = Request & { mpesaToken?: string };

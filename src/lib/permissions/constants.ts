@@ -1,4 +1,4 @@
-import type { Permission, PermissionSet } from '@models/permisions';
+import type { Permission, PermissionSet } from '@models';
 
 // Organize permissions by domain for better management
 export const permissions: PermissionSet = {

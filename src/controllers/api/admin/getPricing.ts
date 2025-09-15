@@ -1,5 +1,4 @@
-import { sendErrorResponse, sendSuccessResponse } from '@lib/utils';
-import { getAllActivePricing } from '@lib/utils/pricing';
+import { getAllActivePricing, sendErrorResponse, sendSuccessResponse } from '@lib';
 import type { RequestHandler } from 'express';
 
 export const getPricing: RequestHandler = async (req, res) => {
