@@ -1,6 +1,7 @@
 import db, { tokenBlacklist, user } from '@db';
 import {
   generateJwtToken,
+  generateRefreshToken,
   handleValidationError,
   logError,
   omitPassword,
@@ -47,15 +48,24 @@ const refreshToken: RequestHandler = async (request, response) => {
       return;
     }
 
-    // Generate new access token
+    // Generate new tokens
     const newAccessToken = generateJwtToken(existingUser);
+    const newRefreshToken = generateRefreshToken(existingUser.id);
     const userWithoutPassword = omitPassword(existingUser);
+
+    // Blacklist the old refresh token
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + 60); // 60 days from now
+
+    await db.insert(tokenBlacklist).values({
+      token,
+      expiresAt,
+    });
 
     sendSuccessResponse(response, 200, 'Token refreshed successfully', {
       user: userWithoutPassword,
       accessToken: newAccessToken,
-      // Note: Refresh token stays the same (single rotation)
-      // For higher security, we could generate a new refresh token here
+      refreshToken: newRefreshToken,
     });
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {

@@ -16,7 +16,7 @@ export const generateJwtToken = (user: User): string => {
   const userWithoutPassword = omitPassword(user);
   const payload: JwtPayload = { ...userWithoutPassword };
 
-  return jwt.sign(payload, secret, { expiresIn: '60d', algorithm: 'HS512' });
+  return jwt.sign(payload, secret, { expiresIn: '30d', algorithm: 'HS512' });
 };
 
 export const generateRefreshToken = (userId: string): string =>
