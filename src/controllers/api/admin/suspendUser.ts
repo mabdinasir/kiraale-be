@@ -1,5 +1,12 @@
 import db, { user } from '@db';
-import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
+import {
+  accountSuspensionTemplate,
+  handleValidationError,
+  logError,
+  sendEmail,
+  sendErrorResponse,
+  sendSuccessResponse,
+} from '@lib';
 import { adminSuspendUserBodySchema, adminSuspendUserSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -70,6 +77,26 @@ const suspendUser: RequestHandler = async (request, response) => {
 
     const action = isSuspended ? 'suspended' : 'unsuspended';
     const message = `User ${existingUser.firstName} ${existingUser.lastName} has been ${action} successfully`;
+
+    // Send suspension email to user (only when suspending, not unsuspending)
+    if (isSuspended && suspensionReason) {
+      try {
+        const template = accountSuspensionTemplate(
+          `${existingUser.firstName} ${existingUser.lastName}`,
+          existingUser.email,
+          suspensionReason,
+        );
+        await sendEmail(
+          `"Kiraale Support" <${process.env.NODE_MAILER_EMAIL}>`,
+          existingUser.email,
+          template.subject,
+          template.text,
+          template.html,
+        );
+      } catch (emailError) {
+        logError(emailError, 'ADMIN_SUSPEND_USER_EMAIL');
+      }
+    }
 
     sendSuccessResponse(response, 200, message, {
       userId,

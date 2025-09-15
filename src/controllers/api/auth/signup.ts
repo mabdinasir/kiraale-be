@@ -6,8 +6,10 @@ import {
   hashPassword,
   logError,
   omitPassword,
+  sendEmail,
   sendErrorResponse,
   sendSuccessResponse,
+  welcomeEmailTemplate,
 } from '@lib';
 import { signUpSchema } from '@schemas';
 import { eq, or } from 'drizzle-orm';
@@ -50,6 +52,23 @@ const signUp: RequestHandler = async (request, response) => {
     const accessToken = generateJwtToken(createdUser);
     const refreshToken = generateRefreshToken(createdUser.id);
     const userWithoutPassword = omitPassword(createdUser);
+
+    // Send welcome email
+    try {
+      const template = welcomeEmailTemplate(
+        `${createdUser.firstName} ${createdUser.lastName}`,
+        createdUser.email,
+      );
+      await sendEmail(
+        `"Kiraale Team" <${process.env.NODE_MAILER_EMAIL}>`,
+        createdUser.email,
+        template.subject,
+        template.text,
+        template.html,
+      );
+    } catch (emailError) {
+      logError(emailError, 'SIGNUP_WELCOME_EMAIL');
+    }
 
     sendSuccessResponse(response, 201, 'User created successfully!', {
       user: userWithoutPassword,
