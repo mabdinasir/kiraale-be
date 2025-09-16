@@ -55,7 +55,7 @@ export const adminSearchUsersSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(50),
   search: z.string().optional(),
-  role: z.enum(['ADMIN', 'USER', 'AGENT']).optional(),
+  role: z.enum(['ADMIN', 'USER']).optional(),
   isActive: z.coerce.boolean().optional(),
   isSuspended: z.coerce.boolean().optional(),
 });

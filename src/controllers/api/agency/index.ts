@@ -4,4 +4,6 @@ export { default as deleteAgency } from './deleteAgency';
 export { default as getAgencies } from './getAgencies';
 export { default as getAgency } from './getAgency';
 export { default as removeAgent } from './removeAgent';
+export { default as searchAgency } from './searchAgency';
 export { default as updateAgency } from './updateAgency';
+export { default as updateAgentRole } from './updateAgentRole';

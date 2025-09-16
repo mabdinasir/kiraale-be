@@ -46,7 +46,6 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
       .select({
         id: property.id,
         userId: property.userId,
-        agencyId: property.agencyId,
         title: property.title,
         description: property.description,
         propertyType: property.propertyType,
@@ -91,7 +90,6 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
       .groupBy(
         property.id,
         property.userId,
-        property.agencyId,
         property.title,
         property.description,
         property.propertyType,

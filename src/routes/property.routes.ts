@@ -4,7 +4,7 @@ import {
   getProperties,
   getProperty,
   recordPropertyView,
-  searchProperties,
+  searchProperty,
   updateProperty,
 } from '@controllers';
 import { authMiddleware, optionalAuthMiddleware } from '@middleware';
@@ -24,7 +24,7 @@ const propertyRoutes: RouteGroup = {
       path: '/search',
       method: 'get',
       middlewares: [], // Advanced search - public
-      handler: searchProperties,
+      handler: searchProperty,
     },
     {
       path: '/:id',

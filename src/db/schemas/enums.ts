@@ -1,9 +1,9 @@
 import { pgEnum } from 'drizzle-orm/pg-core';
 
-export const role = pgEnum('role', ['USER', 'AGENT', 'ADMIN']);
+export const role = pgEnum('role', ['USER', 'ADMIN']);
 
 // Agency related enums
-export const agencyRole = pgEnum('agencyRole', ['ADMIN', 'AGENT']);
+export const agencyRole = pgEnum('agencyRole', ['AGENCY_ADMIN', 'AGENT']);
 
 // Property related enums
 export const propertyType = pgEnum('propertyType', [

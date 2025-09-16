@@ -1,16 +1,16 @@
 import db, { agency, agencyAgent, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse } from '@lib';
 import { getAgencyByIdSchema } from '@schemas';
-import { and, eq } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
-const getAgency: RequestHandler = async (request, response) => {
+const adminGetAgency: RequestHandler = async (request, response) => {
   try {
     const validatedParams = getAgencyByIdSchema.parse(request.params);
     const { id } = validatedParams;
 
-    // Get agency details with creator info (filter out suspended agencies)
+    // Get agency details with creator info (admin view)
     const [agencyData] = await db
       .select({
         id: agency.id,
@@ -32,21 +32,23 @@ const getAgency: RequestHandler = async (request, response) => {
           email: user.email,
           mobile: user.mobile,
           agentNumber: user.agentNumber,
+          role: user.role,
         },
       })
       .from(agency)
       .leftJoin(user, eq(agency.createdById, user.id))
-      .where(and(eq(agency.id, id), eq(agency.isSuspended, false)));
+      .where(eq(agency.id, id));
 
     if (!agencyData) {
       sendErrorResponse(response, 404, 'Agency not found');
       return;
     }
 
-    // Get active agents (excluding role for public API)
+    // Get all agents with full admin details including roles
     const agents = await db
       .select({
         id: agencyAgent.id,
+        role: agencyAgent.role, // Include role for admin view
         isActive: agencyAgent.isActive,
         joinedAt: agencyAgent.joinedAt,
         leftAt: agencyAgent.leftAt,
@@ -56,6 +58,10 @@ const getAgency: RequestHandler = async (request, response) => {
           lastName: user.lastName,
           email: user.email,
           mobile: user.mobile,
+          role: user.role,
+          agentNumber: user.agentNumber,
+          isActive: user.isActive,
+          createdAt: user.createdAt,
         },
       })
       .from(agencyAgent)
@@ -69,6 +75,13 @@ const getAgency: RequestHandler = async (request, response) => {
         agency: {
           ...agencyData,
           agents,
+          stats: {
+            totalAgents: agents.length,
+            activeAgents: agents.filter((agent) => agent.isActive).length,
+            inactiveAgents: agents.filter((agent) => !agent.isActive).length,
+            adminAgents: agents.filter((agent) => agent.role === 'AGENCY_ADMIN').length,
+            regularAgents: agents.filter((agent) => agent.role === 'AGENT').length,
+          },
         },
       },
     });
@@ -78,9 +91,9 @@ const getAgency: RequestHandler = async (request, response) => {
       return;
     }
 
-    logError(error, 'GET_AGENCY');
+    logError(error, 'ADMIN_GET_AGENCY');
     sendErrorResponse(response, 500, `Failed to retrieve agency: ${(error as Error).message}`);
   }
 };
 
-export default getAgency;
+export default adminGetAgency;

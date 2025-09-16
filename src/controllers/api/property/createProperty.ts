@@ -1,4 +1,4 @@
-import db, { agencyAgent, media, property } from '@db';
+import db, { media, property } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { createPropertySchema } from '@schemas';
 import { eq } from 'drizzle-orm';
@@ -13,23 +13,12 @@ const createProperty: RequestHandler = async (request, response) => {
       userId, // Set userId from authenticated user
     });
 
-    // Check if user is an agent to auto-assign property to their agency
-    let agencyId = null;
-    if (userId) {
-      const [activeAgency] = await db
-        .select({ agencyId: agencyAgent.agencyId })
-        .from(agencyAgent)
-        .where(eq(agencyAgent.userId, userId))
-        .limit(1); // Get first active agency if user has multiple
-
-      agencyId = activeAgency?.agencyId || null;
-    }
+    // Properties now belong directly to users for accountability
 
     const [createdProperty] = await db
       .insert(property)
       .values({
         ...propertyData,
-        agencyId, // Auto-assign to user's agency if they're an agent
         price: propertyData.price.toString(),
         landSize: propertyData.landSize,
         floorArea: propertyData.floorArea,

@@ -72,6 +72,16 @@ export const removeAgentFromAgencySchema = z
   })
   .strict();
 
+// Suspend agency request
+export const suspendAgencySchema = z
+  .object({
+    suspensionReason: z
+      .string()
+      .min(10, 'Suspension reason must be at least 10 characters')
+      .optional(), // Optional when unsuspending
+  })
+  .strict();
+
 // Get agency agents query params
 export const getAgencyAgentsSchema = z
   .object({
@@ -92,6 +102,52 @@ export const getAgenciesSchema = z
   })
   .strict();
 
+// Comprehensive agency search schema
+export const searchAgenciesSchema = z
+  .object({
+    // Pagination
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(50).default(50),
+
+    // Text search - searches across name, description, address
+    search: z.string().trim().min(1).max(100).optional(),
+
+    // Core filters
+    country: z.enum(country.enumValues).optional(),
+    isActive: z.coerce.boolean().optional(),
+
+    // Contact and verification filters
+    email: z.email().optional(),
+    phone: z.string().min(1).max(20).optional(),
+    website: z.url().optional(),
+    licenseNumber: z.string().min(1).max(100).optional(),
+
+    // Location search
+    address: z.string().trim().min(1).optional(),
+
+    // Date filters
+    createdAfter: z.coerce.date().optional(),
+    createdBefore: z.coerce.date().optional(),
+
+    // Include agents in response
+    includeAgents: z.coerce.boolean().default(false),
+
+    // Sorting
+    sortBy: z.enum(['name', 'createdAt', 'updatedAt', 'country']).default('createdAt'),
+    sortOrder: z.enum(['asc', 'desc']).default('desc'),
+  })
+  .strict();
+
+// Admin search agencies schema
+export const adminSearchAgenciesSchema = z
+  .object({
+    search: z.string().trim().min(1).max(200),
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(100).default(20),
+    includeAgents: z.coerce.boolean().default(false),
+  })
+  .strict();
+
 export type CreateAgencyRequest = z.infer<typeof createAgencySchema>;
 export type UpdateAgencyRequest = z.infer<typeof updateAgencySchema>;
 export type GetAgencyByIdParams = z.infer<typeof getAgencyByIdSchema>;
@@ -100,3 +156,5 @@ export type UpdateAgentRoleRequest = z.infer<typeof updateAgentRoleSchema>;
 export type RemoveAgentFromAgencyParams = z.infer<typeof removeAgentFromAgencySchema>;
 export type GetAgencyAgentsQuery = z.infer<typeof getAgencyAgentsSchema>;
 export type GetAgenciesQuery = z.infer<typeof getAgenciesSchema>;
+export type SearchAgenciesQuery = z.infer<typeof searchAgenciesSchema>;
+export type AdminSearchAgenciesQuery = z.infer<typeof adminSearchAgenciesSchema>;

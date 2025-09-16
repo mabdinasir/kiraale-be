@@ -10,7 +10,7 @@ import { adminSearchUsersSchema } from '@schemas';
 import { and, eq, ilike, or } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
-const searchUsers: RequestHandler = async (request, response) => {
+const searchUser: RequestHandler = async (request, response) => {
   try {
     const queryValidation = adminSearchUsersSchema.safeParse(request.query);
     if (!queryValidation.success) {
@@ -91,4 +91,4 @@ const searchUsers: RequestHandler = async (request, response) => {
   }
 };
 
-export default searchUsers;
+export default searchUser;

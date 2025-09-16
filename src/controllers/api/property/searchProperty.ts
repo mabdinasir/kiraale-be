@@ -14,7 +14,7 @@ import { and, asc, count, desc, eq, gte, ilike, lte, or, sql } from 'drizzle-orm
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
-const searchProperties: RequestHandler = async (request, response) => {
+const searchProperty: RequestHandler = async (request, response) => {
   try {
     const searchParams = propertySearchSchema.parse(request.query);
 
@@ -46,7 +46,6 @@ const searchProperties: RequestHandler = async (request, response) => {
       createdAfter,
       createdBefore,
       userId,
-      agencyId,
       sortBy,
       sortOrder,
     } = searchParams;
@@ -162,12 +161,9 @@ const searchProperties: RequestHandler = async (request, response) => {
       filters.push(lte(property.createdAt, new Date(createdBefore)));
     }
 
-    // User/Agency filters
+    // User filters
     if (userId) {
       filters.push(eq(property.userId, userId));
-    }
-    if (agencyId) {
-      filters.push(eq(property.agencyId, agencyId));
     }
 
     // Remove null/undefined filters
@@ -265,4 +261,4 @@ const searchProperties: RequestHandler = async (request, response) => {
   }
 };
 
-export default searchProperties;
+export default searchProperty;

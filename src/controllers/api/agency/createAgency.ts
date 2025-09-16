@@ -50,20 +50,23 @@ const createAgency: RequestHandler = async (request, response) => {
         })
         .returning();
 
-      // Generate agent number based on agency name
-      const agentNumber = `${newAgency.name.substring(0, 3).toUpperCase()}0001`;
+      // Check if user already has an agentNumber - if so, keep it
+      let { agentNumber } = currentUser;
 
-      // Promote user to AGENT role if they're currently a USER
-      const newRole = currentUser.role === 'USER' ? 'AGENT' : currentUser.role;
+      if (!agentNumber) {
+        // Generate new agent number based on agency name
+        agentNumber = `${newAgency.name.substring(0, 3).toUpperCase()}0001`;
 
-      await tx
-        .update(user)
-        .set({
-          role: newRole,
-          agentNumber,
-          updatedAt: new Date(),
-        })
-        .where(eq(user.id, requestingUserId));
+        // No platform role changes - users keep their current platform role (USER/ADMIN)
+        // Only add agentNumber for tracking purposes
+        await tx
+          .update(user)
+          .set({
+            agentNumber,
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, requestingUserId));
+      }
 
       // Add user as agency admin
       const [agencyMembership] = await tx
@@ -71,13 +74,13 @@ const createAgency: RequestHandler = async (request, response) => {
         .values({
           agencyId: newAgency.id,
           userId: requestingUserId,
-          role: 'ADMIN', // Agency admin (not platform admin)
+          role: 'AGENCY_ADMIN', // Agency admin (not platform admin)
           isActive: true,
           joinedAt: new Date(),
         })
         .returning();
 
-      return { newAgency, agencyMembership, newRole, agentNumber };
+      return { newAgency, agencyMembership, agentNumber };
     });
 
     // Get updated user data for fresh JWT
@@ -94,14 +97,13 @@ const createAgency: RequestHandler = async (request, response) => {
     sendSuccessResponse(
       response,
       201,
-      'Agency created successfully. You are now an agent and agency admin.',
+      'Agency created successfully. You are now an agency admin.',
       {
         agency: result.newAgency,
-        userRole: result.newRole,
         agentNumber: result.agentNumber,
         agencyMembership: result.agencyMembership,
         jwt: freshJwtToken,
-        user,
+        user: updatedUser,
       },
     );
   } catch (error) {

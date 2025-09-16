@@ -15,6 +15,9 @@ const getAgencies: RequestHandler = async (request, response) => {
     // Build where conditions
     const whereConditions = [];
 
+    // Always filter out suspended agencies in public API
+    whereConditions.push(eq(agency.isSuspended, false));
+
     if (country) {
       whereConditions.push(eq(agency.country, country));
     }

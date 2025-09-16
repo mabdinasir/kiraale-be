@@ -1,2 +1,0 @@
-ALTER TABLE "property" ALTER COLUMN "landSize" SET DATA TYPE integer USING "landSize"::numeric::integer;--> statement-breakpoint
-ALTER TABLE "property" ALTER COLUMN "floorArea" SET DATA TYPE integer USING "floorArea"::numeric::integer;

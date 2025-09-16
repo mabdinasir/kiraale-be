@@ -144,15 +144,17 @@ export function requireAgencyAccess(permission: Permission): RequestHandler {
           // User must be an active member of this agency
           if (!agencyMembership) {
             sendErrorResponse(res, 403, 'Access denied. You are not a member of this agency.');
+            return;
           }
 
           // For write operations, user must be an agency admin
-          if (permission === 'AGENCY_WRITE' && agencyMembership.role !== 'ADMIN') {
+          if (permission === 'AGENCY_WRITE' && agencyMembership.role !== 'AGENCY_ADMIN') {
             sendErrorResponse(
               res,
               403,
               'Access denied. Only agency admins can perform this action.',
             );
+            return;
           }
         } catch (error) {
           sendErrorResponse(
@@ -160,6 +162,7 @@ export function requireAgencyAccess(permission: Permission): RequestHandler {
             500,
             `Failed to verify agency access: ${(error as Error).message}`,
           );
+          return;
         }
       }
       next();

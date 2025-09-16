@@ -16,6 +16,10 @@ export const agency = pgTable('agency', {
   website: varchar('website', { length: 200 }),
   licenseNumber: varchar('licenseNumber', { length: 100 }),
   isActive: boolean('isActive').default(true).notNull(),
+  isSuspended: boolean('isSuspended').default(false).notNull(),
+  suspendedAt: timestamp('suspendedAt', { withTimezone: true }),
+  suspendedBy: uuid('suspendedBy').references(() => user.id, { onDelete: 'set null' }),
+  suspensionReason: text('suspensionReason'),
   createdById: uuid('createdById')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
@@ -33,7 +37,7 @@ export const agencyAgent = pgTable(
     userId: uuid('userId')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    role: varchar('role', { length: 50 }).notNull().default('AGENT'), // ADMIN, AGENT
+    role: varchar('role', { length: 50 }).notNull().default('AGENT'), // AGENCY_ADMIN, AGENT
     isActive: boolean('isActive').default(true).notNull(),
     joinedAt: timestamp('joinedAt', { withTimezone: true }).defaultNow().notNull(),
     leftAt: timestamp('leftAt', { withTimezone: true }),

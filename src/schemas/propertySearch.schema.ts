@@ -52,9 +52,8 @@ export const propertySearchSchema = z
     createdAfter: z.iso.datetime({ offset: true }).optional(),
     createdBefore: z.iso.datetime({ offset: true }).optional(),
 
-    // User/Agency filters
+    // User filters
     userId: z.uuid().optional(),
-    agencyId: z.uuid().optional(),
 
     // Sorting options
     sortBy: z

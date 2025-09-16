@@ -1,6 +1,11 @@
 import {
+  adminDeleteAgency,
+  adminGetAgencies,
+  adminGetAgency,
   adminGetProperty,
   adminGetUsers,
+  adminSearchAgency,
+  adminUpdateAgency,
   adminUpdateUser,
   approveProperty,
   createPricing,
@@ -14,7 +19,8 @@ import {
   getRejectedProperties,
   getTrendingProperties,
   rejectProperty,
-  searchUsers,
+  searchUser,
+  suspendAgency,
   suspendUser,
   updatePricing,
 } from '@controllers';
@@ -54,6 +60,43 @@ const adminRoutes: RouteGroup = {
       method: 'get',
       middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
       handler: getAdminStats,
+    },
+    // Agency admin routes
+    {
+      path: '/agencies',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: adminGetAgencies,
+    },
+    {
+      path: '/agencies/search',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: adminSearchAgency,
+    },
+    {
+      path: '/agencies/:id',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: adminGetAgency,
+    },
+    {
+      path: '/agencies/:id',
+      method: 'put',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: adminUpdateAgency,
+    },
+    {
+      path: '/agencies/:id',
+      method: 'delete',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: adminDeleteAgency,
+    },
+    {
+      path: '/agencies/:id/suspend',
+      method: 'put',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: suspendAgency,
     },
     {
       path: '/payments',
@@ -95,7 +138,7 @@ const adminRoutes: RouteGroup = {
       path: '/users/search',
       method: 'get',
       middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
-      handler: searchUsers,
+      handler: searchUser,
     },
     {
       path: '/users/:userId/suspend',

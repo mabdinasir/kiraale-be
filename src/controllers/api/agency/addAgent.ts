@@ -67,25 +67,27 @@ const addAgent: RequestHandler = async (request, response) => {
         })
         .returning();
 
-      // Generate agent number based on agency and sequence
-      const agentCount = await tx
-        .select({ count: agencyAgent.id })
-        .from(agencyAgent)
-        .where(eq(agencyAgent.agencyId, agencyId));
+      // Check if user already has an agentNumber - if so, keep it
+      let { agentNumber } = targetUser;
 
-      const agentNumber = `${existingAgency.name.substring(0, 3).toUpperCase()}${String(Number(agentCount[0]?.count || 0) + 1).padStart(4, '0')}`;
+      if (!agentNumber) {
+        // Generate new agent number based on agency and sequence
+        const agentCount = await tx
+          .select({ count: agencyAgent.id })
+          .from(agencyAgent)
+          .where(eq(agencyAgent.agencyId, agencyId));
 
-      // Update user's agentNumber and role if they become an agent
-      const userRoleUpdate = targetUser.role === 'USER' ? 'AGENT' : targetUser.role;
+        agentNumber = `${existingAgency.name.substring(0, 3).toUpperCase()}${String(Number(agentCount[0]?.count || 0) + 1).padStart(4, '0')}`; // Example: "ABC0001", "ABC0002", etc.
 
-      await tx
-        .update(user)
-        .set({
-          agentNumber,
-          role: userRoleUpdate,
-          updatedAt: new Date(),
-        })
-        .where(eq(user.id, userId));
+        // Update user's agentNumber but keep platform role unchanged (USER/ADMIN)
+        await tx
+          .update(user)
+          .set({
+            agentNumber,
+            updatedAt: new Date(),
+          })
+          .where(eq(user.id, userId));
+      }
 
       return newAgentRecord;
     });

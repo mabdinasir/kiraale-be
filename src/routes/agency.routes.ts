@@ -5,7 +5,9 @@ import {
   getAgencies,
   getAgency,
   removeAgent,
+  searchAgency,
   updateAgency,
+  updateAgentRole,
 } from '@controllers';
 import { requireAgencyAccess } from '@lib';
 import { authMiddleware } from '@middleware';
@@ -18,6 +20,11 @@ const agencyRoutes: RouteGroup = {
       path: '/',
       method: 'get',
       handler: getAgencies, // Public - anyone can browse agencies
+    },
+    {
+      path: '/search',
+      method: 'get',
+      handler: searchAgency, // Public - agency search
     },
     {
       path: '/',
@@ -47,12 +54,19 @@ const agencyRoutes: RouteGroup = {
       method: 'post',
       middlewares: [authMiddleware, requireAgencyAccess('AGENCY_WRITE')],
       handler: addAgent, // Agency admin or platform admin
+      // This api allows agency admin to add agents to their agency
     },
     {
       path: '/:agencyId/agents/:userId',
       method: 'delete',
       middlewares: [authMiddleware, requireAgencyAccess('AGENCY_WRITE')],
       handler: removeAgent, // Agency admin, platform admin, or self
+    },
+    {
+      path: '/:agencyId/agents/:userId/role',
+      method: 'put',
+      middlewares: [authMiddleware, requireAgencyAccess('AGENCY_WRITE')],
+      handler: updateAgentRole, // Agency admin or platform admin
     },
   ],
 };

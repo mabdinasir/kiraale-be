@@ -12,29 +12,6 @@ export const roleDefinitions: Record<Role, RoleDefinition> = {
     ],
   },
 
-  AGENT: {
-    name: 'AGENT',
-    description: 'Real estate agents who can list and manage properties',
-    permissions: [
-      // User permissions (inherited)
-      'USER_READ',
-      'USER_WRITE', // Update own profile
-      'PROPERTY_READ',
-      'PROPERTY_WRITE', // List/manage own properties
-
-      // Agency permissions - agents can view and create agencies
-      'AGENCY_READ',
-      'AGENCY_WRITE', // Create and manage agencies they own
-
-      // Media permissions for property listings
-      'MEDIA_READ',
-      'MEDIA_WRITE',
-
-      // Basic analytics for their properties
-      'ANALYTICS_READ',
-    ],
-  },
-
   ADMIN: {
     name: 'ADMIN',
     description: 'Platform administrators with full system access',
@@ -78,8 +55,7 @@ export function roleHasPermission(role: Role, permission: Permission): boolean {
 export function getRoleHierarchy(): Record<Role, number> {
   return {
     USER: 1,
-    AGENT: 2,
-    ADMIN: 3,
+    ADMIN: 2,
   };
 }
 

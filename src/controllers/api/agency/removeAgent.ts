@@ -1,4 +1,4 @@
-import db, { agency, agencyAgent, user } from '@db';
+import db, { agency, agencyAgent } from '@db';
 import { handleValidationError, logError, sendErrorResponse } from '@lib';
 import { removeAgentFromAgencySchema } from '@schemas';
 import { and, eq } from 'drizzle-orm';
@@ -59,23 +59,8 @@ const removeAgent: RequestHandler = async (request, response) => {
         })
         .where(eq(agencyAgent.id, existingAgent.id));
 
-      // Since agents can only be in one agency, removing them means they have no agency
-      // If user is an AGENT, revert to USER since they're no longer in any agency
-      const [currentUser] = await tx
-        .select({ role: user.role })
-        .from(user)
-        .where(eq(user.id, userId));
-
-      if (currentUser?.role === 'AGENT') {
-        await tx
-          .update(user)
-          .set({
-            role: 'USER',
-            agentNumber: null,
-            updatedAt: new Date(),
-          })
-          .where(eq(user.id, userId));
-      }
+      // Users keep their platform role (USER/ADMIN) and agentNumber for historical tracking
+      // No user table updates needed - only agency relationship is deactivated
     });
 
     response.status(200).json({

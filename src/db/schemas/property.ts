@@ -10,7 +10,6 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
-import { agency } from './agency';
 import {
   country,
   listingType,
@@ -28,7 +27,6 @@ export const property = pgTable(
     userId: uuid('userId')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    agencyId: uuid('agencyId').references(() => agency.id, { onDelete: 'set null' }),
 
     // Basic info
     title: text('title').notNull(),
@@ -95,10 +93,6 @@ export const propertyRelations = relations(property, ({ one }) => ({
   user: one(user, {
     fields: [property.userId],
     references: [user.id],
-  }),
-  agency: one(agency, {
-    fields: [property.agencyId],
-    references: [agency.id],
   }),
 }));
 

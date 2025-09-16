@@ -25,7 +25,6 @@ const getProperty: RequestHandler = async (request, response) => {
         // Property fields
         id: property.id,
         userId: property.userId,
-        agencyId: property.agencyId,
         title: property.title,
         description: property.description,
         propertyType: property.propertyType,
