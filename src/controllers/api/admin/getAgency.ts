@@ -1,7 +1,7 @@
-import db, { agency, agencyAgent, user } from '@db';
+import db, { agency, agencyAgent, property, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse } from '@lib';
 import { getAgencyByIdSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -23,6 +23,10 @@ const adminGetAgency: RequestHandler = async (request, response) => {
         website: agency.website,
         licenseNumber: agency.licenseNumber,
         isActive: agency.isActive,
+        isSuspended: agency.isSuspended,
+        suspendedAt: agency.suspendedAt,
+        suspendedBy: agency.suspendedBy,
+        suspensionReason: agency.suspensionReason,
         createdAt: agency.createdAt,
         updatedAt: agency.updatedAt,
         createdBy: {
@@ -45,29 +49,94 @@ const adminGetAgency: RequestHandler = async (request, response) => {
     }
 
     // Get all agents with full admin details including roles
-    const agents = await db
+    const agentsData = await db
       .select({
-        id: agencyAgent.id,
-        role: agencyAgent.role, // Include role for admin view
+        agencyAgentId: agencyAgent.id,
+        role: agencyAgent.role,
         isActive: agencyAgent.isActive,
         joinedAt: agencyAgent.joinedAt,
         leftAt: agencyAgent.leftAt,
-        user: {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          mobile: user.mobile,
-          role: user.role,
-          agentNumber: user.agentNumber,
-          isActive: user.isActive,
-          createdAt: user.createdAt,
-        },
+        userId: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        mobile: user.mobile,
+        userRole: user.role,
+        agentNumber: user.agentNumber,
+        isDeleted: user.isDeleted,
+        isSuspended: user.isSuspended,
+        suspensionReason: user.suspensionReason,
+        profilePicture: user.profilePicture,
+        bio: user.bio,
+        address: user.address,
+        userIsActive: user.isActive,
+        userCreatedAt: user.createdAt,
       })
       .from(agencyAgent)
       .leftJoin(user, eq(agencyAgent.userId, user.id))
       .where(eq(agencyAgent.agencyId, id))
       .orderBy(agencyAgent.joinedAt);
+
+    // Get agent user IDs for property queries
+    const agentUserIds = agentsData
+      .map((agent) => agent.userId)
+      .filter((userId): userId is string => Boolean(userId));
+
+    // Get all properties for this agency's agents (including all statuses for admin)
+    const allProperties =
+      agentUserIds.length > 0
+        ? await db
+            .select({
+              id: property.id,
+              title: property.title,
+              propertyType: property.propertyType,
+              listingType: property.listingType,
+              price: property.price,
+              priceType: property.priceType,
+              status: property.status,
+              address: property.address,
+              country: property.country,
+              bedrooms: property.bedrooms,
+              bathrooms: property.bathrooms,
+              createdAt: property.createdAt,
+              userId: property.userId,
+            })
+            .from(property)
+            .where(and(inArray(property.userId, agentUserIds), isNull(property.deletedAt)))
+            .orderBy(property.createdAt)
+        : [];
+
+    // Group agents with their properties
+    const agents = agentsData.map((agent) => {
+      const agentProperties = allProperties.filter((prop) => prop.userId === agent.userId);
+
+      return {
+        agencyAgentId: agent.agencyAgentId,
+        role: agent.role,
+        isActive: agent.isActive,
+        joinedAt: agent.joinedAt,
+        leftAt: agent.leftAt,
+        user: {
+          id: agent.userId,
+          firstName: agent.firstName,
+          lastName: agent.lastName,
+          email: agent.email,
+          mobile: agent.mobile,
+          role: agent.userRole,
+          agentNumber: agent.agentNumber,
+          profilePicture: agent.profilePicture,
+          bio: agent.bio,
+          address: agent.address,
+          isActive: agent.userIsActive,
+          isDeleted: agent.isDeleted,
+          isSuspended: agent.isSuspended,
+          suspensionReason: agent.suspensionReason,
+          createdAt: agent.userCreatedAt,
+        },
+        properties: agentProperties,
+        propertyCount: agentProperties.length,
+      };
+    });
 
     response.status(200).json({
       success: true,
@@ -81,6 +150,47 @@ const adminGetAgency: RequestHandler = async (request, response) => {
             inactiveAgents: agents.filter((agent) => !agent.isActive).length,
             adminAgents: agents.filter((agent) => agent.role === 'AGENCY_ADMIN').length,
             regularAgents: agents.filter((agent) => agent.role === 'AGENT').length,
+            totalProperties: allProperties.length,
+            approvedProperties: allProperties.filter((prop) => prop.status === 'APPROVED').length,
+            pendingProperties: allProperties.filter((prop) => prop.status === 'PENDING').length,
+            rejectedProperties: allProperties.filter((prop) => prop.status === 'REJECTED').length,
+            averagePropertyPrice:
+              allProperties.length > 0
+                ? Math.round(
+                    allProperties.reduce((sum, prop) => sum + Number(prop.price), 0) /
+                      allProperties.length,
+                  )
+                : 0,
+            portfolioValue: allProperties
+              .reduce((sum, prop) => sum + Number(prop.price), 0)
+              .toString(),
+            coverageAreas: [...new Set(allProperties.map((propertyItem) => propertyItem.country))]
+              .length,
+            mostCommonPropertyType:
+              allProperties.length > 0
+                ? allProperties.reduce<Record<string, number>>((acc, prop) => {
+                    acc[prop.propertyType] = (acc[prop.propertyType] || 0) + 1;
+                    return acc;
+                  }, {})
+                : {},
+            recentActivity: {
+              propertiesThisMonth: allProperties.filter((propertyItem) => {
+                const propDate = new Date(propertyItem.createdAt);
+                const now = new Date();
+                return (
+                  propDate.getMonth() === now.getMonth() &&
+                  propDate.getFullYear() === now.getFullYear()
+                );
+              }).length,
+              agentsJoinedThisMonth: agents.filter((agent) => {
+                const joinDate = new Date(agent.joinedAt);
+                const now = new Date();
+                return (
+                  joinDate.getMonth() === now.getMonth() &&
+                  joinDate.getFullYear() === now.getFullYear()
+                );
+              }).length,
+            },
           },
         },
       },

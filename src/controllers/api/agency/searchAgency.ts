@@ -1,20 +1,19 @@
 import db, { agency, agencyAgent, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
-import { searchAgenciesSchema } from '@schemas';
+import { searchAgencySchema } from '@schemas';
 import { and, asc, count, desc, eq, gte, ilike, inArray, lte, or } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
 const searchAgency: RequestHandler = async (request, response) => {
   try {
-    const searchParams = searchAgenciesSchema.parse(request.query);
+    const searchParams = searchAgencySchema.parse(request.query);
 
     const {
       page,
       limit,
       search,
       country,
-      isActive,
       email,
       phone,
       website,
@@ -30,8 +29,9 @@ const searchAgency: RequestHandler = async (request, response) => {
     // Build filters array
     const filters = [];
 
-    // Always filter out suspended agencies in public API
+    // Always filter out suspended agencies and only show active agencies in public API
     filters.push(eq(agency.isSuspended, false));
+    filters.push(eq(agency.isActive, true));
 
     // Text search - search in name, description, and address
     if (search) {
@@ -50,9 +50,7 @@ const searchAgency: RequestHandler = async (request, response) => {
       filters.push(eq(agency.country, country));
     }
 
-    if (isActive !== undefined) {
-      filters.push(eq(agency.isActive, isActive));
-    }
+    // isActive filter removed for public API - always show only active agencies
 
     // Contact and verification filters
     if (email) {

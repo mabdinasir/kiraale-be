@@ -103,7 +103,7 @@ export const getAgenciesSchema = z
   .strict();
 
 // Comprehensive agency search schema
-export const searchAgenciesSchema = z
+export const searchAgencySchema = z
   .object({
     // Pagination
     page: z.coerce.number().min(1).default(1),
@@ -114,7 +114,7 @@ export const searchAgenciesSchema = z
 
     // Core filters
     country: z.enum(country.enumValues).optional(),
-    isActive: z.coerce.boolean().optional(),
+    // isActive removed for public API - always shows only active agencies
 
     // Contact and verification filters
     email: z.email().optional(),
@@ -139,7 +139,7 @@ export const searchAgenciesSchema = z
   .strict();
 
 // Admin search agencies schema
-export const adminSearchAgenciesSchema = z
+export const adminSearchAgencySchema = z
   .object({
     search: z.string().trim().min(1).max(200),
     page: z.coerce.number().min(1).default(1),
@@ -156,5 +156,5 @@ export type UpdateAgentRoleRequest = z.infer<typeof updateAgentRoleSchema>;
 export type RemoveAgentFromAgencyParams = z.infer<typeof removeAgentFromAgencySchema>;
 export type GetAgencyAgentsQuery = z.infer<typeof getAgencyAgentsSchema>;
 export type GetAgenciesQuery = z.infer<typeof getAgenciesSchema>;
-export type SearchAgenciesQuery = z.infer<typeof searchAgenciesSchema>;
-export type AdminSearchAgenciesQuery = z.infer<typeof adminSearchAgenciesSchema>;
+export type SearchAgencyQuery = z.infer<typeof searchAgencySchema>;
+export type AdminSearchAgencyQuery = z.infer<typeof adminSearchAgencySchema>;

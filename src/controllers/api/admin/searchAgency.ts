@@ -1,13 +1,13 @@
 import db, { agency, agencyAgent, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
-import { adminSearchAgenciesSchema } from '@schemas';
+import { adminSearchAgencySchema } from '@schemas';
 import { and, count, eq, ilike, inArray, or } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
 const adminSearchAgency: RequestHandler = async (request, response) => {
   try {
-    const { search, page, limit, includeAgents } = adminSearchAgenciesSchema.parse(request.query);
+    const { search, page, limit, includeAgents } = adminSearchAgencySchema.parse(request.query);
 
     const offset = (page - 1) * limit;
     const searchTerm = `%${search.toLowerCase()}%`;
@@ -38,6 +38,10 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
         website: agency.website,
         licenseNumber: agency.licenseNumber,
         isActive: agency.isActive,
+        isSuspended: agency.isSuspended,
+        suspendedAt: agency.suspendedAt,
+        suspendedBy: agency.suspendedBy,
+        suspensionReason: agency.suspensionReason,
         createdAt: agency.createdAt,
         updatedAt: agency.updatedAt,
         createdBy: {
