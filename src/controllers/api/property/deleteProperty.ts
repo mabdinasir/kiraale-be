@@ -31,7 +31,6 @@ const deleteProperty: RequestHandler = async (request, response) => {
       .update(property)
       .set({
         deletedAt: new Date(),
-        status: 'WITHDRAWN',
         updatedAt: new Date(),
       })
       .where(eq(property.id, id));

@@ -1,5 +1,5 @@
 {
-  "id": "2f5bb369-7141-457c-b2ed-b143241578d7",
+  "id": "051d9b58-e5d4-4b11-973d-97ae14796475",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -914,6 +914,12 @@
         "adminNotes": {
           "name": "adminNotes",
           "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "expiresAt": {
+          "name": "expiresAt",
+          "type": "timestamp",
           "primaryKey": false,
           "notNull": false
         },
@@ -1881,13 +1887,11 @@
       "schema": "public",
       "values": [
         "PENDING",
-        "APPROVED",
-        "REJECTED",
         "AVAILABLE",
-        "RENTED",
+        "REJECTED",
         "SOLD",
-        "ACTIVE",
-        "WITHDRAWN"
+        "LEASED",
+        "EXPIRED"
       ]
     },
     "public.propertyType": {

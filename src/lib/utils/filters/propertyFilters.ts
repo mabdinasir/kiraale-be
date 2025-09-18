@@ -3,14 +3,14 @@ import { and, eq, ne, or, type SQL } from 'drizzle-orm';
 
 /**
  * Get property status filters for public/user access
- * Excludes: PENDING, REJECTED, WITHDRAWN
- * Includes: APPROVED, AVAILABLE, RENTED, SOLD, ACTIVE
+ * Excludes: PENDING, REJECTED, EXPIRED
+ * Includes: AVAILABLE, LEASED, SOLD
  */
 export function getPublicPropertyStatusFilters(): SQL {
   const condition = and(
     ne(property.status, 'PENDING'),
     ne(property.status, 'REJECTED'),
-    ne(property.status, 'WITHDRAWN'),
+    ne(property.status, 'EXPIRED'),
   );
   if (!condition) {
     throw new Error('Failed to create property status filter');
@@ -20,7 +20,7 @@ export function getPublicPropertyStatusFilters(): SQL {
 
 /**
  * Get property status filters for property owners
- * Owners can see all their own properties including PENDING, REJECTED, WITHDRAWN
+ * Owners can see all their own properties including PENDING, REJECTED, EXPIRED
  */
 export function getOwnerPropertyStatusFilters(userId: string): SQL {
   const condition = or(
@@ -28,7 +28,7 @@ export function getOwnerPropertyStatusFilters(userId: string): SQL {
     and(
       ne(property.status, 'PENDING'),
       ne(property.status, 'REJECTED'),
-      ne(property.status, 'WITHDRAWN'),
+      ne(property.status, 'EXPIRED'),
     ),
     // Own properties (can see all statuses)
     eq(property.userId, userId),

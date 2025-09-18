@@ -811,7 +811,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated: Beautiful 3BR House in Mogadishu\",\n  \"description\": \"Updated description: A stunning 3-bedroom house with modern amenities and recent renovations.\",\n  \"price\": 160000,\n  \"status\": \"ACTIVE\"\n}"
+              "raw": "{\n  \"title\": \"Updated: Beautiful 3BR House in Mogadishu\",\n  \"description\": \"Updated description: A stunning 3-bedroom house with modern amenities and recent renovations.\",\n  \"price\": 160000,\n  \"status\": \"AVAILABLE\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/properties/{{property_id}}",

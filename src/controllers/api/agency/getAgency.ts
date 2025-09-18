@@ -94,7 +94,7 @@ const getAgency: RequestHandler = async (request, response) => {
             .where(
               and(
                 inArray(property.userId, agentUserIds),
-                eq(property.status, 'APPROVED'),
+                eq(property.status, 'AVAILABLE'),
                 isNull(property.deletedAt),
               ),
             )

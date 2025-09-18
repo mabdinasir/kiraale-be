@@ -61,6 +61,9 @@ export const property = pgTable(
     rejectionReason: text('rejectionReason'),
     adminNotes: text('adminNotes'),
 
+    // Expiry tracking
+    expiresAt: timestamp('expiresAt'), // When property expires (30 days from activation)
+
     // Full-text search
     searchVector: text('searchVector').$type<string>(),
 

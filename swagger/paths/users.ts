@@ -515,8 +515,8 @@ export const userPaths = {
           required: false,
           schema: {
             type: 'string',
-            enum: ['PENDING', 'APPROVED', 'REJECTED'],
-            example: 'APPROVED',
+            enum: ['PENDING', 'AVAILABLE', 'REJECTED', 'SOLD', 'LEASED', 'EXPIRED'],
+            example: 'AVAILABLE',
           },
         },
       ],

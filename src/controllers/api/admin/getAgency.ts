@@ -151,7 +151,7 @@ const adminGetAgency: RequestHandler = async (request, response) => {
             adminAgents: agents.filter((agent) => agent.role === 'AGENCY_ADMIN').length,
             regularAgents: agents.filter((agent) => agent.role === 'AGENT').length,
             totalProperties: allProperties.length,
-            approvedProperties: allProperties.filter((prop) => prop.status === 'APPROVED').length,
+            availableProperties: allProperties.filter((prop) => prop.status === 'AVAILABLE').length,
             pendingProperties: allProperties.filter((prop) => prop.status === 'PENDING').length,
             rejectedProperties: allProperties.filter((prop) => prop.status === 'REJECTED').length,
             averagePropertyPrice:

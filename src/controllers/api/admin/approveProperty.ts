@@ -61,11 +61,12 @@ const approveProperty: RequestHandler = async (request, response) => {
     const [approvedProperty] = await db
       .update(property)
       .set({
-        status: 'APPROVED',
+        status: 'AVAILABLE',
         reviewedAt: new Date(),
         reviewedBy: adminUserId,
         adminNotes: adminNotes ?? null,
         rejectionReason: null, // Clear any previous rejection reason
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Expires in 30 days
         updatedAt: new Date(),
       })
       .where(and(eq(property.id, id), eq(property.status, 'PENDING'))) // Race condition protection

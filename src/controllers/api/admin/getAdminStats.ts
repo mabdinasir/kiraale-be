@@ -54,16 +54,13 @@ const getAdminStats: RequestHandler = async (request, response) => {
 
     // Calculate totals and ensure all status counts exist
     const pending = statusCountMap.PENDING ?? 0;
-    const approved = statusCountMap.APPROVED ?? 0;
-    const rejected = statusCountMap.REJECTED ?? 0;
     const available = statusCountMap.AVAILABLE ?? 0;
-    const rented = statusCountMap.RENTED ?? 0;
+    const rejected = statusCountMap.REJECTED ?? 0;
+    const leased = statusCountMap.LEASED ?? 0;
     const sold = statusCountMap.SOLD ?? 0;
-    const active = statusCountMap.ACTIVE ?? 0;
-    const withdrawn = statusCountMap.WITHDRAWN ?? 0;
+    const expired = statusCountMap.EXPIRED ?? 0;
 
-    const totalProperties =
-      pending + approved + rejected + available + rented + sold + active + withdrawn;
+    const totalProperties = pending + available + rejected + leased + sold + expired;
     const recentProperties = recentPropertiesResult?.count ?? 0;
 
     const stats = {
@@ -73,13 +70,11 @@ const getAdminStats: RequestHandler = async (request, response) => {
       properties: {
         total: totalProperties,
         pending,
-        approved,
-        rejected,
         available,
-        rented,
+        rejected,
+        leased,
         sold,
-        active,
-        withdrawn,
+        expired,
         recentlyAdded: recentProperties, // Last 30 days
       },
       listingTypes: {
@@ -88,8 +83,8 @@ const getAdminStats: RequestHandler = async (request, response) => {
       },
       summary: {
         awaitingReview: pending,
-        liveProperties: available + active,
-        completedTransactions: rented + sold,
+        liveProperties: available,
+        completedTransactions: leased + sold,
       },
     };
 

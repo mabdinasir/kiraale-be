@@ -195,7 +195,7 @@ export const welcomeEmailTemplate = (userName: string, userEmail: string) => ({
                 </div>
 
                 <div style="border-top: 2px solid #e2e8f0; padding-top: 40px;">
-                    <h2 style="color: #16A34A; margin-bottom: 20px;">🏠 Ku Soo Dhawoow Goobta aad ka Heli Karto Guryaha iyo Dhulalka iibka/kirada ah ee ugu Wanaagsan Soomaaliya</h2>
+                    <h2 style="color: #16A34A; margin-bottom: 20px;">🏠 Ku Soo Dhawoow Goobta aad ka Heli Karto Guryaha iyo Dhulalka iibka/kirada ah ee ugu Wanaagsan!</h2>
                     <p style="font-size: 16px; margin-bottom: 20px;">Akoonkaaga si guul leh ayaa loo abuuray! Waxaad hadda ka mid tahay <strong>Kiraale</strong>, si sahlan ku hel dhul, guri mise apartment kiro mise iib ah.</p>
 
                     <div class="feature-box">

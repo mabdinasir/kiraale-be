@@ -7,7 +7,7 @@ CREATE TYPE "public"."paymentMethod" AS ENUM('MPESA', 'EVC');--> statement-break
 CREATE TYPE "public"."paymentStatus" AS ENUM('PENDING', 'COMPLETED', 'FAILED', 'CANCELLED');--> statement-breakpoint
 CREATE TYPE "public"."permission" AS ENUM('USER_READ', 'USER_WRITE', 'USER_DELETE', 'USER_ACTIVATE', 'USER_DEACTIVATE', 'PROPERTY_READ', 'PROPERTY_WRITE', 'PROPERTY_DELETE', 'PROPERTY_APPROVE', 'PROPERTY_REJECT', 'PROPERTY_FEATURE', 'PROPERTY_MODERATE', 'MEDIA_READ', 'MEDIA_WRITE', 'MEDIA_DELETE', 'AGENCY_READ', 'AGENCY_WRITE', 'AGENCY_DELETE', 'AGENCY_VERIFY', 'PAYMENT_READ', 'PAYMENT_PROCESS', 'PAYMENT_REFUND', 'CONTENT_MODERATE', 'CONTENT_DELETE', 'CONTENT_APPROVE', 'ANALYTICS_READ', 'REPORT_GENERATE', 'ADMIN_ACCESS', 'SYSTEM_CONFIG', 'AUDIT_LOG_READ');--> statement-breakpoint
 CREATE TYPE "public"."priceType" AS ENUM('FIXED', 'NEGOTIABLE', 'AUCTION', 'FROM');--> statement-breakpoint
-CREATE TYPE "public"."propertyStatus" AS ENUM('PENDING', 'APPROVED', 'REJECTED', 'AVAILABLE', 'RENTED', 'SOLD', 'ACTIVE', 'WITHDRAWN');--> statement-breakpoint
+CREATE TYPE "public"."propertyStatus" AS ENUM('PENDING', 'AVAILABLE', 'REJECTED', 'SOLD', 'LEASED', 'EXPIRED');--> statement-breakpoint
 CREATE TYPE "public"."propertyType" AS ENUM('HOUSE', 'APARTMENT', 'CONDO', 'TOWNHOUSE', 'VILLA', 'STUDIO', 'LAND', 'COMMERCIAL', 'OTHER');--> statement-breakpoint
 CREATE TYPE "public"."rentFrequency" AS ENUM('DAILY', 'WEEKLY', 'FORTNIGHTLY', 'MONTHLY', 'YEARLY');--> statement-breakpoint
 CREATE TYPE "public"."role" AS ENUM('USER', 'ADMIN');--> statement-breakpoint
@@ -115,6 +115,7 @@ CREATE TABLE "property" (
 	"reviewedBy" uuid,
 	"rejectionReason" text,
 	"adminNotes" text,
+	"expiresAt" timestamp,
 	"searchVector" text,
 	"createdAt" timestamp DEFAULT now() NOT NULL,
 	"updatedAt" timestamp DEFAULT now() NOT NULL,

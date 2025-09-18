@@ -34,13 +34,11 @@ export const rentFrequency = pgEnum('rentFrequency', [
 
 export const propertyStatus = pgEnum('propertyStatus', [
   'PENDING',
-  'APPROVED',
-  'REJECTED',
   'AVAILABLE',
-  'RENTED',
+  'REJECTED',
   'SOLD',
-  'ACTIVE',
-  'WITHDRAWN',
+  'LEASED',
+  'EXPIRED',
 ]);
 
 // Media related enums

@@ -34,7 +34,7 @@ const viewTrackingMiddleware =
         .where(eq(property.id, propertyId))
         .limit(1);
 
-      if (!existingProperty || existingProperty.status !== 'APPROVED') {
+      if (!existingProperty || existingProperty.status !== 'AVAILABLE') {
         next();
         return;
       }
