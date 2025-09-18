@@ -123,6 +123,15 @@ export const adminUpdateUserParamsSchema = selectUserSchema
   })
   .strict();
 
+// Public user search schema for agencies
+export const searchUsersSchema = z
+  .object({
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(50).default(20),
+    search: z.string().min(1).max(100).optional(),
+  })
+  .strict();
+
 export type GetUserByIdParams = z.infer<typeof getUserByIdSchema>;
 export type GetUsersQueryParams = z.infer<typeof getUsersQuerySchema>;
 export type UpdateUserData = z.infer<typeof updateUserSchema>;
@@ -131,3 +140,4 @@ export type DeactivateParams = z.infer<typeof deactivateParamsSchema>;
 export type ProfilePicUploadData = z.infer<typeof profilePicUploadSchema>;
 export type AdminUpdateUserData = z.infer<typeof adminUpdateUserSchema>;
 export type AdminUpdateUserParams = z.infer<typeof adminUpdateUserParamsSchema>;
+export type SearchUsersQuery = z.infer<typeof searchUsersSchema>;

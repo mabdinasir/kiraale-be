@@ -48,7 +48,7 @@ const adminGetAgency: RequestHandler = async (request, response) => {
       return;
     }
 
-    // Get all agents with full admin details including roles
+    // Get active agents only with full admin details including roles
     const agentsData = await db
       .select({
         agencyAgentId: agencyAgent.id,
@@ -74,7 +74,7 @@ const adminGetAgency: RequestHandler = async (request, response) => {
       })
       .from(agencyAgent)
       .leftJoin(user, eq(agencyAgent.userId, user.id))
-      .where(eq(agencyAgent.agencyId, id))
+      .where(and(eq(agencyAgent.agencyId, id), eq(agencyAgent.isActive, true)))
       .orderBy(agencyAgent.joinedAt);
 
     // Get agent user IDs for property queries

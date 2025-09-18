@@ -17,7 +17,13 @@ export const createAgencySchema = insertAgencySchema
     name: z.string().min(2, 'Agency name must be at least 2 characters'),
     address: z.string().min(10, 'Address must be at least 10 characters'),
     email: z.email('Invalid email format').optional().or(z.literal('')),
-    website: z.url('Invalid website URL').optional().or(z.literal('')),
+    website: z
+      .string()
+      .optional()
+      .refine((val) => !val || val === '' || z.url().safeParse(val).success, {
+        message: 'Invalid website URL',
+      })
+      .transform((val) => (val === '' ? undefined : val)),
   })
   .strict();
 
@@ -26,6 +32,7 @@ export const updateAgencySchema = insertAgencySchema
   .pick({
     name: true,
     description: true,
+    country: true,
     address: true,
     phone: true,
     email: true,
@@ -37,7 +44,14 @@ export const updateAgencySchema = insertAgencySchema
     name: z.string().min(2, 'Agency name must be at least 2 characters').optional(),
     address: z.string().min(10, 'Address must be at least 10 characters').optional(),
     email: z.email('Invalid email format').optional().or(z.literal('')),
-    website: z.url('Invalid website URL').optional().or(z.literal('')),
+    country: z.enum(country.enumValues).optional(),
+    website: z
+      .string()
+      .optional()
+      .refine((val) => !val || val === '' || z.url().safeParse(val).success, {
+        message: 'Invalid website URL',
+      })
+      .transform((val) => (val === '' ? undefined : val)),
   })
   .partial()
   .strict();

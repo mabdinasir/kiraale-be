@@ -1,5 +1,5 @@
 import db, { agency, agencyAgent, user } from '@db';
-import { handleValidationError, logError, sendErrorResponse } from '@lib';
+import { generateAgentNumber, handleValidationError, logError, sendErrorResponse } from '@lib';
 import { addAgentToAgencySchema, getAgencyByIdSchema } from '@schemas';
 import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
@@ -53,31 +53,51 @@ const addAgent: RequestHandler = async (request, response) => {
       return;
     }
 
+    // Check if there's an existing inactive record for this user-agency combination
+    const [existingInactiveAgent] = await db
+      .select()
+      .from(agencyAgent)
+      .where(
+        and(
+          eq(agencyAgent.userId, userId),
+          eq(agencyAgent.agencyId, agencyId),
+          eq(agencyAgent.isActive, false),
+        ),
+      );
+
     // Add the agent and update user in a transaction
     const result = await db.transaction(async (tx) => {
-      // Insert the agency-agent relationship
-      const [newAgentRecord] = await tx
-        .insert(agencyAgent)
-        .values({
-          agencyId,
-          userId,
-          role,
-          isActive: true,
-          joinedAt: new Date(),
-        })
-        .returning();
+      // Handle reactivation or creation
+      const agentRecord = existingInactiveAgent
+        ? await tx
+            .update(agencyAgent)
+            .set({
+              role,
+              isActive: true,
+              joinedAt: new Date(),
+              leftAt: null, // Clear the leftAt date
+            })
+            .where(eq(agencyAgent.id, existingInactiveAgent.id))
+            .returning()
+            .then(([record]) => record)
+        : await tx
+            .insert(agencyAgent)
+            .values({
+              agencyId,
+              userId,
+              role,
+              isActive: true,
+              joinedAt: new Date(),
+            })
+            .returning()
+            .then(([record]) => record);
 
       // Check if user already has an agentNumber - if so, keep it
       let { agentNumber } = targetUser;
 
       if (!agentNumber) {
-        // Generate new agent number based on agency and sequence
-        const agentCount = await tx
-          .select({ count: agencyAgent.id })
-          .from(agencyAgent)
-          .where(eq(agencyAgent.agencyId, agencyId));
-
-        agentNumber = `${existingAgency.name.substring(0, 3).toUpperCase()}${String(Number(agentCount[0]?.count || 0) + 1).padStart(4, '0')}`; // Example: "ABC0001", "ABC0002", etc.
+        // Generate new agent number using utility function
+        agentNumber = await generateAgentNumber(existingAgency.name, agencyId);
 
         // Update user's agentNumber but keep platform role unchanged (USER/ADMIN)
         await tx
@@ -89,10 +109,10 @@ const addAgent: RequestHandler = async (request, response) => {
           .where(eq(user.id, userId));
       }
 
-      return newAgentRecord;
+      return agentRecord;
     });
 
-    const newAgentRecord = result;
+    const finalAgentRecord = result;
 
     // Get the full agent details for response
     const [agentWithDetails] = await db
@@ -111,11 +131,13 @@ const addAgent: RequestHandler = async (request, response) => {
       })
       .from(agencyAgent)
       .leftJoin(user, eq(agencyAgent.userId, user.id))
-      .where(eq(agencyAgent.id, newAgentRecord.id));
+      .where(eq(agencyAgent.id, finalAgentRecord.id));
 
     response.status(201).json({
       success: true,
-      message: 'Agent added to agency successfully',
+      message: existingInactiveAgent
+        ? 'Agent reactivated in agency successfully'
+        : 'Agent added to agency successfully',
       data: {
         agent: agentWithDetails,
       },

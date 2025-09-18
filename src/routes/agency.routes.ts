@@ -1,5 +1,6 @@
 import {
   addAgent,
+  agencySearchUser,
   createAgency,
   deleteAgency,
   getAgencies,
@@ -25,6 +26,11 @@ const agencyRoutes: RouteGroup = {
       path: '/search',
       method: 'get',
       handler: searchAgency, // Public - agency search
+    },
+    {
+      path: '/users/search',
+      method: 'get',
+      handler: agencySearchUser, // Public - user search for adding agents
     },
     {
       path: '/',

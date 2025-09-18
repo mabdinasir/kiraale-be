@@ -1,5 +1,6 @@
 import db, { agency, agencyAgent, user } from '@db';
 import {
+  generateAgentNumber,
   generateJwtToken,
   handleValidationError,
   logError,
@@ -54,8 +55,8 @@ const createAgency: RequestHandler = async (request, response) => {
       let { agentNumber } = currentUser;
 
       if (!agentNumber) {
-        // Generate new agent number based on agency name
-        agentNumber = `${newAgency.name.substring(0, 3).toUpperCase()}0001`;
+        // Generate new agent number using utility function
+        agentNumber = await generateAgentNumber(newAgency.name, newAgency.id);
 
         // No platform role changes - users keep their current platform role (USER/ADMIN)
         // Only add agentNumber for tracking purposes

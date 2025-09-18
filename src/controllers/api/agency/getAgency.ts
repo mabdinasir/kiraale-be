@@ -43,7 +43,7 @@ const getAgency: RequestHandler = async (request, response) => {
       return;
     }
 
-    // Get active agents (excluding role for public API)
+    // Get active agents only (excluding role for public API)
     const agentsData = await db
       .select({
         agencyAgentId: agencyAgent.id,
@@ -63,7 +63,7 @@ const getAgency: RequestHandler = async (request, response) => {
       })
       .from(agencyAgent)
       .leftJoin(user, eq(agencyAgent.userId, user.id))
-      .where(eq(agencyAgent.agencyId, id))
+      .where(and(eq(agencyAgent.agencyId, id), eq(agencyAgent.isActive, true)))
       .orderBy(agencyAgent.joinedAt);
 
     // Get agent user IDs for property queries
