@@ -1,7 +1,7 @@
 import db, { agency, agencyAgent, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { adminSearchAgencySchema } from '@schemas';
-import { and, count, eq, ilike, inArray, or } from 'drizzle-orm';
+import { and, count, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -10,20 +10,21 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
     const { search, page, limit, includeAgents } = adminSearchAgencySchema.parse(request.query);
 
     const offset = (page - 1) * limit;
-    const searchTerm = `%${search.toLowerCase()}%`;
 
-    // Search across ALL agency fields including ID
-    const searchConditions = or(
-      ilike(agency.id, searchTerm), // Can search by agency ID
-      ilike(agency.name, searchTerm),
-      ilike(agency.description, searchTerm),
-      ilike(agency.address, searchTerm),
-      ilike(agency.phone, searchTerm),
-      ilike(agency.email, searchTerm),
-      ilike(agency.website, searchTerm),
-      ilike(agency.licenseNumber, searchTerm),
-      ilike(agency.country, searchTerm),
-    );
+    // Build search conditions only if search term is provided
+    const searchConditions = search?.trim()
+      ? or(
+          ilike(agency.id, `%${search.toLowerCase()}%`), // Can search by agency ID
+          ilike(agency.name, `%${search.toLowerCase()}%`),
+          ilike(agency.description, `%${search.toLowerCase()}%`),
+          ilike(agency.address, `%${search.toLowerCase()}%`),
+          ilike(agency.phone, `%${search.toLowerCase()}%`),
+          ilike(agency.email, `%${search.toLowerCase()}%`),
+          ilike(agency.website, `%${search.toLowerCase()}%`),
+          ilike(agency.licenseNumber, `%${search.toLowerCase()}%`),
+          ilike(agency.country, `%${search.toLowerCase()}%`),
+        )
+      : undefined;
 
     // Get agencies with creator info
     const agencies = await db
@@ -56,7 +57,7 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
       })
       .from(agency)
       .leftJoin(user, eq(agency.createdById, user.id))
-      .where(searchConditions)
+      .where(searchConditions ?? sql`true`)
       .limit(limit)
       .offset(offset)
       .orderBy(agency.name);
@@ -65,7 +66,7 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
     const [{ totalCount }] = await db
       .select({ totalCount: count() })
       .from(agency)
-      .where(searchConditions);
+      .where(searchConditions ?? sql`true`);
 
     const totalPages = Math.ceil(totalCount / limit);
 

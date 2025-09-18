@@ -155,7 +155,7 @@ export const searchAgencySchema = z
 // Admin search agencies schema
 export const adminSearchAgencySchema = z
   .object({
-    search: z.string().trim().min(1).max(200),
+    search: z.string().trim().min(1).max(200).optional(),
     page: z.coerce.number().min(1).default(1),
     limit: z.coerce.number().min(1).max(100).default(20),
     includeAgents: z.coerce.boolean().default(false),

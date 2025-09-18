@@ -36,7 +36,8 @@ const suspendAgency: RequestHandler = async (request, response) => {
 
     const updateData = isSuspending
       ? {
-          // Suspending
+          // Suspending - set inactive and suspended
+          isActive: false,
           isSuspended: true,
           suspendedAt: new Date(),
           suspendedBy: requestingUserId,
@@ -44,7 +45,8 @@ const suspendAgency: RequestHandler = async (request, response) => {
           updatedAt: new Date(),
         }
       : {
-          // Unsuspending
+          // Unsuspending - set active and unsuspended
+          isActive: true,
           isSuspended: false,
           suspendedAt: null,
           suspendedBy: null,
