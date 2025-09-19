@@ -66,7 +66,10 @@ export const adminSuspendUserSchema = z.object({
 
 export const adminSuspendUserBodySchema = z.object({
   isSuspended: z.boolean(),
-  suspensionReason: z.string().optional(),
+  suspensionReason: z
+    .string()
+    .min(10, 'Suspension reason must be at least 10 characters')
+    .optional(),
 });
 
 export type ApprovePropertyParams = z.infer<typeof approvePropertyParamsSchema>;
