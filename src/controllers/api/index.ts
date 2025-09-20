@@ -7,4 +7,5 @@ export * from './media';
 export * from './payment';
 export * from './pricing';
 export * from './property';
+export * from './tenant';
 export * from './user';

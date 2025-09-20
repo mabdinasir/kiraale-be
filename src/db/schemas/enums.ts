@@ -64,6 +64,41 @@ export const serviceType = pgEnum('serviceType', [
 
 export const currency = pgEnum('currency', ['USD', 'KES', 'SOS']);
 
+// Tenant related enums
+export const leaseType = pgEnum('leaseType', ['FIXED_TERM', 'PERIODIC', 'MONTH_TO_MONTH']);
+
+export const leaseFrequency = pgEnum('leaseFrequency', ['MONTHLY', 'QUARTERLY', 'YEARLY', 'OTHER']);
+
+export const familyRelationship = pgEnum('familyRelationship', [
+  'SPOUSE',
+  'CHILD',
+  'PARENT',
+  'SIBLING',
+  'FRIEND',
+  'OTHER',
+]);
+
+export const documentType = pgEnum('documentType', [
+  'ID_CARD',
+  'PASSPORT',
+  'LEASE_AGREEMENT',
+  'EMPLOYMENT_LETTER',
+]);
+
+export const inspectionType = pgEnum('inspectionType', [
+  'MOVE_IN',
+  'ROUTINE',
+  'MOVE_OUT',
+  'EMERGENCY',
+]);
+
+export const maintenanceUrgency = pgEnum('maintenanceUrgency', [
+  'LOW',
+  'MEDIUM',
+  'HIGH',
+  'EMERGENCY',
+]);
+
 export const permission = pgEnum('permission', [
   // User management permissions
   'USER_READ',
@@ -115,6 +150,12 @@ export const permission = pgEnum('permission', [
 // Export enum values for non-database usage (like swagger/validation)
 export const roleValues = role.enumValues;
 export const agencyRoleValues = agencyRole.enumValues;
+export const leaseTypeValues = leaseType.enumValues;
+export const leaseFrequencyValues = leaseFrequency.enumValues;
+export const familyRelationshipValues = familyRelationship.enumValues;
+export const documentTypeValues = documentType.enumValues;
+export const inspectionTypeValues = inspectionType.enumValues;
+export const maintenanceUrgencyValues = maintenanceUrgency.enumValues;
 export const propertyTypeValues = propertyType.enumValues;
 export const listingTypeValues = listingType.enumValues;
 export const countryValues = country.enumValues;
@@ -131,6 +172,12 @@ export const permissionValues = permission.enumValues;
 // Type definitions
 export type Role = (typeof role.enumValues)[number];
 export type AgencyRole = (typeof agencyRole.enumValues)[number];
+export type LeaseType = (typeof leaseType.enumValues)[number];
+export type LeaseFrequency = (typeof leaseFrequency.enumValues)[number];
+export type FamilyRelationship = (typeof familyRelationship.enumValues)[number];
+export type DocumentType = (typeof documentType.enumValues)[number];
+export type InspectionType = (typeof inspectionType.enumValues)[number];
+export type MaintenanceUrgency = (typeof maintenanceUrgency.enumValues)[number];
 export type PropertyType = (typeof propertyType.enumValues)[number];
 export type ListingType = (typeof listingType.enumValues)[number];
 export type Country = (typeof country.enumValues)[number];

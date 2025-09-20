@@ -7,4 +7,5 @@ export * from './payment.schema';
 export * from './pricing.schema';
 export * from './property.schema';
 export * from './propertySearch.schema';
+export * from './tenant.schema';
 export * from './user.schema';

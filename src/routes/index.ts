@@ -9,6 +9,7 @@ import paymentRoutes from './payment.routes';
 import pricingRoutes from './pricing.routes';
 import propertyRoutes from './property.routes';
 import { registerSwaggerRoutes } from './swagger.routes';
+import tenantRoutes from './tenant.routes';
 import userRoutes from './user.routes';
 
 function registerRouteGroups(router: Router, groups: RouteGroup[]): void {
@@ -34,6 +35,7 @@ function configureRoutes(router: Router): void {
     propertyRoutes,
     paymentRoutes,
     pricingRoutes,
+    tenantRoutes,
     userRoutes,
   ];
   registerRouteGroups(router, routeGroups);

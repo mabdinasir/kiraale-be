@@ -11,3 +11,4 @@ export const maxFileSizeMB = 25;
 export const maxPropertyMediaFiles = 20;
 export const minPropertyMediaFiles = 4;
 export const minFirstUploadFiles = 4;
+export const maxTenantDocumentFiles = 10;
