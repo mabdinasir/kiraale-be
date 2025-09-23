@@ -1,4 +1,11 @@
-import db, { property, tenant } from '@db';
+import db, {
+  property,
+  rentPayment,
+  securityDeposit,
+  tenant,
+  tenantDocument,
+  tenantFamilyMember,
+} from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { searchTenantsSchema } from '@schemas';
 import { and, eq, ilike, or, sql } from 'drizzle-orm';
@@ -40,26 +47,29 @@ const searchTenants: RequestHandler = async (request, response) => {
       }
     }
 
-    // Get tenants with pagination - only select essential fields for UI
+    // Get tenants with pagination and counts - same structure as getMyTenants
     const tenants = await db
       .select({
-        id: tenant.id,
-        firstName: tenant.firstName,
-        lastName: tenant.lastName,
-        email: tenant.email,
-        mobile: tenant.mobile,
-        isActive: tenant.isActive,
-        leaseStartDate: tenant.leaseStartDate,
+        tenant,
         property: {
           id: property.id,
           title: property.title,
           address: property.address,
           propertyType: property.propertyType,
         },
+        familyMembersCount: sql<number>`count(distinct ${tenantFamilyMember.id})::int`,
+        paymentsCount: sql<number>`count(distinct ${rentPayment.id})::int`,
+        depositsCount: sql<number>`count(distinct ${securityDeposit.id})::int`,
+        documentsCount: sql<number>`count(distinct ${tenantDocument.id})::int`,
       })
       .from(tenant)
       .innerJoin(property, eq(tenant.propertyId, property.id))
+      .leftJoin(tenantFamilyMember, eq(tenant.id, tenantFamilyMember.tenantId))
+      .leftJoin(rentPayment, eq(tenant.id, rentPayment.tenantId))
+      .leftJoin(securityDeposit, eq(tenant.id, securityDeposit.tenantId))
+      .leftJoin(tenantDocument, eq(tenant.id, tenantDocument.tenantId))
       .where(and(...conditions))
+      .groupBy(tenant.id, property.id)
       .limit(limit)
       .offset((page - 1) * limit)
       .orderBy(tenant.createdAt);
