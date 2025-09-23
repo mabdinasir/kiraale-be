@@ -53,7 +53,7 @@ const deleteMediaUpload: RequestHandler = async (request, response) => {
 
     // Check current total media count for this property
     const [totalMediaCount] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql<number>`count(*)::int` })
       .from(media)
       .where(eq(media.propertyId, propertyId));
 

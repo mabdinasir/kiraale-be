@@ -1,7 +1,7 @@
 import db, { agency } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getAgenciesSchema } from '@schemas';
-import { and, count, eq, ilike, or } from 'drizzle-orm';
+import { and, eq, ilike, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -49,7 +49,7 @@ const getAgencies: RequestHandler = async (request, response) => {
 
     // Get total count
     const [{ totalCount }] = await db
-      .select({ totalCount: count(agency.id) })
+      .select({ totalCount: sql<number>`count(*)::int` })
       .from(agency)
       .where(whereClause);
 

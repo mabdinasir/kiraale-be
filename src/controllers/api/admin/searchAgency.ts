@@ -1,7 +1,7 @@
 import db, { agency, agencyAgent, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { adminSearchAgencySchema } from '@schemas';
-import { and, count, eq, ilike, inArray, or, sql } from 'drizzle-orm';
+import { and, eq, ilike, inArray, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -64,7 +64,7 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
 
     // Get total count
     const [{ totalCount }] = await db
-      .select({ totalCount: count() })
+      .select({ totalCount: sql<number>`count(*)::int` })
       .from(agency)
       .where(searchConditions ?? sql`true`);
 
@@ -139,7 +139,7 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
       const agentCountResults = await db
         .select({
           agencyId: agencyAgent.agencyId,
-          count: count(agencyAgent.id),
+          count: sql<number>`count(*)::int`,
         })
         .from(agencyAgent)
         .where(and(inArray(agencyAgent.agencyId, agencyIds), eq(agencyAgent.isActive, true)))
@@ -157,7 +157,7 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
       agentCount: agentCounts[agencyItem.id] || 0,
     }));
 
-    sendSuccessResponse(response, 200, 'Admin agency search completed', {
+    sendSuccessResponse(response, 200, 'Agencies retrieved successfully', {
       agencies: agenciesWithStats,
       pagination: {
         page,

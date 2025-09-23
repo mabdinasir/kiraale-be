@@ -32,7 +32,7 @@ const createTenant: RequestHandler = async (request, response) => {
       return;
     }
 
-    // Create tenant
+    // Create tenant - handle date conversion
     const [newTenant] = await db
       .insert(tenant)
       .values({
@@ -48,15 +48,17 @@ const createTenant: RequestHandler = async (request, response) => {
         leaseType: validatedData.leaseType,
         leaseFrequency: validatedData.leaseFrequency,
         rentAmount: validatedData.rentAmount.toString(),
-        leaseStartDate: validatedData.leaseStartDate,
-        leaseEndDate: validatedData.leaseEndDate,
+        leaseStartDate: new Date(validatedData.leaseStartDate),
+        leaseEndDate: validatedData.leaseEndDate ? new Date(validatedData.leaseEndDate) : null,
         isActive: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
       .returning();
 
-    sendSuccessResponse(response, 201, 'Tenant created successfully', newTenant);
+    sendSuccessResponse(response, 201, 'Tenant created successfully', {
+      tenant: newTenant,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

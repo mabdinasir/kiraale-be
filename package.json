@@ -19,7 +19,7 @@
     "tsc": "tsc --noEmit",
     "db:generate": "drizzle-kit generate --config=src/db/drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config=src/db/drizzle.config.ts",
-    "db:studio": "drizzle-kit studio --config=src/db/drizzle.config.ts",
+    "drizzle": "drizzle-kit studio --config=src/db/drizzle.config.ts",
     "db:seed-achievements": "bun run scripts/seedAchievements.ts"
   },
   "dependencies": {

@@ -4,6 +4,7 @@ import {
   createMaintenance,
   createTenant,
   deleteTenantDocument,
+  endTenantLease,
   getDeposits,
   getFamilyMembers,
   getMaintenanceHistory,
@@ -13,7 +14,6 @@ import {
   getTenant,
   getTenantDocuments,
   getTenants,
-  moveOutTenant,
   recordDeposit,
   recordRentPayment,
   refundDeposit,
@@ -85,10 +85,10 @@ const tenantRoutes: RouteGroup = {
       handler: updateTenant,
     },
     {
-      path: '/:id/move-out',
+      path: '/:id/end-tenant-lease',
       method: 'put',
       middlewares: [authMiddleware],
-      handler: moveOutTenant,
+      handler: endTenantLease,
     },
 
     // Family member management

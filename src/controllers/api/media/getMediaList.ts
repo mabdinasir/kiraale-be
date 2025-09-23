@@ -1,7 +1,7 @@
 import db, { media } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { queryMediaSchema } from '@schemas';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -40,11 +40,11 @@ const getMediaList: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: media.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(media)
       .where(and(...filters));
 
-    const totalMedia = Number(countResult?.count || 0);
+    const totalMedia = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalMedia / limit);
 
     sendSuccessResponse(response, 200, 'Media list retrieved successfully', {

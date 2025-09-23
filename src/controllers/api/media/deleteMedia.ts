@@ -42,7 +42,7 @@ const deleteMedia: RequestHandler = async (request, response) => {
 
     // Check current media count for this property
     const [mediaCount] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql<number>`count(*)::int` })
       .from(media)
       .where(eq(media.propertyId, existingMedia.propertyId));
 

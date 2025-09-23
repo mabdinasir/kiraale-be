@@ -1,7 +1,7 @@
 import db, { maintenanceRecord, property } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getMaintenanceHistorySchema, propertyIdSchema } from '@schemas';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -57,20 +57,22 @@ const getMaintenanceHistory: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [{ count }] = await db
-      .select({ count: maintenanceRecord.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(maintenanceRecord)
       .where(and(...conditions));
 
-    const totalCount = Number(count) || 0;
+    const totalCount = count ?? 0;
     const totalPages = Math.ceil(totalCount / limit);
 
     sendSuccessResponse(response, 200, 'Maintenance history retrieved successfully', {
       maintenanceHistory,
       pagination: {
-        currentPage: page,
-        totalPages,
-        totalCount,
+        page,
         limit,
+        total: totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

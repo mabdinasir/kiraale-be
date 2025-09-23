@@ -7,7 +7,7 @@ import {
   sendSuccessResponse,
 } from '@lib';
 import { getUsersQuerySchema } from '@schemas';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
 const getUsers: RequestHandler = async (request, response) => {
@@ -37,11 +37,11 @@ const getUsers: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: user.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(user)
       .where(and(...conditions));
 
-    const totalUsers = Number(countResult?.count || 0);
+    const totalUsers = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalUsers / limit);
 
     const usersWithoutPasswords = users.map(omitPassword);

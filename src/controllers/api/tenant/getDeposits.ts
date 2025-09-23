@@ -1,7 +1,7 @@
 import db, { property, securityDeposit, tenant } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getDepositsSchema, tenantIdSchema } from '@schemas';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -59,21 +59,23 @@ const getDeposits: RequestHandler = async (request, response) => {
       .orderBy(securityDeposit.createdAt);
 
     // Get total count for pagination
-    const [{ count }] = await db
-      .select({ count: securityDeposit.id })
+    const [{ count: totalCount }] = await db
+      .select({ count: sql<number>`count(*)::int` })
       .from(securityDeposit)
       .where(and(...conditions));
 
-    const totalCount = Number(count) || 0;
-    const totalPages = Math.ceil(totalCount / limit);
+    const totalCountInt = totalCount ?? 0;
+    const totalPages = Math.ceil(totalCountInt / limit);
 
     sendSuccessResponse(response, 200, 'Deposits retrieved successfully', {
       deposits,
       pagination: {
-        currentPage: page,
-        totalPages,
-        totalCount,
+        page,
         limit,
+        total: totalCountInt,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

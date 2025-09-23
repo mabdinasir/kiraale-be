@@ -50,7 +50,9 @@ const recordDeposit: RequestHandler = async (request, response) => {
       })
       .returning();
 
-    sendSuccessResponse(response, 201, 'Security deposit recorded successfully', newDeposit);
+    sendSuccessResponse(response, 201, 'Security deposit recorded successfully', {
+      deposit: newDeposit,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

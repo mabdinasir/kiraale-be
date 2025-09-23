@@ -1,7 +1,7 @@
 import db, { property, propertyView } from '@db';
 import { handleValidationError, logError, sendErrorResponse } from '@lib';
 import { getPropertyAnalyticsParamsSchema, getPropertyAnalyticsQuerySchema } from '@schemas';
-import { and, count, eq, gte, lte, sql } from 'drizzle-orm';
+import { and, eq, gte, lte, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -69,7 +69,7 @@ const getPropertyAnalytics: RequestHandler = async (request, response) => {
 
     // Get total views
     const [{ totalViews }] = await db
-      .select({ totalViews: count() })
+      .select({ totalViews: sql<number>`count(*)::int` })
       .from(propertyView)
       .where(and(...baseConditions));
 
@@ -91,7 +91,7 @@ const getPropertyAnalytics: RequestHandler = async (request, response) => {
     const dailyViews = await db
       .select({
         date: sql<string>`date(${propertyView.viewedAt})`,
-        views: count(),
+        views: sql<number>`count(*)::int`,
         uniqueViews: sql<number>`count(distinct coalesce(${propertyView.userId}::text, ${propertyView.sessionId}))`,
       })
       .from(propertyView)
@@ -103,7 +103,7 @@ const getPropertyAnalytics: RequestHandler = async (request, response) => {
     const topReferrers = await db
       .select({
         referrer: propertyView.referrer,
-        views: count(),
+        views: sql<number>`count(*)::int`,
       })
       .from(propertyView)
       .where(and(...baseConditions, sql`${propertyView.referrer} IS NOT NULL`))
@@ -117,7 +117,7 @@ const getPropertyAnalytics: RequestHandler = async (request, response) => {
       hourlyDistribution = await db
         .select({
           hour: sql<number>`extract(hour from ${propertyView.viewedAt})`,
-          views: count(),
+          views: sql<number>`count(*)::int`,
         })
         .from(propertyView)
         .where(and(...baseConditions))
@@ -132,7 +132,7 @@ const getPropertyAnalytics: RequestHandler = async (request, response) => {
     previousPeriodStart.setTime(previousPeriodStart.getTime() - periodDuration);
 
     const [{ previousViews }] = await db
-      .select({ previousViews: count() })
+      .select({ previousViews: sql<number>`count(*)::int` })
       .from(propertyView)
       .where(
         and(

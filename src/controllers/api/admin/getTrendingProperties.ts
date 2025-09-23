@@ -1,7 +1,7 @@
 import db, { media, property, propertyView, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { trendingPropertiesSchema } from '@schemas';
-import { count, desc, eq, inArray, ne, sql } from 'drizzle-orm';
+import { desc, eq, inArray, ne, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -67,7 +67,7 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
         createdAt: property.createdAt,
         updatedAt: property.updatedAt,
         deletedAt: property.deletedAt,
-        viewCount: sql<number>`coalesce(${count(propertyView.id)}, 0)`,
+        viewCount: sql<number>`coalesce(count(${propertyView.id}), 0)`,
         uniqueViewCount: sql<number>`coalesce(count(distinct coalesce(${propertyView.userId}::text, ${propertyView.sessionId})), 0)`,
         // User fields (summary for public display)
         user: {
@@ -129,7 +129,7 @@ const getTrendingProperties: RequestHandler = async (request, response) => {
 
     // Get total properties count for pagination
     const [{ totalProperties }] = await db
-      .select({ totalProperties: count() })
+      .select({ totalProperties: sql<number>`count(*)::int` })
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
       .where(sql`${sql.join(propertyFilters, sql.raw(' AND '))}`);

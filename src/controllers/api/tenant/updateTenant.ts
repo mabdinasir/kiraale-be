@@ -38,57 +38,63 @@ const updateTenant: RequestHandler = async (request, response) => {
     }
 
     // Update tenant
-    const updateData: Partial<Tenant> & Pick<Tenant, 'updatedAt'> = {
+    const updatedData: Partial<Tenant> & Pick<Tenant, 'updatedAt'> = {
       updatedAt: new Date(),
     };
 
     if (validatedData.firstName) {
-      updateData.firstName = validatedData.firstName;
+      updatedData.firstName = validatedData.firstName;
     }
     if (validatedData.lastName) {
-      updateData.lastName = validatedData.lastName;
+      updatedData.lastName = validatedData.lastName;
     }
     if (validatedData.email) {
-      updateData.email = validatedData.email;
+      updatedData.email = validatedData.email;
     }
     if (validatedData.mobile) {
-      updateData.mobile = validatedData.mobile;
+      updatedData.mobile = validatedData.mobile;
     }
     if (validatedData.nationalId !== undefined) {
-      updateData.nationalId = validatedData.nationalId;
+      updatedData.nationalId = validatedData.nationalId;
     }
     if (validatedData.passportNumber !== undefined) {
-      updateData.passportNumber = validatedData.passportNumber;
+      updatedData.passportNumber = validatedData.passportNumber;
     }
     if (validatedData.emergencyContactName) {
-      updateData.emergencyContactName = validatedData.emergencyContactName;
+      updatedData.emergencyContactName = validatedData.emergencyContactName;
     }
     if (validatedData.emergencyContactPhone) {
-      updateData.emergencyContactPhone = validatedData.emergencyContactPhone;
+      updatedData.emergencyContactPhone = validatedData.emergencyContactPhone;
     }
     if (validatedData.leaseType) {
-      updateData.leaseType = validatedData.leaseType;
+      updatedData.leaseType = validatedData.leaseType;
     }
     if (validatedData.leaseFrequency) {
-      updateData.leaseFrequency = validatedData.leaseFrequency;
+      updatedData.leaseFrequency = validatedData.leaseFrequency;
     }
     if (validatedData.rentAmount) {
-      updateData.rentAmount = validatedData.rentAmount.toString();
+      updatedData.rentAmount = validatedData.rentAmount.toString();
     }
     if (validatedData.leaseStartDate) {
-      updateData.leaseStartDate = validatedData.leaseStartDate;
+      updatedData.leaseStartDate = new Date(validatedData.leaseStartDate);
     }
-    if (validatedData.leaseEndDate !== undefined) {
-      updateData.leaseEndDate = validatedData.leaseEndDate;
+    if (validatedData.leaseType === 'MONTH_TO_MONTH') {
+      updatedData.leaseEndDate = null;
+    } else {
+      updatedData.leaseEndDate = validatedData.leaseEndDate
+        ? new Date(validatedData.leaseEndDate)
+        : null;
     }
 
     const [updatedTenant] = await db
       .update(tenant)
-      .set(updateData)
+      .set(updatedData)
       .where(eq(tenant.id, tenantId))
       .returning();
 
-    sendSuccessResponse(response, 200, 'Tenant updated successfully', updatedTenant);
+    sendSuccessResponse(response, 200, 'Tenant updated successfully', {
+      tenant: updatedTenant,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

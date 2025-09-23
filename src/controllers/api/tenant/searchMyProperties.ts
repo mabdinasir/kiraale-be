@@ -1,7 +1,7 @@
 import db, { property } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { searchMyPropertiesSchema } from '@schemas';
-import { and, count, eq, ilike, isNull, or } from 'drizzle-orm';
+import { and, eq, ilike, isNull, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
 const searchMyProperties: RequestHandler = async (request, response) => {
@@ -58,11 +58,11 @@ const searchMyProperties: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: count() })
+      .select({ count: sql<number>`count(*)::int` })
       .from(property)
       .where(and(...conditions));
 
-    const totalProperties = countResult?.count || 0;
+    const totalProperties = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalProperties / limit);
 
     sendSuccessResponse(response, 200, 'Properties retrieved successfully', {

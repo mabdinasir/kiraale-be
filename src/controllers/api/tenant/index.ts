@@ -1,8 +1,8 @@
 // Tenant management
 export { default as createTenant } from './createTenant';
+export { default as endTenantLease } from './endTenantLease';
 export { default as getTenant } from './getTenant';
 export { default as getTenants } from './getTenants';
-export { default as moveOutTenant } from './moveOutTenant';
 export { default as updateTenant } from './updateTenant';
 
 // Family member management

@@ -1,7 +1,7 @@
 import db, { favorite, media, property, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getMyFavoritesSchema } from '@schemas';
-import { eq, inArray } from 'drizzle-orm';
+import { eq, inArray, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -64,11 +64,11 @@ const getMyFavorites: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: favorite.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(favorite)
       .where(eq(favorite.userId, userId));
 
-    const totalFavorites = Number(countResult?.count || 0);
+    const totalFavorites = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalFavorites / limit);
 
     // Get media for all properties in favorites

@@ -7,7 +7,7 @@ import {
   sendSuccessResponse,
 } from '@lib';
 import { adminUpdateUserParamsSchema, adminUpdateUserSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -56,8 +56,9 @@ const adminUpdateUser: RequestHandler = async (request, response) => {
     // Prevent demoting the last admin
     if (updateData.role && updateData.role !== 'ADMIN' && existingUser.role === 'ADMIN') {
       const [adminCount] = await db
-        .select({ count: db.$count(user, eq(user.role, 'ADMIN')) })
-        .from(user);
+        .select({ count: sql<number>`count(*)::int` })
+        .from(user)
+        .where(eq(user.role, 'ADMIN'));
 
       if (adminCount.count <= 1) {
         sendErrorResponse(response, 400, 'Cannot demote the last admin user');

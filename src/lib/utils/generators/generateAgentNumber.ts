@@ -1,5 +1,5 @@
 import db, { agencyAgent } from '@db';
-import { count, eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 
 /**
  * Generates a unique agent number for a user in an agency
@@ -16,7 +16,7 @@ export const generateAgentNumber = async (
 ): Promise<string> => {
   // Get current agent count for this agency to generate next sequence number
   const agentCountResult = await db
-    .select({ count: count(agencyAgent.id) })
+    .select({ count: sql<number>`count(*)::int` })
     .from(agencyAgent)
     .where(eq(agencyAgent.agencyId, agencyId));
 

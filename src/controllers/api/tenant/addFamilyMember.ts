@@ -59,7 +59,9 @@ const addFamilyMember: RequestHandler = async (request, response) => {
       })
       .returning();
 
-    sendSuccessResponse(response, 201, 'Family member added successfully', newFamilyMember);
+    sendSuccessResponse(response, 201, 'Family member added successfully', {
+      familyMember: newFamilyMember,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

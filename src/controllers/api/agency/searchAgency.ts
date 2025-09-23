@@ -1,7 +1,7 @@
 import db, { agency, agencyAgent, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { searchAgencySchema } from '@schemas';
-import { and, asc, count, desc, eq, gte, ilike, inArray, lte, or } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, ilike, inArray, lte, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -141,7 +141,7 @@ const searchAgency: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [{ totalCount }] = await db
-      .select({ totalCount: count() })
+      .select({ totalCount: sql<number>`count(*)::int` })
       .from(agency)
       .where(validFilters.length > 0 ? and(...validFilters) : undefined);
 
@@ -214,7 +214,7 @@ const searchAgency: RequestHandler = async (request, response) => {
       const agentCountResults = await db
         .select({
           agencyId: agencyAgent.agencyId,
-          count: count(agencyAgent.id),
+          count: sql<number>`count(*)::int`,
         })
         .from(agencyAgent)
         .where(and(inArray(agencyAgent.agencyId, agencyIds), eq(agencyAgent.isActive, true)))
@@ -229,10 +229,10 @@ const searchAgency: RequestHandler = async (request, response) => {
     // Add stats to agencies
     const agenciesWithStats = agenciesWithAgents.map((agencyItem) => ({
       ...agencyItem,
-      agentCount: agentCounts[agencyItem.id] || 0,
+      agentCount: agentCounts[agencyItem.id] ?? 0,
     }));
 
-    sendSuccessResponse(response, 200, 'Agency search completed successfully', {
+    sendSuccessResponse(response, 200, 'Agencies retrieved successfully', {
       agencies: agenciesWithStats,
       pagination: {
         page,

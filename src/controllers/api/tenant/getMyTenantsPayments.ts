@@ -1,7 +1,7 @@
 import db, { property, rentPayment, tenant, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getPaymentHistorySchema } from '@schemas';
-import { and, eq, gte, lt } from 'drizzle-orm';
+import { and, eq, gte, lt, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -64,13 +64,13 @@ const getMyTenantsPayments: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [{ count }] = await db
-      .select({ count: rentPayment.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(rentPayment)
       .innerJoin(tenant, eq(rentPayment.tenantId, tenant.id))
       .innerJoin(property, eq(tenant.propertyId, property.id))
       .where(and(...conditions));
 
-    const totalCount = Number(count) || 0;
+    const totalCount = count ?? 0;
     const totalPages = Math.ceil(totalCount / limit);
 
     // Calculate total amount for the period
@@ -86,13 +86,15 @@ const getMyTenantsPayments: RequestHandler = async (request, response) => {
     sendSuccessResponse(response, 200, 'Payment history retrieved successfully', {
       payments,
       pagination: {
-        currentPage: page,
-        totalPages,
-        totalCount,
+        page,
         limit,
+        total: totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
       summary: {
-        totalAmount: totalAmount || 0,
+        totalAmount: totalAmount ?? 0,
       },
     });
   } catch (error) {

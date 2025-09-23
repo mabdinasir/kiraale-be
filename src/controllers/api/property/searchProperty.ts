@@ -8,9 +8,10 @@ import {
   handleValidationError,
   logError,
   sendErrorResponse,
+  sendSuccessResponse,
 } from '@lib';
 import { propertySearchSchema } from '@schemas';
-import { and, asc, count, desc, eq, gte, ilike, lte, or, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, gte, ilike, lte, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -210,7 +211,7 @@ const searchProperty: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [{ totalCount }] = await db
-      .select({ totalCount: count() })
+      .select({ totalCount: sql<number>`count(*)::int` })
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
       .where(validFilters.length > 0 ? and(...validFilters) : undefined);
@@ -224,30 +225,27 @@ const searchProperty: RequestHandler = async (request, response) => {
     // Add media to each property
     const propertiesWithMedia = addMediaToProperties(properties, mediaByPropertyId);
 
-    response.status(200).json({
-      success: true,
-      data: {
-        properties: propertiesWithMedia,
-        pagination: {
-          page,
-          limit,
-          total: totalCount,
-          totalPages,
-          hasNextPage: page < totalPages,
-          hasPreviousPage: page > 1,
-        },
-        filters: {
-          applied: Object.entries(searchParams).reduce<Record<string, unknown>>(
-            (acc, [key, value]) => {
-              if (value !== undefined && value !== null && value !== '') {
-                acc[key] = value;
-              }
-              return acc;
-            },
-            {},
-          ),
-          total: validFilters.length,
-        },
+    sendSuccessResponse(response, 200, 'Properties retrieved successfully', {
+      properties: propertiesWithMedia,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+      filters: {
+        applied: Object.entries(searchParams).reduce<Record<string, unknown>>(
+          (acc, [key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+              acc[key] = value;
+            }
+            return acc;
+          },
+          {},
+        ),
+        total: validFilters.length,
       },
     });
   } catch (error) {

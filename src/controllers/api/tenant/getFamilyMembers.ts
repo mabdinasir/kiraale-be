@@ -1,7 +1,7 @@
 import db, { property, tenant, tenantFamilyMember } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getFamilyMembersSchema, tenantIdSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -53,20 +53,22 @@ const getFamilyMembers: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [{ count }] = await db
-      .select({ count: tenantFamilyMember.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(tenantFamilyMember)
       .where(eq(tenantFamilyMember.tenantId, tenantId));
 
-    const totalCount = Number(count) || 0;
+    const totalCount = count ?? 0;
     const totalPages = Math.ceil(totalCount / limit);
 
     sendSuccessResponse(response, 200, 'Family members retrieved successfully', {
       familyMembers,
       pagination: {
-        currentPage: page,
-        totalPages,
-        totalCount,
+        page,
         limit,
+        total: totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

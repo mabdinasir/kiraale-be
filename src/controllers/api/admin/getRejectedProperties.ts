@@ -9,7 +9,7 @@ import {
   sendSuccessResponse,
 } from '@lib';
 import { getRejectedPropertiesSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -31,11 +31,11 @@ const getRejectedProperties: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: property.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(property)
       .where(eq(property.status, 'REJECTED'));
 
-    const totalProperties = Number(countResult?.count || 0);
+    const totalProperties = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalProperties / limit);
 
     // Get media for all properties

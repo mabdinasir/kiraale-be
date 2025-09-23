@@ -15,6 +15,13 @@
       "when": 1758338125737,
       "tag": "0001_flat_wildside",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758583461559,
+      "tag": "0002_peaceful_jimmy_woo",
+      "breakpoints": true
     }
   ]
 }

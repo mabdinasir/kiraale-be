@@ -57,7 +57,9 @@ const refundDeposit: RequestHandler = async (request, response) => {
       .where(eq(securityDeposit.id, depositId))
       .returning();
 
-    sendSuccessResponse(response, 200, 'Deposit refunded successfully', updatedDeposit);
+    sendSuccessResponse(response, 200, 'Deposit refunded successfully', {
+      deposit: updatedDeposit,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

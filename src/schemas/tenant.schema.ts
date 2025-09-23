@@ -22,21 +22,29 @@ export const createTenantSchema = z
     leaseType: z.enum(['FIXED_TERM', 'PERIODIC', 'MONTH_TO_MONTH']),
     leaseFrequency: z.enum(['MONTHLY', 'QUARTERLY', 'YEARLY', 'OTHER']),
     rentAmount: z.coerce.number().positive('Rent amount must be greater than 0'),
-    leaseStartDate: z.string().transform((str) => new Date(str)),
-    leaseEndDate: z
-      .string()
-      .transform((str) => new Date(str))
-      .optional(),
+    leaseStartDate: z.string().min(1, 'Lease start date is required'),
+    leaseEndDate: z.string().optional(),
   })
   .refine(
     (data) => {
-      if (data.leaseEndDate && data.leaseStartDate >= data.leaseEndDate) {
-        return false;
+      // For MONTH_TO_MONTH leases, end date is optional
+      if (data.leaseType === 'MONTH_TO_MONTH') {
+        return true;
+      }
+      // For FIXED_TERM and PERIODIC leases, end date is required
+      if (data.leaseType === 'FIXED_TERM' || data.leaseType === 'PERIODIC') {
+        if (!data.leaseEndDate || data.leaseEndDate.trim() === '') {
+          return false;
+        }
+        // End date must be after start date
+        if (new Date(data.leaseStartDate) >= new Date(data.leaseEndDate)) {
+          return false;
+        }
       }
       return true;
     },
     {
-      message: 'Lease end date must be after start date',
+      message: 'Fixed term and periodic leases require an end date that is after the start date',
       path: ['leaseEndDate'],
     },
   )
@@ -44,10 +52,16 @@ export const createTenantSchema = z
 
 export const updateTenantSchema = createTenantSchema.omit({ propertyId: true }).partial().strict();
 
-export const moveOutTenantSchema = z
+export const endTenantLeaseSchema = z
   .object({
-    moveOutDate: z.string().transform((str) => new Date(str)),
-    moveOutReason: z.string().min(5, 'Move out reason must be at least 5 characters').max(500),
+    leaseEndDate: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid lease end date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str)),
+    leaseEndReason: z.string().min(5, 'Lease end reason must be at least 5 characters').max(500),
+    leaseEndNotes: z.string().max(500).optional(),
   })
   .strict();
 
@@ -71,7 +85,12 @@ export const updateFamilyMemberSchema = createFamilyMemberSchema.partial().stric
 export const recordDepositSchema = z
   .object({
     amount: z.coerce.number().positive('Deposit amount must be greater than 0'),
-    paidDate: z.string().transform((str) => new Date(str)),
+    paidDate: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid paid date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str)),
     receiptNumber: z.string().min(1, 'Receipt number is required').max(100),
   })
   .strict();
@@ -79,7 +98,12 @@ export const recordDepositSchema = z
 export const refundDepositSchema = z
   .object({
     refundAmount: z.coerce.number().positive('Refund amount must be greater than 0'),
-    refundDate: z.string().transform((str) => new Date(str)),
+    refundDate: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid refund date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str)),
     refundReason: z.string().min(5, 'Refund reason must be at least 5 characters').max(500),
   })
   .strict();
@@ -89,12 +113,18 @@ export const updateDepositSchema = z
     amount: z.coerce.number().positive('Deposit amount must be greater than 0').optional(),
     paidDate: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid paid date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     receiptNumber: z.string().min(1, 'Receipt number is required').max(100).optional(),
     refundAmount: z.coerce.number().positive('Refund amount must be greater than 0').optional(),
     refundDate: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid refund date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     refundReason: z
@@ -111,11 +141,26 @@ export const updateDepositSchema = z
 export const recordRentPaymentSchema = z
   .object({
     amount: z.coerce.number().positive('Payment amount must be greater than 0'),
-    paidDate: z.string().transform((str) => new Date(str)),
+    paidDate: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid paid date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str)),
     receiptNumber: z.string().min(1, 'Receipt number is required').max(100),
     paymentMethod: z.string().min(2, 'Payment method is required').max(50),
-    paymentPeriodStart: z.string().transform((str) => new Date(str)),
-    paymentPeriodEnd: z.string().transform((str) => new Date(str)),
+    paymentPeriodStart: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid payment period start date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str)),
+    paymentPeriodEnd: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid payment period end date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str)),
     notes: z.string().max(500).optional(),
   })
   .refine(
@@ -137,16 +182,25 @@ export const updateRentPaymentSchema = z
     amount: z.coerce.number().positive('Payment amount must be greater than 0').optional(),
     paidDate: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid paid date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     receiptNumber: z.string().min(1, 'Receipt number is required').max(100).optional(),
     paymentMethod: z.string().min(2, 'Payment method is required').max(50).optional(),
     paymentPeriodStart: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid payment period start date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     paymentPeriodEnd: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid payment period end date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     isPaid: z.boolean().optional(),
@@ -160,7 +214,12 @@ export const createInspectionSchema = z
   .object({
     propertyId: z.uuid('Invalid property ID format'),
     tenantId: z.uuid('Invalid tenant ID format').optional(),
-    inspectionDate: z.string().transform((str) => new Date(str)),
+    inspectionDate: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid inspection date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str)),
     inspectionType: z.enum(['MOVE_IN', 'ROUTINE', 'MOVE_OUT', 'EMERGENCY']),
     notes: z.string().min(10, 'Inspection notes must be at least 10 characters').max(2000),
     overallRating: z.number().int().min(1).max(5),
@@ -181,7 +240,12 @@ export const createMaintenanceSchema = z
     issue: z.string().min(5, 'Issue description must be at least 5 characters').max(100),
     description: z.string().min(10, 'Description must be at least 10 characters').max(1000),
     urgency: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']),
-    reportedDate: z.string().transform((str) => new Date(str)),
+    reportedDate: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid reported date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str)),
   })
   .strict();
 
@@ -197,16 +261,25 @@ export const updateMaintenanceSchema = z
     assignedTo: z.string().max(100).optional(),
     startedDate: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid started date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     completedDate: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid completed date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     cost: z.coerce.number().positive('Cost must be greater than 0').optional(),
     isFixed: z.boolean().optional(),
     warrantyExpiry: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid warranty expiry date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     contractorName: z.string().max(100).optional(),
@@ -226,6 +299,9 @@ export const uploadTenantDocumentSchema = z
     url: z.url('Invalid URL format'),
     expiryDate: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid expiry date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
   })
@@ -272,6 +348,9 @@ export const updateTenantDocumentSchema = z
     url: z.url('Invalid URL format').optional(),
     expiryDate: z
       .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid expiry date format. Use YYYY-MM-DD or ISO format.',
+      })
       .transform((str) => new Date(str))
       .optional(),
     isActive: z.boolean().optional(),
@@ -419,7 +498,7 @@ export const documentIdSchema = z
 // Type exports
 export type CreateTenantData = z.infer<typeof createTenantSchema>;
 export type UpdateTenantData = z.infer<typeof updateTenantSchema>;
-export type MoveOutTenantData = z.infer<typeof moveOutTenantSchema>;
+export type EndTenantLeaseData = z.infer<typeof endTenantLeaseSchema>;
 export type CreateFamilyMemberData = z.infer<typeof createFamilyMemberSchema>;
 export type UpdateFamilyMemberData = z.infer<typeof updateFamilyMemberSchema>;
 export type RecordDepositData = z.infer<typeof recordDepositSchema>;

@@ -1,7 +1,7 @@
 import db, { property, tenant } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getTenantsSchema, propertyIdSchema } from '@schemas';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -52,21 +52,23 @@ const getTenants: RequestHandler = async (request, response) => {
       .orderBy(tenant.createdAt);
 
     // Get total count for pagination
-    const [{ count }] = await db
-      .select({ count: tenant.id })
+    const countResult = await db
+      .select({ count: sql<number>`count(*)::int` })
       .from(tenant)
       .where(and(...conditions));
 
-    const totalCount = Number(count) || 0;
+    const totalCount = countResult[0]?.count ?? 0;
     const totalPages = Math.ceil(totalCount / limit);
 
     sendSuccessResponse(response, 200, 'Tenants retrieved successfully', {
       tenants,
       pagination: {
-        currentPage: page,
-        totalPages,
-        totalCount,
+        page,
         limit,
+        total: totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

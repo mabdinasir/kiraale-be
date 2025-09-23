@@ -79,7 +79,9 @@ const updateFamilyMember: RequestHandler = async (request, response) => {
       .where(eq(tenantFamilyMember.id, familyMemberId))
       .returning();
 
-    sendSuccessResponse(response, 200, 'Family member updated successfully', updatedFamilyMember);
+    sendSuccessResponse(response, 200, 'Family member updated successfully', {
+      familyMember: updatedFamilyMember,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

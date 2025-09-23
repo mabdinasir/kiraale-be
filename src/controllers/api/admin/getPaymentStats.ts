@@ -1,6 +1,6 @@
 import db, { payment } from '@db';
 import { sendErrorResponse, sendSuccessResponse } from '@lib';
-import { and, count, eq, gte, sum } from 'drizzle-orm';
+import { and, eq, gte, sql, sum } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
 export const getPaymentStats: RequestHandler = async (req, res) => {
@@ -13,7 +13,7 @@ export const getPaymentStats: RequestHandler = async (req, res) => {
     // Total stats
     const [totalStats] = await db
       .select({
-        totalPayments: count(payment.id),
+        totalPayments: sql<number>`count(*)::int`,
         totalAmount: sum(payment.amount),
       })
       .from(payment)
@@ -22,7 +22,7 @@ export const getPaymentStats: RequestHandler = async (req, res) => {
     // Period stats
     const [periodStats] = await db
       .select({
-        totalPayments: count(payment.id),
+        totalPayments: sql<number>`count(*)::int`,
         totalAmount: sum(payment.amount),
       })
       .from(payment)
@@ -32,7 +32,7 @@ export const getPaymentStats: RequestHandler = async (req, res) => {
     const statusBreakdown = await db
       .select({
         status: payment.paymentStatus,
-        count: count(payment.id),
+        count: sql<number>`count(*)::int`,
         totalAmount: sum(payment.amount),
       })
       .from(payment)
@@ -42,7 +42,7 @@ export const getPaymentStats: RequestHandler = async (req, res) => {
     const methodBreakdown = await db
       .select({
         method: payment.paymentMethod,
-        count: count(payment.id),
+        count: sql<number>`count(*)::int`,
         totalAmount: sum(payment.amount),
       })
       .from(payment)

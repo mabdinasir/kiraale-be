@@ -1,7 +1,7 @@
 import db, { agencyAgent, user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { updateAgentRoleSchema } from '@schemas';
-import { and, count, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -49,7 +49,7 @@ const updateAgentRole: RequestHandler = async (request, response) => {
     // If trying to downgrade from AGENCY_ADMIN to AGENT, check if there are other admins
     if (existingAgent.role === 'AGENCY_ADMIN' && newRole === 'AGENT') {
       const [{ adminCount }] = await db
-        .select({ adminCount: count(agencyAgent.id) })
+        .select({ adminCount: sql<number>`count(*)::int` })
         .from(agencyAgent)
         .where(
           and(

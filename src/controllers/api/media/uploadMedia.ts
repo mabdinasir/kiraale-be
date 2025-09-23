@@ -52,7 +52,7 @@ const uploadMedia: RequestHandler = async (request, response) => {
 
     // Check existing media count
     const [existingMediaCount] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql<number>`count(*)::int` })
       .from(media)
       .where(eq(media.propertyId, propertyId));
 

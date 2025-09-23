@@ -68,7 +68,7 @@ const uploadTenantDocument: RequestHandler = async (request, response) => {
 
     // Check existing document count
     const [existingDocumentCount] = await db
-      .select({ count: sql<number>`count(*)` })
+      .select({ count: sql<number>`count(*)::int` })
       .from(tenantDocument)
       .where(eq(tenantDocument.tenantId, tenantId));
 

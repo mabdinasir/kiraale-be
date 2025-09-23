@@ -56,7 +56,9 @@ const recordRentPayment: RequestHandler = async (request, response) => {
       })
       .returning();
 
-    sendSuccessResponse(response, 201, 'Rent payment recorded successfully', newPayment);
+    sendSuccessResponse(response, 201, 'Rent payment recorded successfully', {
+      payment: newPayment,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);

@@ -1,13 +1,13 @@
 import db, { property, user } from '@db';
 import { logError, sendErrorResponse, sendSuccessResponse } from '@lib';
-import { and, count, gte, isNull } from 'drizzle-orm';
+import { and, gte, isNull, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
 const getAdminStats: RequestHandler = async (request, response) => {
   try {
     // Get user counts (active users only)
     const [totalUsersResult] = await db
-      .select({ count: count() })
+      .select({ count: sql<number>`count(*)::int` })
       .from(user)
       .where(isNull(user.deletedAt));
     const totalUsers = totalUsersResult?.count ?? 0;
@@ -16,7 +16,7 @@ const getAdminStats: RequestHandler = async (request, response) => {
     const propertyStatusCounts = await db
       .select({
         status: property.status,
-        count: count(),
+        count: sql<number>`count(*)::int`,
       })
       .from(property)
       .where(isNull(property.deletedAt))
@@ -26,7 +26,7 @@ const getAdminStats: RequestHandler = async (request, response) => {
     const listingTypeCounts = await db
       .select({
         listingType: property.listingType,
-        count: count(),
+        count: sql<number>`count(*)::int`,
       })
       .from(property)
       .where(isNull(property.deletedAt))
@@ -37,7 +37,7 @@ const getAdminStats: RequestHandler = async (request, response) => {
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
     const [recentPropertiesResult] = await db
-      .select({ count: count() })
+      .select({ count: sql<number>`count(*)::int` })
       .from(property)
       .where(and(isNull(property.deletedAt), gte(property.createdAt, thirtyDaysAgo)));
 

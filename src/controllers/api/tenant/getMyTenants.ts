@@ -1,7 +1,14 @@
-import db, { property, tenant } from '@db';
+import db, {
+  property,
+  rentPayment,
+  securityDeposit,
+  tenant,
+  tenantDocument,
+  tenantFamilyMember,
+} from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { getMyTenantsSchema } from '@schemas';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -28,7 +35,7 @@ const getMyTenants: RequestHandler = async (request, response) => {
     const limit = queryParams.limit ?? 10;
     const offset = (page - 1) * limit;
 
-    // Get all tenants across user's properties
+    // Get all tenants across user's properties with counts
     const tenants = await db
       .select({
         tenant,
@@ -38,31 +45,42 @@ const getMyTenants: RequestHandler = async (request, response) => {
           address: property.address,
           propertyType: property.propertyType,
         },
+        familyMembersCount: sql<number>`count(distinct ${tenantFamilyMember.id})::int`,
+        paymentsCount: sql<number>`count(distinct ${rentPayment.id})::int`,
+        depositsCount: sql<number>`count(distinct ${securityDeposit.id})::int`,
+        documentsCount: sql<number>`count(distinct ${tenantDocument.id})::int`,
       })
       .from(tenant)
       .innerJoin(property, eq(tenant.propertyId, property.id))
+      .leftJoin(tenantFamilyMember, eq(tenant.id, tenantFamilyMember.tenantId))
+      .leftJoin(rentPayment, eq(tenant.id, rentPayment.tenantId))
+      .leftJoin(securityDeposit, eq(tenant.id, securityDeposit.tenantId))
+      .leftJoin(tenantDocument, eq(tenant.id, tenantDocument.tenantId))
       .where(and(...conditions))
+      .groupBy(tenant.id, property.id)
       .limit(limit)
       .offset(offset)
       .orderBy(tenant.createdAt);
 
     // Get total count for pagination
-    const [{ count }] = await db
-      .select({ count: tenant.id })
+    const countResult = await db
+      .select({ count: sql<number>`count(*)::int` })
       .from(tenant)
       .innerJoin(property, eq(tenant.propertyId, property.id))
       .where(and(...conditions));
 
-    const totalCount = Number(count) || 0;
+    const totalCount = countResult[0]?.count ?? 0;
     const totalPages = Math.ceil(totalCount / limit);
 
     sendSuccessResponse(response, 200, 'Your tenants retrieved successfully', {
       tenants,
       pagination: {
-        currentPage: page,
-        totalPages,
-        totalCount,
+        page,
         limit,
+        total: totalCount,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
       },
     });
   } catch (error) {

@@ -1,11 +1,11 @@
 import db, { property, tenant } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
-import { moveOutTenantSchema, tenantIdSchema } from '@schemas';
+import { endTenantLeaseSchema, tenantIdSchema } from '@schemas';
 import { eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
-const moveOutTenant: RequestHandler = async (request, response) => {
+const endTenantLease: RequestHandler = async (request, response) => {
   try {
     const requestingUserId = request.user?.id;
 
@@ -15,7 +15,7 @@ const moveOutTenant: RequestHandler = async (request, response) => {
     }
 
     const { id: tenantId } = tenantIdSchema.parse(request.params);
-    const validatedData = moveOutTenantSchema.parse(request.body);
+    const validatedData = endTenantLeaseSchema.parse(request.body);
 
     // Get tenant with property info to verify ownership
     const [tenantData] = await db
@@ -47,14 +47,17 @@ const moveOutTenant: RequestHandler = async (request, response) => {
       .update(tenant)
       .set({
         isActive: false,
-        moveOutDate: validatedData.moveOutDate,
-        moveOutReason: validatedData.moveOutReason,
+        leaseEndDate: validatedData.leaseEndDate,
+        leaseEndReason: validatedData.leaseEndReason,
+        leaseEndNotes: validatedData.leaseEndNotes,
         updatedAt: new Date(),
       })
       .where(eq(tenant.id, tenantId))
       .returning();
 
-    sendSuccessResponse(response, 200, 'Tenant moved out successfully', updatedTenant);
+    sendSuccessResponse(response, 200, 'Tenant moved out successfully', {
+      tenant: updatedTenant,
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
       handleValidationError(error, response);
@@ -66,4 +69,4 @@ const moveOutTenant: RequestHandler = async (request, response) => {
   }
 };
 
-export default moveOutTenant;
+export default endTenantLease;

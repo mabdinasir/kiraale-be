@@ -10,7 +10,7 @@ import {
   sendSuccessResponse,
 } from '@lib';
 import { queryPropertiesSchema } from '@schemas';
-import { and, eq, gte, lte } from 'drizzle-orm';
+import { and, eq, gte, lte, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -70,12 +70,12 @@ const getProperties: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: property.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(property)
       .innerJoin(user, eq(property.userId, user.id))
       .where(and(...filters));
 
-    const totalProperties = Number(countResult?.count || 0);
+    const totalProperties = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalProperties / limit);
 
     // Get media for all properties

@@ -1,7 +1,7 @@
 import db, { property, tenant } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { searchTenantsSchema } from '@schemas';
-import { and, eq, ilike, or } from 'drizzle-orm';
+import { and, eq, ilike, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
 const searchTenants: RequestHandler = async (request, response) => {
@@ -66,12 +66,12 @@ const searchTenants: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: tenant.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(tenant)
       .innerJoin(property, eq(tenant.propertyId, property.id))
       .where(and(...conditions));
 
-    const totalTenants = Number(countResult?.count || 0);
+    const totalTenants = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalTenants / limit);
 
     sendSuccessResponse(response, 200, 'Tenants retrieved successfully', {

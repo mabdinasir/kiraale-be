@@ -1,7 +1,7 @@
 import db, { user } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { searchUsersSchema } from '@schemas';
-import { and, eq, ilike, or } from 'drizzle-orm';
+import { and, eq, ilike, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
 const agencySearchUser: RequestHandler = async (request, response) => {
@@ -52,11 +52,11 @@ const agencySearchUser: RequestHandler = async (request, response) => {
 
     // Get total count for pagination
     const [countResult] = await db
-      .select({ count: user.id })
+      .select({ count: sql<number>`count(*)::int` })
       .from(user)
       .where(and(...conditions));
 
-    const totalUsers = Number(countResult?.count || 0);
+    const totalUsers = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalUsers / limit);
 
     sendSuccessResponse(response, 200, 'Users retrieved successfully', {
