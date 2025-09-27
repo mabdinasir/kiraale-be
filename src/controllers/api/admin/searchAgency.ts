@@ -14,7 +14,6 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
     // Build search conditions only if search term is provided
     const searchConditions = search?.trim()
       ? or(
-          ilike(agency.id, `%${search.toLowerCase()}%`), // Can search by agency ID
           ilike(agency.name, `%${search.toLowerCase()}%`),
           ilike(agency.description, `%${search.toLowerCase()}%`),
           ilike(agency.address, `%${search.toLowerCase()}%`),
@@ -22,7 +21,7 @@ const adminSearchAgency: RequestHandler = async (request, response) => {
           ilike(agency.email, `%${search.toLowerCase()}%`),
           ilike(agency.website, `%${search.toLowerCase()}%`),
           ilike(agency.licenseNumber, `%${search.toLowerCase()}%`),
-          ilike(agency.country, `%${search.toLowerCase()}%`),
+          ilike(sql`${agency.country}::text`, `%${search.toLowerCase()}%`),
         )
       : undefined;
 

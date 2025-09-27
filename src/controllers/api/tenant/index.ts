@@ -1,5 +1,6 @@
 // Tenant management
 export { default as createTenant } from './createTenant';
+export { default as deleteTenant } from './deleteTenant';
 export { default as endTenantLease } from './endTenantLease';
 export { default as getTenant } from './getTenant';
 export { default as getTenants } from './getTenants';
@@ -36,5 +37,6 @@ export { default as getMyTenants } from './getMyTenants';
 export { default as getMyTenantsPayments } from './getMyTenantsPayments';
 
 // Search controllers for UI
+export { default as searchInactiveTenants } from './searchInactiveTenants';
 export { default as searchMyProperties } from './searchMyProperties';
 export { default as searchTenants } from './searchTenants';

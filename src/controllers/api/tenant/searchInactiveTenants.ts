@@ -11,7 +11,7 @@ import { searchTenantsSchema } from '@schemas';
 import { and, eq, ilike, or, sql } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 
-const searchTenants: RequestHandler = async (request, response) => {
+const searchInactiveTenants: RequestHandler = async (request, response) => {
   try {
     const requestingUserId = request.user?.id;
 
@@ -28,8 +28,8 @@ const searchTenants: RequestHandler = async (request, response) => {
 
     const { page = 1, limit = 20, search } = queryValidation.data;
 
-    // Build query conditions - only show active tenants for user's properties
-    const conditions = [eq(property.userId, requestingUserId), eq(tenant.isActive, true)];
+    // Build query conditions - only show inactive tenants for user's properties
+    const conditions = [eq(property.userId, requestingUserId), eq(tenant.isActive, false)];
 
     if (search) {
       const searchCondition = or(
@@ -80,7 +80,7 @@ const searchTenants: RequestHandler = async (request, response) => {
     const totalTenants = countResult?.count ?? 0;
     const totalPages = Math.ceil(totalTenants / limit);
 
-    sendSuccessResponse(response, 200, 'Tenants retrieved successfully', {
+    sendSuccessResponse(response, 200, 'Inactive tenants retrieved successfully', {
       tenants,
       pagination: {
         page,
@@ -92,13 +92,13 @@ const searchTenants: RequestHandler = async (request, response) => {
       },
       filters: {
         search,
-        isActive: true,
+        isActive: false,
       },
     });
   } catch (error) {
-    logError(error, 'SEARCH_TENANTS');
-    sendErrorResponse(response, 500, 'Failed to search tenants.');
+    logError(error, 'SEARCH_INACTIVE_TENANTS');
+    sendErrorResponse(response, 500, 'Failed to search inactive tenants.');
   }
 };
 
-export default searchTenants;
+export default searchInactiveTenants;

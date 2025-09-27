@@ -3,6 +3,7 @@ import {
   createInspection,
   createMaintenance,
   createTenant,
+  deleteTenant,
   deleteTenantDocument,
   endTenantLease,
   getDeposits,
@@ -18,6 +19,7 @@ import {
   recordRentPayment,
   refundDeposit,
   removeFamilyMember,
+  searchInactiveTenants,
   searchMyProperties,
   searchTenants,
   updateFamilyMember,
@@ -37,6 +39,12 @@ const tenantRoutes: RouteGroup = {
       method: 'get',
       middlewares: [authMiddleware],
       handler: searchTenants,
+    },
+    {
+      path: '/search/inactive',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: searchInactiveTenants,
     },
     {
       path: '/properties/search',
@@ -83,6 +91,12 @@ const tenantRoutes: RouteGroup = {
       method: 'put',
       middlewares: [authMiddleware],
       handler: updateTenant,
+    },
+    {
+      path: '/:id',
+      method: 'delete',
+      middlewares: [authMiddleware],
+      handler: deleteTenant,
     },
     {
       path: '/:id/end-tenant-lease',
