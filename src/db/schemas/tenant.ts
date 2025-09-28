@@ -123,11 +123,13 @@ export const securityDeposit = pgTable(
     refundReason: text('refundReason'),
     refundedBy: uuid('refundedBy').references(() => user.id, { onDelete: 'set null' }),
     isRefunded: boolean('isRefunded').default(false).notNull(),
+    isDeleted: boolean('isDeleted').default(false).notNull(),
     createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
   },
   (table) => [
     index('securityDeposit_tenantId_idx').on(table.tenantId),
     index('securityDeposit_isRefunded_idx').on(table.isRefunded),
+    index('securityDeposit_isDeleted_idx').on(table.isDeleted),
   ],
 );
 
@@ -148,6 +150,7 @@ export const rentPayment = pgTable(
     paymentPeriodStart: timestamp('paymentPeriodStart', { withTimezone: true }).notNull(),
     paymentPeriodEnd: timestamp('paymentPeriodEnd', { withTimezone: true }).notNull(),
     isPaid: boolean('isPaid').default(true).notNull(),
+    isDeleted: boolean('isDeleted').default(false).notNull(),
     notes: text('notes'),
     createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull(),
@@ -157,6 +160,7 @@ export const rentPayment = pgTable(
     index('rentPayment_paidDate_idx').on(table.paidDate),
     index('rentPayment_receivedBy_idx').on(table.receivedBy),
     index('rentPayment_isPaid_idx').on(table.isPaid),
+    index('rentPayment_isDeleted_idx').on(table.isDeleted),
   ],
 );
 

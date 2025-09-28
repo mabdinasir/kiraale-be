@@ -8,7 +8,7 @@ import db, {
 } from '@db';
 import { logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { tenantIdSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -47,27 +47,33 @@ const getTenant: RequestHandler = async (request, response) => {
     const familyMembers = await db
       .select()
       .from(tenantFamilyMember)
-      .where(eq(tenantFamilyMember.tenantId, tenantId));
+      .where(eq(tenantFamilyMember.tenantId, tenantId))
+      .limit(2)
+      .orderBy(desc(tenantFamilyMember.createdAt));
 
     // Get payment history for this tenant
-    const payments = await db
+    const rentPayments = await db
       .select()
       .from(rentPayment)
       .where(eq(rentPayment.tenantId, tenantId))
-      .orderBy(rentPayment.paidDate);
+      .limit(2)
+      .orderBy(desc(rentPayment.createdAt));
 
     // Get security deposits for this tenant
     const deposits = await db
       .select()
       .from(securityDeposit)
-      .where(eq(securityDeposit.tenantId, tenantId));
+      .where(eq(securityDeposit.tenantId, tenantId))
+      .limit(2)
+      .orderBy(desc(securityDeposit.createdAt));
 
     // Get documents for this tenant
     const documents = await db
       .select()
       .from(tenantDocument)
       .where(eq(tenantDocument.tenantId, tenantId))
-      .orderBy(tenantDocument.createdAt);
+      .limit(2)
+      .orderBy(desc(tenantDocument.createdAt));
 
     sendSuccessResponse(response, 200, 'Tenant retrieved successfully', {
       tenant: tenantData.tenant,
@@ -78,7 +84,7 @@ const getTenant: RequestHandler = async (request, response) => {
         propertyType: tenantData.property.propertyType,
       },
       familyMembers,
-      payments,
+      rentPayments,
       deposits,
       documents,
     });

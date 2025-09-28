@@ -452,6 +452,22 @@ export const searchMyPropertiesSchema = z
   })
   .strict();
 
+export const searchRentPaymentsSchema = z
+  .object({
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(50).default(20),
+    search: z.string().min(1).max(100).optional(),
+  })
+  .strict();
+
+export const searchDepositsSchema = z
+  .object({
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(50).default(20),
+    search: z.string().min(1).max(100).optional(),
+  })
+  .strict();
+
 // Common ID schemas
 export const tenantIdSchema = z
   .object({
@@ -489,6 +505,12 @@ export const depositIdSchema = z
   })
   .strict();
 
+export const rentPaymentIdSchema = z
+  .object({
+    id: z.uuid('Invalid rent payment ID format'),
+  })
+  .strict();
+
 export const documentIdSchema = z
   .object({
     id: z.uuid('Invalid document ID format'),
@@ -521,3 +543,5 @@ export type GetFamilyMembersQuery = z.infer<typeof getFamilyMembersSchema>;
 export type GetTenantDocumentsQuery = z.infer<typeof getTenantDocumentsSchema>;
 export type SearchTenantsQuery = z.infer<typeof searchTenantsSchema>;
 export type SearchMyPropertiesQuery = z.infer<typeof searchMyPropertiesSchema>;
+export type SearchRentPaymentsQuery = z.infer<typeof searchRentPaymentsSchema>;
+export type SearchDepositsQuery = z.infer<typeof searchDepositsSchema>;

@@ -13,30 +13,29 @@ export { default as removeFamilyMember } from './removeFamilyMember';
 export { default as updateFamilyMember } from './updateFamilyMember';
 
 // Deposit management
-export { default as getDeposits } from './getDeposits';
+export { default as deleteDeposit } from './deleteDeposit';
 export { default as recordDeposit } from './recordDeposit';
 export { default as refundDeposit } from './refundDeposit';
 
 // Payment management
-export { default as getPaymentHistory } from './getPaymentHistory';
+export { default as deleteRentPayment } from './deleteRentPayment';
 export { default as recordRentPayment } from './recordRentPayment';
 
 // Document management
 export { default as deleteTenantDocument } from './deleteTenantDocument';
-export { default as getTenantDocuments } from './getTenantDocuments';
 export { default as uploadTenantDocument } from './uploadTenantDocument';
 
 // Inspection and maintenance
 export { default as createInspection } from './createInspection';
 export { default as createMaintenance } from './createMaintenance';
-export { default as getMaintenanceHistory } from './getMaintenanceHistory';
 export { default as updateMaintenance } from './updateMaintenance';
 
 // Overview controllers
 export { default as getMyTenants } from './getMyTenants';
-export { default as getMyTenantsPayments } from './getMyTenantsPayments';
 
 // Search controllers for UI
+export { default as searchDeposits } from './searchDeposits';
 export { default as searchInactiveTenants } from './searchInactiveTenants';
 export { default as searchMyProperties } from './searchMyProperties';
+export { default as searchRentPayments } from './searchRentPayments';
 export { default as searchTenants } from './searchTenants';

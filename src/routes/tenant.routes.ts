@@ -3,24 +3,23 @@ import {
   createInspection,
   createMaintenance,
   createTenant,
+  deleteDeposit,
+  deleteRentPayment,
   deleteTenant,
   deleteTenantDocument,
   endTenantLease,
-  getDeposits,
   getFamilyMembers,
-  getMaintenanceHistory,
   getMyTenants,
-  getMyTenantsPayments,
-  getPaymentHistory,
   getTenant,
-  getTenantDocuments,
   getTenants,
   recordDeposit,
   recordRentPayment,
   refundDeposit,
   removeFamilyMember,
+  searchDeposits,
   searchInactiveTenants,
   searchMyProperties,
+  searchRentPayments,
   searchTenants,
   updateFamilyMember,
   updateMaintenance,
@@ -52,6 +51,18 @@ const tenantRoutes: RouteGroup = {
       middlewares: [authMiddleware],
       handler: searchMyProperties,
     },
+    {
+      path: '/search/rent-payments',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: searchRentPayments,
+    },
+    {
+      path: '/search/deposits',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: searchDeposits,
+    },
 
     // Overview endpoints - all user's tenants
     {
@@ -59,12 +70,6 @@ const tenantRoutes: RouteGroup = {
       method: 'get',
       middlewares: [authMiddleware],
       handler: getMyTenants,
-    },
-    {
-      path: '/my-tenants/payments',
-      method: 'get',
-      middlewares: [authMiddleware],
-      handler: getMyTenantsPayments,
     },
 
     // Tenant management
@@ -139,30 +144,30 @@ const tenantRoutes: RouteGroup = {
       handler: recordDeposit,
     },
     {
-      path: '/:id/deposits',
-      method: 'get',
-      middlewares: [authMiddleware],
-      handler: getDeposits,
-    },
-    {
       path: '/deposits/:id/refund',
       method: 'put',
       middlewares: [authMiddleware],
       handler: refundDeposit,
     },
+    {
+      path: '/deposits/:id',
+      method: 'delete',
+      middlewares: [authMiddleware],
+      handler: deleteDeposit,
+    },
 
     // Payment management
     {
-      path: '/:id/payments',
+      path: '/:id/rent-payments',
       method: 'post',
       middlewares: [authMiddleware],
       handler: recordRentPayment,
     },
     {
-      path: '/:id/payments',
-      method: 'get',
+      path: '/rent-payments/:id',
+      method: 'delete',
       middlewares: [authMiddleware],
-      handler: getPaymentHistory,
+      handler: deleteRentPayment,
     },
 
     // Document management
@@ -171,12 +176,6 @@ const tenantRoutes: RouteGroup = {
       method: 'post',
       middlewares: [authMiddleware],
       handler: uploadTenantDocument,
-    },
-    {
-      path: '/:id/documents',
-      method: 'get',
-      middlewares: [authMiddleware],
-      handler: getTenantDocuments,
     },
     {
       path: '/documents/:id',
@@ -205,12 +204,6 @@ const tenantRoutes: RouteGroup = {
       method: 'put',
       middlewares: [authMiddleware],
       handler: updateMaintenance,
-    },
-    {
-      path: '/properties/:id/maintenance-history',
-      method: 'get',
-      middlewares: [authMiddleware],
-      handler: getMaintenanceHistory,
     },
   ],
 };
