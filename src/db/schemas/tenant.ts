@@ -177,6 +177,7 @@ export const propertyInspection = pgTable(
     notes: text('notes').notNull(),
     overallRating: integer('overallRating').notNull(),
     inspectedBy: text('inspectedBy').notNull(),
+    isDeleted: boolean('isDeleted').default(false).notNull(),
     createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -185,6 +186,7 @@ export const propertyInspection = pgTable(
     index('propertyInspection_tenantId_idx').on(table.tenantId),
     index('propertyInspection_inspectionDate_idx').on(table.inspectionDate),
     index('propertyInspection_inspectionType_idx').on(table.inspectionType),
+    index('propertyInspection_isDeleted_idx').on(table.isDeleted),
   ],
 );
 
@@ -209,6 +211,7 @@ export const maintenanceRecord = pgTable(
     contractorName: text('contractorName'),
     contractorPhone: text('contractorPhone'),
     notes: text('notes'),
+    isDeleted: boolean('isDeleted').default(false).notNull(),
     createdAt: timestamp('createdAt', { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { withTimezone: true }).defaultNow().notNull(),
   },
@@ -218,6 +221,7 @@ export const maintenanceRecord = pgTable(
     index('maintenanceRecord_urgency_idx').on(table.urgency),
     index('maintenanceRecord_isFixed_idx').on(table.isFixed),
     index('maintenanceRecord_reportedDate_idx').on(table.reportedDate),
+    index('maintenanceRecord_isDeleted_idx').on(table.isDeleted),
   ],
 );
 

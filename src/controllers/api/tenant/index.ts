@@ -28,6 +28,10 @@ export { default as uploadTenantDocument } from './uploadTenantDocument';
 // Inspection and maintenance
 export { default as createInspection } from './createInspection';
 export { default as createMaintenance } from './createMaintenance';
+export { default as deleteInspection } from './deleteInspection';
+export { default as deleteMaintenance } from './deleteMaintenance';
+export { default as getInspection } from './getInspection';
+export { default as getMaintenance } from './getMaintenance';
 export { default as updateMaintenance } from './updateMaintenance';
 
 // Overview controllers
@@ -36,6 +40,8 @@ export { default as getMyTenants } from './getMyTenants';
 // Search controllers for UI
 export { default as searchDeposits } from './searchDeposits';
 export { default as searchInactiveTenants } from './searchInactiveTenants';
+export { default as searchInspections } from './searchInspections';
+export { default as searchMaintenance } from './searchMaintenance';
 export { default as searchMyProperties } from './searchMyProperties';
 export { default as searchRentPayments } from './searchRentPayments';
 export { default as searchTenants } from './searchTenants';

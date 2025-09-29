@@ -4,11 +4,15 @@ import {
   createMaintenance,
   createTenant,
   deleteDeposit,
+  deleteInspection,
+  deleteMaintenance,
   deleteRentPayment,
   deleteTenant,
   deleteTenantDocument,
   endTenantLease,
   getFamilyMembers,
+  getInspection,
+  getMaintenance,
   getMyTenants,
   getTenant,
   getTenants,
@@ -18,6 +22,8 @@ import {
   removeFamilyMember,
   searchDeposits,
   searchInactiveTenants,
+  searchInspections,
+  searchMaintenance,
   searchMyProperties,
   searchRentPayments,
   searchTenants,
@@ -62,6 +68,18 @@ const tenantRoutes: RouteGroup = {
       method: 'get',
       middlewares: [authMiddleware],
       handler: searchDeposits,
+    },
+    {
+      path: '/search/inspections',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: searchInspections,
+    },
+    {
+      path: '/search/maintenance',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: searchMaintenance,
     },
 
     // Overview endpoints - all user's tenants
@@ -191,6 +209,18 @@ const tenantRoutes: RouteGroup = {
       middlewares: [authMiddleware],
       handler: createInspection,
     },
+    {
+      path: '/inspections/:id',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: getInspection,
+    },
+    {
+      path: '/inspections/:id',
+      method: 'delete',
+      middlewares: [authMiddleware],
+      handler: deleteInspection,
+    },
 
     // Maintenance management
     {
@@ -201,9 +231,21 @@ const tenantRoutes: RouteGroup = {
     },
     {
       path: '/maintenance/:id',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: getMaintenance,
+    },
+    {
+      path: '/maintenance/:id',
       method: 'put',
       middlewares: [authMiddleware],
       handler: updateMaintenance,
+    },
+    {
+      path: '/maintenance/:id',
+      method: 'delete',
+      middlewares: [authMiddleware],
+      handler: deleteMaintenance,
     },
   ],
 };

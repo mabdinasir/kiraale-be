@@ -468,6 +468,22 @@ export const searchDepositsSchema = z
   })
   .strict();
 
+export const searchInspectionsSchema = z
+  .object({
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(50).default(20),
+    search: z.string().min(1).max(100).optional(),
+  })
+  .strict();
+
+export const searchMaintenanceSchema = z
+  .object({
+    page: z.coerce.number().min(1).default(1),
+    limit: z.coerce.number().min(1).max(50).default(20),
+    search: z.string().min(1).max(100).optional(),
+  })
+  .strict();
+
 // Common ID schemas
 export const tenantIdSchema = z
   .object({
@@ -545,3 +561,5 @@ export type SearchTenantsQuery = z.infer<typeof searchTenantsSchema>;
 export type SearchMyPropertiesQuery = z.infer<typeof searchMyPropertiesSchema>;
 export type SearchRentPaymentsQuery = z.infer<typeof searchRentPaymentsSchema>;
 export type SearchDepositsQuery = z.infer<typeof searchDepositsSchema>;
+export type SearchInspectionsQuery = z.infer<typeof searchInspectionsSchema>;
+export type SearchMaintenanceQuery = z.infer<typeof searchMaintenanceSchema>;
