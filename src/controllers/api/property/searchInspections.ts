@@ -31,16 +31,14 @@ const searchInspections: RequestHandler = async (request, response) => {
       const searchCondition = or(
         ilike(propertyInspection.notes, `%${search}%`),
         ilike(propertyInspection.inspectedBy, `%${search}%`),
-        ilike(propertyInspection.inspectionDate, `%${search}%`),
-        ilike(propertyInspection.inspectionType, `%${search}%`),
+        sql`${propertyInspection.inspectionType}::text ILIKE ${`%${search}%`}`,
 
         ilike(property.title, `%${search}%`),
         ilike(property.address, `%${search}%`),
-        ilike(property.propertyType, `%${search}%`),
-        ilike(property.country, `%${search}%`),
+        sql`${property.propertyType}::text ILIKE ${`%${search}%`}`,
+        sql`${property.country}::text ILIKE ${`%${search}%`}`,
         ilike(property.description, `%${search}%`),
-        ilike(property.status, `%${search}%`),
-        ilike(property.price, `%${search}%`),
+        sql`${property.status}::text ILIKE ${`%${search}%`}`,
 
         ilike(tenant.firstName, `%${search}%`),
         ilike(tenant.lastName, `%${search}%`),
@@ -48,7 +46,6 @@ const searchInspections: RequestHandler = async (request, response) => {
         ilike(tenant.mobile, `%${search}%`),
         ilike(tenant.passportNumber, `%${search}%`),
         ilike(tenant.nationalId, `%${search}%`),
-        ilike(tenant.rentAmount, `%${search}%`),
         ilike(tenant.emergencyContactName, `%${search}%`),
         ilike(tenant.emergencyContactPhone, `%${search}%`),
       );
@@ -110,7 +107,7 @@ const searchInspections: RequestHandler = async (request, response) => {
     });
   } catch (error) {
     logError(error, 'SEARCH_INSPECTIONS');
-    sendErrorResponse(response, 500, 'Failed to search inspections.');
+    sendErrorResponse(response, 500, `Failed to search inspections: ${error}`);
   }
 };
 

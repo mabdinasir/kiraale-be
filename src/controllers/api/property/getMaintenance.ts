@@ -51,12 +51,14 @@ const getMaintenance: RequestHandler = async (request, response) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
+          mobile: user.mobile,
         },
         tenant: {
           id: tenant.id,
           firstName: tenant.firstName,
           lastName: tenant.lastName,
           email: tenant.email,
+          mobile: tenant.mobile,
         },
       })
       .from(maintenanceRecord)

@@ -1,10 +1,19 @@
 import {
+  createInspection,
+  createMaintenance,
   createProperty,
+  deleteInspection,
+  deleteMaintenance,
   deleteProperty,
+  getInspection,
+  getMaintenance,
   getProperties,
   getProperty,
   recordPropertyView,
+  searchInspections,
+  searchMaintenance,
   searchProperty,
+  updateMaintenance,
   updateProperty,
 } from '@controllers';
 import { authMiddleware, optionalAuthMiddleware } from '@middleware';
@@ -19,6 +28,20 @@ const propertyRoutes: RouteGroup = {
       method: 'get',
       middlewares: [], // Basic property listing - public
       handler: getProperties,
+    },
+
+    // Search endpoints for inspections and maintenance (must be before /search to avoid conflict)
+    {
+      path: '/search/inspections',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: searchInspections,
+    },
+    {
+      path: '/search/maintenance',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: searchMaintenance,
     },
     {
       path: '/search',
@@ -59,6 +82,52 @@ const propertyRoutes: RouteGroup = {
       method: 'delete',
       middlewares: [authMiddleware], // Property ownership is checked in controller
       handler: deleteProperty,
+    },
+
+    // Inspection management
+    {
+      path: '/:id/inspections',
+      method: 'post',
+      middlewares: [authMiddleware],
+      handler: createInspection,
+    },
+    {
+      path: '/inspections/:id',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: getInspection,
+    },
+    {
+      path: '/inspections/:id',
+      method: 'delete',
+      middlewares: [authMiddleware],
+      handler: deleteInspection,
+    },
+
+    // Maintenance management
+    {
+      path: '/:id/maintenance',
+      method: 'post',
+      middlewares: [authMiddleware],
+      handler: createMaintenance,
+    },
+    {
+      path: '/maintenance/:id',
+      method: 'get',
+      middlewares: [authMiddleware],
+      handler: getMaintenance,
+    },
+    {
+      path: '/maintenance/:id',
+      method: 'put',
+      middlewares: [authMiddleware],
+      handler: updateMaintenance,
+    },
+    {
+      path: '/maintenance/:id',
+      method: 'delete',
+      middlewares: [authMiddleware],
+      handler: deleteMaintenance,
     },
   ],
 };

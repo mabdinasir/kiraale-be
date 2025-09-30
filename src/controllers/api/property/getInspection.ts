@@ -43,12 +43,14 @@ const getInspection: RequestHandler = async (request, response) => {
           firstName: user.firstName,
           lastName: user.lastName,
           email: user.email,
+          mobile: user.mobile,
         },
         tenant: {
           id: tenant.id,
           firstName: tenant.firstName,
           lastName: tenant.lastName,
           email: tenant.email,
+          mobile: tenant.mobile,
         },
       })
       .from(propertyInspection)
@@ -88,7 +90,7 @@ const getInspection: RequestHandler = async (request, response) => {
         ...inspectionData.inspection,
         daysSinceInspection,
         isRecentInspection,
-        ratingText: `${inspectionData.inspection.overallRating}/10`,
+        ratingText: `${inspectionData.inspection.overallRating}/5`,
       },
       property: inspectionData.property,
       propertyOwner: inspectionData.propertyOwner,
@@ -99,8 +101,8 @@ const getInspection: RequestHandler = async (request, response) => {
       },
       rating: {
         score: inspectionData.inspection.overallRating,
-        maxScore: 10,
-        percentage: (inspectionData.inspection.overallRating / 10) * 100,
+        maxScore: 5,
+        percentage: (inspectionData.inspection.overallRating / 5) * 100,
       },
     });
   } catch (error) {

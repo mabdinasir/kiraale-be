@@ -34,17 +34,14 @@ const searchMaintenance: RequestHandler = async (request, response) => {
         ilike(maintenanceRecord.notes, `%${search}%`),
         ilike(maintenanceRecord.contractorName, `%${search}%`),
         ilike(maintenanceRecord.contractorPhone, `%${search}%`),
-        ilike(maintenanceRecord.cost, `%${search}%`),
-        ilike(maintenanceRecord.reportedDate, `%${search}%`),
         ilike(maintenanceRecord.assignedTo, `%${search}%`),
 
         ilike(property.title, `%${search}%`),
         ilike(property.address, `%${search}%`),
-        ilike(property.propertyType, `%${search}%`),
-        ilike(property.country, `%${search}%`),
+        sql`${property.propertyType}::text ILIKE ${`%${search}%`}`,
+        sql`${property.country}::text ILIKE ${`%${search}%`}`,
         ilike(property.description, `%${search}%`),
-        ilike(property.status, `%${search}%`),
-        ilike(property.price, `%${search}%`),
+        sql`${property.status}::text ILIKE ${`%${search}%`}`,
 
         ilike(tenant.firstName, `%${search}%`),
         ilike(tenant.lastName, `%${search}%`),
@@ -52,7 +49,6 @@ const searchMaintenance: RequestHandler = async (request, response) => {
         ilike(tenant.mobile, `%${search}%`),
         ilike(tenant.passportNumber, `%${search}%`),
         ilike(tenant.nationalId, `%${search}%`),
-        ilike(tenant.rentAmount, `%${search}%`),
         ilike(tenant.emergencyContactName, `%${search}%`),
         ilike(tenant.emergencyContactPhone, `%${search}%`),
       );

@@ -1,18 +1,12 @@
 import {
   addFamilyMember,
-  createInspection,
-  createMaintenance,
   createTenant,
   deleteDeposit,
-  deleteInspection,
-  deleteMaintenance,
   deleteRentPayment,
   deleteTenant,
   deleteTenantDocument,
   endTenantLease,
   getFamilyMembers,
-  getInspection,
-  getMaintenance,
   getMyTenants,
   getTenant,
   getTenants,
@@ -22,13 +16,10 @@ import {
   removeFamilyMember,
   searchDeposits,
   searchInactiveTenants,
-  searchInspections,
-  searchMaintenance,
   searchMyProperties,
   searchRentPayments,
   searchTenants,
   updateFamilyMember,
-  updateMaintenance,
   updateTenant,
   uploadTenantDocument,
 } from '@controllers';
@@ -68,18 +59,6 @@ const tenantRoutes: RouteGroup = {
       method: 'get',
       middlewares: [authMiddleware],
       handler: searchDeposits,
-    },
-    {
-      path: '/search/inspections',
-      method: 'get',
-      middlewares: [authMiddleware],
-      handler: searchInspections,
-    },
-    {
-      path: '/search/maintenance',
-      method: 'get',
-      middlewares: [authMiddleware],
-      handler: searchMaintenance,
     },
 
     // Overview endpoints - all user's tenants
@@ -200,52 +179,6 @@ const tenantRoutes: RouteGroup = {
       method: 'delete',
       middlewares: [authMiddleware],
       handler: deleteTenantDocument,
-    },
-
-    // Inspection management
-    {
-      path: '/properties/:id/inspections',
-      method: 'post',
-      middlewares: [authMiddleware],
-      handler: createInspection,
-    },
-    {
-      path: '/inspections/:id',
-      method: 'get',
-      middlewares: [authMiddleware],
-      handler: getInspection,
-    },
-    {
-      path: '/inspections/:id',
-      method: 'delete',
-      middlewares: [authMiddleware],
-      handler: deleteInspection,
-    },
-
-    // Maintenance management
-    {
-      path: '/properties/:id/maintenance',
-      method: 'post',
-      middlewares: [authMiddleware],
-      handler: createMaintenance,
-    },
-    {
-      path: '/maintenance/:id',
-      method: 'get',
-      middlewares: [authMiddleware],
-      handler: getMaintenance,
-    },
-    {
-      path: '/maintenance/:id',
-      method: 'put',
-      middlewares: [authMiddleware],
-      handler: updateMaintenance,
-    },
-    {
-      path: '/maintenance/:id',
-      method: 'delete',
-      middlewares: [authMiddleware],
-      handler: deleteMaintenance,
     },
   ],
 };

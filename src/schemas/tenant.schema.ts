@@ -209,86 +209,6 @@ export const updateRentPaymentSchema = z
   .partial()
   .strict();
 
-// Inspection schemas
-export const createInspectionSchema = z
-  .object({
-    propertyId: z.uuid('Invalid property ID format'),
-    tenantId: z.uuid('Invalid tenant ID format').optional(),
-    inspectionDate: z
-      .string()
-      .refine((str) => !isNaN(Date.parse(str)), {
-        message: 'Invalid inspection date format. Use YYYY-MM-DD or ISO format.',
-      })
-      .transform((str) => new Date(str)),
-    inspectionType: z.enum(['MOVE_IN', 'ROUTINE', 'MOVE_OUT', 'EMERGENCY']),
-    notes: z.string().min(10, 'Inspection notes must be at least 10 characters').max(2000),
-    overallRating: z.number().int().min(1).max(5),
-    inspectedBy: z.string().min(2, 'Inspector name must be at least 2 characters').max(100),
-  })
-  .strict();
-
-export const updateInspectionSchema = createInspectionSchema
-  .omit({ propertyId: true })
-  .partial()
-  .strict();
-
-// Maintenance schemas
-export const createMaintenanceSchema = z
-  .object({
-    propertyId: z.uuid('Invalid property ID format'),
-    tenantId: z.uuid('Invalid tenant ID format').optional(),
-    issue: z.string().min(5, 'Issue description must be at least 5 characters').max(100),
-    description: z.string().min(10, 'Description must be at least 10 characters').max(1000),
-    urgency: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']),
-    reportedDate: z
-      .string()
-      .refine((str) => !isNaN(Date.parse(str)), {
-        message: 'Invalid reported date format. Use YYYY-MM-DD or ISO format.',
-      })
-      .transform((str) => new Date(str)),
-  })
-  .strict();
-
-export const updateMaintenanceSchema = z
-  .object({
-    issue: z.string().min(5, 'Issue description must be at least 5 characters').max(100).optional(),
-    description: z
-      .string()
-      .min(10, 'Description must be at least 10 characters')
-      .max(1000)
-      .optional(),
-    urgency: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']).optional(),
-    assignedTo: z.string().max(100).optional(),
-    startedDate: z
-      .string()
-      .refine((str) => !isNaN(Date.parse(str)), {
-        message: 'Invalid started date format. Use YYYY-MM-DD or ISO format.',
-      })
-      .transform((str) => new Date(str))
-      .optional(),
-    completedDate: z
-      .string()
-      .refine((str) => !isNaN(Date.parse(str)), {
-        message: 'Invalid completed date format. Use YYYY-MM-DD or ISO format.',
-      })
-      .transform((str) => new Date(str))
-      .optional(),
-    cost: z.coerce.number().positive('Cost must be greater than 0').optional(),
-    isFixed: z.boolean().optional(),
-    warrantyExpiry: z
-      .string()
-      .refine((str) => !isNaN(Date.parse(str)), {
-        message: 'Invalid warranty expiry date format. Use YYYY-MM-DD or ISO format.',
-      })
-      .transform((str) => new Date(str))
-      .optional(),
-    contractorName: z.string().max(100).optional(),
-    contractorPhone: z.string().max(20).optional(),
-    notes: z.string().max(1000).optional(),
-  })
-  .partial()
-  .strict();
-
 // Document schemas
 export const uploadTenantDocumentSchema = z
   .object({
@@ -378,17 +298,6 @@ export const getPaymentHistorySchema = z
   })
   .strict();
 
-export const getMaintenanceHistorySchema = z
-  .object({
-    page: z.string().transform(Number).pipe(z.number().int().min(1)).optional(),
-    limit: z.string().transform(Number).pipe(z.number().int().min(1).max(50)).optional(),
-    isFixed: z
-      .enum(['true', 'false'])
-      .transform((val) => val === 'true')
-      .optional(),
-  })
-  .strict();
-
 // Additional query schemas
 export const getMyTenantsSchema = z
   .object({
@@ -468,22 +377,6 @@ export const searchDepositsSchema = z
   })
   .strict();
 
-export const searchInspectionsSchema = z
-  .object({
-    page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(1).max(50).default(20),
-    search: z.string().min(1).max(100).optional(),
-  })
-  .strict();
-
-export const searchMaintenanceSchema = z
-  .object({
-    page: z.coerce.number().min(1).default(1),
-    limit: z.coerce.number().min(1).max(50).default(20),
-    search: z.string().min(1).max(100).optional(),
-  })
-  .strict();
-
 // Common ID schemas
 export const tenantIdSchema = z
   .object({
@@ -494,18 +387,6 @@ export const tenantIdSchema = z
 export const propertyIdSchema = z
   .object({
     id: z.uuid('Invalid property ID format'),
-  })
-  .strict();
-
-export const inspectionIdSchema = z
-  .object({
-    id: z.uuid('Invalid inspection ID format'),
-  })
-  .strict();
-
-export const maintenanceIdSchema = z
-  .object({
-    id: z.uuid('Invalid maintenance ID format'),
   })
   .strict();
 
@@ -545,14 +426,9 @@ export type UpdateDepositData = z.infer<typeof updateDepositSchema>;
 export type RecordRentPaymentData = z.infer<typeof recordRentPaymentSchema>;
 export type UpdateRentPaymentData = z.infer<typeof updateRentPaymentSchema>;
 export type UpdateTenantDocumentData = z.infer<typeof updateTenantDocumentSchema>;
-export type CreateInspectionData = z.infer<typeof createInspectionSchema>;
-export type UpdateInspectionData = z.infer<typeof updateInspectionSchema>;
-export type CreateMaintenanceData = z.infer<typeof createMaintenanceSchema>;
-export type UpdateMaintenanceData = z.infer<typeof updateMaintenanceSchema>;
 export type UploadTenantDocumentData = z.infer<typeof uploadTenantDocumentSchema>;
 export type GetTenantsQuery = z.infer<typeof getTenantsSchema>;
 export type GetPaymentHistoryQuery = z.infer<typeof getPaymentHistorySchema>;
-export type GetMaintenanceHistoryQuery = z.infer<typeof getMaintenanceHistorySchema>;
 export type GetMyTenantsQuery = z.infer<typeof getMyTenantsSchema>;
 export type GetDepositsQuery = z.infer<typeof getDepositsSchema>;
 export type GetFamilyMembersQuery = z.infer<typeof getFamilyMembersSchema>;
@@ -561,5 +437,3 @@ export type SearchTenantsQuery = z.infer<typeof searchTenantsSchema>;
 export type SearchMyPropertiesQuery = z.infer<typeof searchMyPropertiesSchema>;
 export type SearchRentPaymentsQuery = z.infer<typeof searchRentPaymentsSchema>;
 export type SearchDepositsQuery = z.infer<typeof searchDepositsSchema>;
-export type SearchInspectionsQuery = z.infer<typeof searchInspectionsSchema>;
-export type SearchMaintenanceQuery = z.infer<typeof searchMaintenanceSchema>;
