@@ -4,7 +4,6 @@ import { z } from 'zod';
 export const createMaintenanceSchema = z
   .object({
     propertyId: z.uuid('Invalid property ID format'),
-    tenantId: z.uuid('Invalid tenant ID format').optional(),
     issue: z.string().min(5, 'Issue description must be at least 5 characters').max(100),
     description: z.string().min(10, 'Description must be at least 10 characters').max(1000),
     urgency: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']),
@@ -26,6 +25,13 @@ export const updateMaintenanceSchema = z
       .max(1000)
       .optional(),
     urgency: z.enum(['LOW', 'MEDIUM', 'HIGH', 'EMERGENCY']).optional(),
+    reportedDate: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid reported date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str))
+      .optional(),
     assignedTo: z.string().max(100).optional(),
     startedDate: z
       .string()

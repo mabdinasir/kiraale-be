@@ -4,7 +4,6 @@ import { z } from 'zod';
 export const createInspectionSchema = z
   .object({
     propertyId: z.uuid('Invalid property ID format'),
-    tenantId: z.uuid('Invalid tenant ID format').optional(),
     inspectionDate: z
       .string()
       .refine((str) => !isNaN(Date.parse(str)), {
@@ -18,8 +17,28 @@ export const createInspectionSchema = z
   })
   .strict();
 
-export const updateInspectionSchema = createInspectionSchema
-  .omit({ propertyId: true })
+export const updateInspectionSchema = z
+  .object({
+    inspectionDate: z
+      .string()
+      .refine((str) => !isNaN(Date.parse(str)), {
+        message: 'Invalid inspection date format. Use YYYY-MM-DD or ISO format.',
+      })
+      .transform((str) => new Date(str))
+      .optional(),
+    inspectionType: z.enum(['MOVE_IN', 'ROUTINE', 'MOVE_OUT', 'EMERGENCY']).optional(),
+    notes: z
+      .string()
+      .min(10, 'Inspection notes must be at least 10 characters')
+      .max(2000)
+      .optional(),
+    overallRating: z.number().int().min(1).max(5).optional(),
+    inspectedBy: z
+      .string()
+      .min(2, 'Inspector name must be at least 2 characters')
+      .max(100)
+      .optional(),
+  })
   .partial()
   .strict();
 

@@ -13,6 +13,7 @@ import {
   searchInspections,
   searchMaintenance,
   searchProperty,
+  updateInspection,
   updateMaintenance,
   updateProperty,
 } from '@controllers';
@@ -96,6 +97,12 @@ const propertyRoutes: RouteGroup = {
       method: 'get',
       middlewares: [authMiddleware],
       handler: getInspection,
+    },
+    {
+      path: '/inspections/:id',
+      method: 'put',
+      middlewares: [authMiddleware],
+      handler: updateInspection,
     },
     {
       path: '/inspections/:id',

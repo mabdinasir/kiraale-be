@@ -1,7 +1,7 @@
-import db, { property, propertyInspection } from '@db';
+import db, { property, propertyInspection, tenant } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { createInspectionSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -32,12 +32,19 @@ const createInspection: RequestHandler = async (request, response) => {
       return;
     }
 
+    // Get active tenant for the property (if exists)
+    const [activeTenant] = await db
+      .select({ id: tenant.id })
+      .from(tenant)
+      .where(and(eq(tenant.propertyId, validatedData.propertyId), eq(tenant.isActive, true)))
+      .limit(1);
+
     // Create inspection
     const [newInspection] = await db
       .insert(propertyInspection)
       .values({
         propertyId: validatedData.propertyId,
-        tenantId: validatedData.tenantId,
+        tenantId: activeTenant?.id ?? null,
         inspectionDate: validatedData.inspectionDate,
         inspectionType: validatedData.inspectionType,
         notes: validatedData.notes,

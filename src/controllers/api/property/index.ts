@@ -12,6 +12,7 @@ export { default as createInspection } from './createInspection';
 export { default as deleteInspection } from './deleteInspection';
 export { default as getInspection } from './getInspection';
 export { default as searchInspections } from './searchInspections';
+export { default as updateInspection } from './updateInspection';
 
 // Maintenance management
 export { default as createMaintenance } from './createMaintenance';

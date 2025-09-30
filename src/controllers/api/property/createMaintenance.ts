@@ -1,7 +1,7 @@
-import db, { maintenanceRecord, property } from '@db';
+import db, { maintenanceRecord, property, tenant } from '@db';
 import { handleValidationError, logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { createMaintenanceSchema } from '@schemas';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -36,12 +36,19 @@ const createMaintenance: RequestHandler = async (request, response) => {
       return;
     }
 
+    // Get active tenant for the property (if exists)
+    const [activeTenant] = await db
+      .select({ id: tenant.id })
+      .from(tenant)
+      .where(and(eq(tenant.propertyId, validatedData.propertyId), eq(tenant.isActive, true)))
+      .limit(1);
+
     // Create maintenance record
     const [newMaintenance] = await db
       .insert(maintenanceRecord)
       .values({
         propertyId: validatedData.propertyId,
-        tenantId: validatedData.tenantId,
+        tenantId: activeTenant?.id ?? null,
         issue: validatedData.issue,
         description: validatedData.description,
         urgency: validatedData.urgency,

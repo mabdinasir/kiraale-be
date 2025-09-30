@@ -55,6 +55,9 @@ const updateMaintenance: RequestHandler = async (request, response) => {
     if (validatedData.urgency) {
       updateData.urgency = validatedData.urgency;
     }
+    if (validatedData.reportedDate) {
+      updateData.reportedDate = validatedData.reportedDate;
+    }
     if (validatedData.assignedTo !== undefined) {
       updateData.assignedTo = validatedData.assignedTo;
     }
