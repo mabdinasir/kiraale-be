@@ -8,7 +8,7 @@ import db, {
 } from '@db';
 import { logError, sendErrorResponse, sendSuccessResponse } from '@lib';
 import { tenantIdSchema } from '@schemas';
-import { desc, eq } from 'drizzle-orm';
+import { and, desc, eq } from 'drizzle-orm';
 import type { RequestHandler } from 'express';
 import { z } from 'zod';
 
@@ -71,8 +71,7 @@ const getTenant: RequestHandler = async (request, response) => {
     const documents = await db
       .select()
       .from(tenantDocument)
-      .where(eq(tenantDocument.tenantId, tenantId))
-      .limit(2)
+      .where(and(eq(tenantDocument.tenantId, tenantId), eq(tenantDocument.isActive, true)))
       .orderBy(desc(tenantDocument.createdAt));
 
     sendSuccessResponse(response, 200, 'Tenant retrieved successfully', {

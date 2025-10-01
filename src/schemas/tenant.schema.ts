@@ -1,4 +1,5 @@
 /* eslint-disable max-lines */
+import { maxFileSize, maxFileSizeMB } from '@lib';
 import { z } from 'zod';
 
 // Tenant schemas
@@ -212,7 +213,7 @@ export const updateRentPaymentSchema = z
 // Document schemas
 export const uploadTenantDocumentSchema = z
   .object({
-    documentType: z.enum(['ID_CARD', 'PASSPORT', 'LEASE_AGREEMENT', 'EMPLOYMENT_LETTER']),
+    documentType: z.enum(['ID_CARD', 'PASSPORT', 'LEASE_AGREEMENT', 'EMPLOYMENT_LETTER', 'OTHER']),
     fileName: z.string().min(1, 'File name is required'),
     fileSize: z.number().positive('File size must be greater than 0'),
     mimeType: z.string().min(1, 'MIME type is required'),
@@ -248,11 +249,11 @@ export const tenantDocumentFileUploadSchema = z
     ),
     fileSize: z
       .number()
-      .max(10 * 1024 * 1024, 'File size cannot exceed 10MB')
+      .max(maxFileSize, `File size cannot exceed ${maxFileSizeMB}MB`)
       .positive('File size must be greater than 0'),
     checksum: z.string().min(1, 'File checksum is required'),
     tenantId: z.uuid('Invalid tenant ID format'),
-    documentType: z.enum(['ID_CARD', 'PASSPORT', 'LEASE_AGREEMENT', 'EMPLOYMENT_LETTER']),
+    documentType: z.enum(['ID_CARD', 'PASSPORT', 'LEASE_AGREEMENT', 'EMPLOYMENT_LETTER', 'OTHER']),
     expiryDate: z.date().optional(),
   })
   .strict();
@@ -260,7 +261,7 @@ export const tenantDocumentFileUploadSchema = z
 export const updateTenantDocumentSchema = z
   .object({
     documentType: z
-      .enum(['ID_CARD', 'PASSPORT', 'LEASE_AGREEMENT', 'EMPLOYMENT_LETTER'])
+      .enum(['ID_CARD', 'PASSPORT', 'LEASE_AGREEMENT', 'EMPLOYMENT_LETTER', 'OTHER'])
       .optional(),
     fileName: z.string().min(1, 'File name is required').optional(),
     fileSize: z.number().positive('File size must be greater than 0').optional(),
@@ -331,7 +332,7 @@ export const getFamilyMembersSchema = z
 export const getTenantDocumentsSchema = z
   .object({
     documentType: z
-      .enum(['ID_CARD', 'PASSPORT', 'LEASE_AGREEMENT', 'EMPLOYMENT_LETTER'])
+      .enum(['ID_CARD', 'PASSPORT', 'LEASE_AGREEMENT', 'EMPLOYMENT_LETTER', 'OTHER'])
       .optional(),
     isActive: z
       .enum(['true', 'false'])

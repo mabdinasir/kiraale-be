@@ -83,6 +83,7 @@ export const documentType = pgEnum('documentType', [
   'PASSPORT',
   'LEASE_AGREEMENT',
   'EMPLOYMENT_LETTER',
+  'OTHER',
 ]);
 
 export const inspectionType = pgEnum('inspectionType', [

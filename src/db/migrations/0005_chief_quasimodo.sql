@@ -1,0 +1,1 @@
+ALTER TYPE "public"."documentType" ADD VALUE 'OTHER';

@@ -118,25 +118,28 @@ const uploadTenantDocument: RequestHandler = async (request, response) => {
       expiryDate: parsedExpiryDate,
     });
 
-    // Check for duplicate document type (only one of each type allowed)
-    const [existingDocument] = await db
-      .select()
-      .from(tenantDocument)
-      .where(
-        and(
-          eq(tenantDocument.tenantId, tenantId),
-          eq(tenantDocument.documentType, documentType),
-          eq(tenantDocument.isActive, true),
-        ),
-      );
+    // Check for duplicate document type (only one of each type allowed, except OTHER)
+    // Allow multiple OTHER documents but restrict specific types to one each
+    if (documentType !== 'OTHER') {
+      const [existingDocument] = await db
+        .select()
+        .from(tenantDocument)
+        .where(
+          and(
+            eq(tenantDocument.tenantId, tenantId),
+            eq(tenantDocument.documentType, documentType),
+            eq(tenantDocument.isActive, true),
+          ),
+        );
 
-    if (existingDocument) {
-      sendErrorResponse(
-        response,
-        400,
-        `A ${documentType.toLowerCase().replace('_', ' ')} document already exists for this tenant. Delete the existing one first.`,
-      );
-      return;
+      if (existingDocument) {
+        sendErrorResponse(
+          response,
+          400,
+          `${documentType.replace('_', ' ')} document already exists for this tenant. Delete the existing one first.`,
+        );
+        return;
+      }
     }
 
     const fileName = `${validatedData.checksum}-${Date.now()}-${documentType}`;
