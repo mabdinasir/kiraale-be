@@ -1,6 +1,7 @@
 export * from './admin.schema';
 export * from './agency.schema';
 export * from './auth.schema';
+export * from './contact.schema';
 export * from './favorite.schema';
 export * from './inspection.schema';
 export * from './maintenance.schema';

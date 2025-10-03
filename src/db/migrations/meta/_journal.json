@@ -43,6 +43,13 @@
       "when": 1759287501774,
       "tag": "0005_chief_quasimodo",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1759452693125,
+      "tag": "0006_absurd_thaddeus_ross",
+      "breakpoints": true
     }
   ]
 }

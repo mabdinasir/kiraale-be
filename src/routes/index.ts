@@ -3,6 +3,7 @@ import type { Router } from 'express';
 import adminRoutes from './admin.routes';
 import agencyRoutes from './agency.routes';
 import authRoutes from './auth.routes';
+import contactRoutes from './contact.routes';
 import healthRoutes from './health.routes';
 import mediaRoutes from './media.routes';
 import paymentRoutes from './payment.routes';
@@ -30,6 +31,7 @@ function configureRoutes(router: Router): void {
     adminRoutes,
     agencyRoutes,
     authRoutes,
+    contactRoutes,
     healthRoutes,
     mediaRoutes,
     propertyRoutes,

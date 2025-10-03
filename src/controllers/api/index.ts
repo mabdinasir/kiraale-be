@@ -2,6 +2,7 @@
 export * from './admin';
 export * from './agency';
 export * from './auth';
+export * from './contact';
 export * from './health';
 export * from './media';
 export * from './payment';

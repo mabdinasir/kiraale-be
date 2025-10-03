@@ -10,6 +10,7 @@ import {
   approveProperty,
   createPricing,
   getAdminStats,
+  getContact,
   getPaymentById,
   getPayments,
   getPaymentStats,
@@ -19,6 +20,9 @@ import {
   getRejectedProperties,
   getTrendingProperties,
   rejectProperty,
+  resolveContact,
+  searchResolvedContacts,
+  searchUnresolvedContacts,
   searchUser,
   suspendAgency,
   suspendUser,
@@ -175,6 +179,31 @@ const adminRoutes: RouteGroup = {
       method: 'get',
       middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
       handler: getPropertyAnalytics,
+    },
+    // Contact admin routes
+    {
+      path: '/contacts/unresolved',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: searchUnresolvedContacts,
+    },
+    {
+      path: '/contacts/resolved',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: searchResolvedContacts,
+    },
+    {
+      path: '/contacts/:id',
+      method: 'get',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: getContact,
+    },
+    {
+      path: '/contacts/:contactId/resolve',
+      method: 'put',
+      middlewares: [authMiddleware, adminMiddleware.requireAdmin], // Admin only
+      handler: resolveContact,
     },
   ],
 };

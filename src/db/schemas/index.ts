@@ -3,6 +3,7 @@ export * from './enums';
 
 // Export all tables
 export * from './agency';
+export * from './contact';
 export * from './favorite';
 export * from './media';
 export * from './payment';
